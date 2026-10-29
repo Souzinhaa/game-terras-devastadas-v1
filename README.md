@@ -1,52 +1,37 @@
 # Terras Devastadas
 
-Protótipo hot-seat local em **React + TypeScript + Vite**, com motor puro, RNG reproduzível e persistência IndexedDB. Fonte atual: [GDD v0.4](docs/GDD_Terras_Devastadas_Codex_v04.md), lido integralmente. Esta versão substitui os valores do protótipo v0.1.
+Jogo de tabuleiro digital pós-apocalíptico, hot-seat local para 2–4 jogadores. React + TypeScript + Vite, motor determinístico por seed, persistência IndexedDB.
 
-## Rodar localmente
+## Rodar
 
-Requer Node.js 24 e npm. No PowerShell use `npm.cmd` se a política bloquear `npm.ps1`.
+Node.js 24 e npm:
 
-```powershell
-npm.cmd ci
-npm.cmd run dev
+```sh
+npm ci
+npm run dev
+npm test
+npm run build
 ```
 
-Abra o endereço exibido pelo Vite, normalmente **http://127.0.0.1:5173**. Sorteie 2–4 jogadores; inicie o turno para comprar a geral. Viajar uma cidade vizinha não gasta a ação principal. Depósitos próprios da cidade e abastecimento são livres. O painel explica rotas indisponíveis.
+No PowerShell, use `npm.cmd` se `npm.ps1` estiver bloqueado. UI: `npx playwright install chromium` e `npm run test:ui` (ou configure Chrome no Playwright).
 
-```powershell
-npm.cmd test
-npm.cmd run build
-npm.cmd run preview
-npm.cmd run test:ui
-```
+## Edição atual
 
-`test:ui` usa o Google Chrome instalado, em modo headless, na porta 5174. Se não houver Chrome, configure o canal em `playwright.config.ts` para um navegador Playwright instalado. Testes de motor/IndexedDB não precisam de navegador.
+Regras v0.5 / cartas v0.2 / conteúdo do save 0.5.0. Consulte [context.md](context.md), [rules.md](rules.md) e [rules-cards.md](rules-cards.md).
 
-## Regras de veículos confirmadas
+| Modelo | Carga | Tanque máximo | Consumo | Combustível inicial | Terra |
+|---|---:|---:|---:|---:|---|
+| Hatch | 1 | 8 | 1 | 3 | Não |
+| Sedã | 7 | 12 | 2 | 6 | Não |
+| SUV | 6 | 12 | 2 | 6 | Sim |
+| Caminhonete | 10 | 15 | 3 | 9 | Sim |
 
-| Classe | Carga | Tanque | Custo fixo por viagem | Terra |
-|---|---:|---:|---:|---|
-| Hatch | 4 | 8 | 1 | Não |
-| Sedã | 7 | 12 | 2 | Não |
-| SUV | 6 | 12 | 2 | Sim |
-| Caminhonete (`pickup`) | 10 | 15 | 3 | Sim |
+Inicial: uma sucata, uma geral e equipamento fixo. Comprar uma geral ao iniciar também o primeiro turno. Viajar normalmente preserva a ação principal. G17 consome sucata/ação mas ainda permite viajar. Vitória territorial: anunciar ao encerrar com 4 pontos e sustentar até o próximo início.
 
-Tanque separado da carga; reserva de combustível na carga ocupa espaço. Novas partidas: tanque cheio, **1 sucata**, fixo vinculado ao modelo, **2 gerais** e nenhum adicional. A compra da primeira geral ocorre ao iniciar o primeiro turno. Habilidades dos fixos continuam abertas; não foram inventadas.
+Armas adicionais compartilham um ataque por carro/rodada. E04/E06/E09 são únicos; E06 uma vez por combate. Doze cartas e os marcadores foram atualizados. Veja [a implementação do rebalanceamento](docs/REBALANCEAMENTO_V05.md) e [a limpeza de duplicatas](docs/LIMPEZA_V05.md).
 
-## Salvar e carregar
+## Saves e limitações
 
-Cada comando aceito salva automaticamente no IndexedDB deste navegador e origem. A interface informa salvamento/falha; exporte JSON para ter uma cópia independente. Mudar a porta, navegador ou perfil muda a origem do save. Use uma única aba por partida.
+Exportar JSON mantém cópia independente. IndexedDB é local ao navegador/origem. Saves de edições anteriores são recusados sem alteração, para não misturar regras e arte; não há migração automática para este rebalanceamento. Nova partida preserva backup interno do save anterior. Para continuar jogo antigo, use a versão correspondente no Git.
 
-Importar e iniciar outra partida preservam o save anterior em backup interno; importações também guardam o JSON original. Nenhuma atualização completa tanque ou reaplica kit. Estados com carga/tanque/mão/depósito acima da capacidade ficam pausados para **escolha explícita**, sem truncamento automático.
-
-Saves sem versão, com unidade ambígua, fração não conversível ou schema desconhecido são recusados; o arquivo original e a sessão atual permanecem intactos. O protótipo anterior deste repositório não tinha save. O migrador suporta somente o contrato legado explícito descrito em [ATUALIZACAO_V04.md](docs/ATUALIZACAO_V04.md), não qualquer arquivo chamado “v0.3”.
-
-## Estado e limites
-
-Implementados: 12 cidades/35 setores, sorteio, turno, viagem e ação na chegada, quatro veículos, descoberta e troca, estoques locais, excedentes, bloqueios por carta, fuga por rota, combate básico, exploração, controle/pontos, save/load e UI com os assets fornecidos.
-
-Ainda parciais: combate territorial contra jogadores, reações fora do turno, catálogo de equipamentos e explorações regionais, saque, emergência/eliminação e corridas completas. A antiga corrida de uma rolagem foi desativada por incompatibilidade com as regras v0.4. Sem autenticação, backend, nuvem, bots ou multiplayer. Não houve playtest humano nem balanceamento.
-
-Veja a [matriz atual, migração, heurísticas de interface e limitações](docs/ATUALIZACAO_V04.md). O registro v0.1 em `docs/IMPLEMENTACAO.md` foi mantido apenas como histórico.
-
-Interface redesenhada com a skill frontend-design: [direção visual, navegação e movimento acessível](docs/INTERFACE.md).
+Implementados: 12 cidades/35 setores, viagens, cartas, hostis, equipamentos, corrida por marcos, saque simples, controle e anúncios, inventários e persistência. Parciais: defesa pessoal integrada à conquista/saque, alerta de saque, perfis regionais e emergência/eliminação completa. Sem servidor, multiplayer ou bots. Balanceamento continua em teste; não houve partidas humanas medidas.

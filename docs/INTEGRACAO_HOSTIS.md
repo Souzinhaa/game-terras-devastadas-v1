@@ -1,6 +1,6 @@
 # Integração dos hostis — conteúdo 0.4.2
 
-Base: `assets/hostis/contexto.md`, `catalogo.md`, `hostis.json` e GDD v0.4. O pacote é conteúdo inicial de playtest aceito pelo usuário; não altera ficha, consumo, carga ou tanque dos quatro veículos.
+Base: `src/data/hostiles.json`, `rules.md` e `context.md`. O pacote é conteúdo inicial de playtest aceito pelo usuário; não altera ficha, consumo, carga ou tanque dos quatro veículos.
 
 ## Módulos
 

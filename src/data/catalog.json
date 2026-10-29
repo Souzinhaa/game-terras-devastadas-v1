@@ -12,7 +12,9 @@
     "width": 1024,
     "height": 1536,
     "status": "proposed",
-    "sha256": "b43aa152b8ac7e263ca2888df3e4e77d82d1a56cb682af7c92ad7d895afae20b"
+    "sha256": "b43aa152b8ac7e263ca2888df3e4e77d82d1a56cb682af7c92ad7d895afae20b",
+    "unique": false,
+    "uiTag": "tatica"
   },
   {
     "id": "G02",
@@ -27,7 +29,9 @@
     "width": 1024,
     "height": 1536,
     "status": "proposed",
-    "sha256": "94ca37a37fa7f635d05697509d8cb3bd5e6fec7ff215c3bcffc0f9d5bf49e063"
+    "sha256": "94ca37a37fa7f635d05697509d8cb3bd5e6fec7ff215c3bcffc0f9d5bf49e063",
+    "unique": false,
+    "uiTag": "tatica"
   },
   {
     "id": "G03",
@@ -42,7 +46,9 @@
     "width": 1024,
     "height": 1536,
     "status": "proposed",
-    "sha256": "04f5822c47ba4d24b625c3681ec3528e0a70e28f69f428158c501b25f79b66ef"
+    "sha256": "04f5822c47ba4d24b625c3681ec3528e0a70e28f69f428158c501b25f79b66ef",
+    "unique": false,
+    "uiTag": "tatica"
   },
   {
     "id": "G04",
@@ -57,7 +63,9 @@
     "width": 1024,
     "height": 1536,
     "status": "proposed",
-    "sha256": "2df2dc3d5a61dccaebf2499ad511192fd87b89648bf25d6545c713eda7085c68"
+    "sha256": "2df2dc3d5a61dccaebf2499ad511192fd87b89648bf25d6545c713eda7085c68",
+    "unique": false,
+    "uiTag": "tatica"
   },
   {
     "id": "G05",
@@ -72,7 +80,9 @@
     "width": 1024,
     "height": 1536,
     "status": "proposed",
-    "sha256": "5b49bec2eb66b4066bc80678bc5697408cab9f5c86ab2a9d8f72fa00b3565dd0"
+    "sha256": "5b49bec2eb66b4066bc80678bc5697408cab9f5c86ab2a9d8f72fa00b3565dd0",
+    "unique": false,
+    "uiTag": "tatica"
   },
   {
     "id": "G06",
@@ -87,7 +97,9 @@
     "width": 1024,
     "height": 1536,
     "status": "proposed",
-    "sha256": "92404a509ce041bdc845a2650cdce6b3cd7205537ef91cfccc7e75a7b0368ead"
+    "sha256": "92404a509ce041bdc845a2650cdce6b3cd7205537ef91cfccc7e75a7b0368ead",
+    "unique": false,
+    "uiTag": "tatica"
   },
   {
     "id": "G07",
@@ -102,7 +114,9 @@
     "width": 1024,
     "height": 1536,
     "status": "proposed",
-    "sha256": "d4f23ccbba419a7a30a417e12001c110180f7050ac2961d349c3b8d75c2af74f"
+    "sha256": "d4f23ccbba419a7a30a417e12001c110180f7050ac2961d349c3b8d75c2af74f",
+    "unique": false,
+    "uiTag": "pressao"
   },
   {
     "id": "G08",
@@ -117,7 +131,9 @@
     "width": 1024,
     "height": 1536,
     "status": "proposed",
-    "sha256": "762bb7cd41d8a056c7ecb02402c19ae8aff669e6808c3dfb39815a62ff4dc281"
+    "sha256": "762bb7cd41d8a056c7ecb02402c19ae8aff669e6808c3dfb39815a62ff4dc281",
+    "unique": false,
+    "uiTag": "pressao"
   },
   {
     "id": "G09",
@@ -125,14 +141,16 @@
     "category": "gerais",
     "copies": 2,
     "timing": "Antes de uma ação, qualquer jogador",
-    "rulesText": "Coloque 2 combustíveis diretamente no tanque escolhido. Pode ajudar um carro em emergência.",
+    "rulesText": "Antes de uma ação, qualquer jogador. Adicione 1 combustível ao tanque escolhido. Respeite a capacidade. Pode ajudar um carro em emergência.",
     "extraCargo": null,
     "slots": 0,
     "image": "gerais/G09.png",
     "width": 1024,
     "height": 1536,
-    "status": "proposed",
-    "sha256": "212620f53396600532426bf9ee573fc7ac917357042bc84465d34a0e9999d567"
+    "status": "playtest",
+    "sha256": "195cfb490b14b90e441306a8c6ee0b192f6d748512116a716736cb4968d336f8",
+    "unique": false,
+    "uiTag": "sobrevivencia"
   },
   {
     "id": "G10",
@@ -147,7 +165,9 @@
     "width": 1024,
     "height": 1536,
     "status": "proposed",
-    "sha256": "efc161a4809e2f795d0bfd9fb10fe826e2ea184a8c99545ec2b8838cf74873c7"
+    "sha256": "efc161a4809e2f795d0bfd9fb10fe826e2ea184a8c99545ec2b8838cf74873c7",
+    "unique": false,
+    "uiTag": "sobrevivencia"
   },
   {
     "id": "G11",
@@ -155,14 +175,16 @@
     "category": "gerais",
     "copies": 2,
     "timing": "Antes de sua ação",
-    "rulesText": "Receba 2 sucatas na carga. Pode armazená-las em depósito próprio da cidade antes de descartar excedente.",
+    "rulesText": "Antes de sua ação, receba 1 sucata na carga. Pode armazená-la em depósito próprio da cidade antes de descartar excedente.",
     "extraCargo": null,
     "slots": 0,
     "image": "gerais/G11.png",
     "width": 1024,
     "height": 1536,
-    "status": "proposed",
-    "sha256": "c0bfe6b3bb1e1500bd74d18d30dda8a4d06e9f59b278e9ee25408cea31a57ec1"
+    "status": "playtest",
+    "sha256": "a9a7f41f732861dc1d5184128b4850f018ae322ee44288e3321a5c70bfc68b36",
+    "unique": false,
+    "uiTag": "sobrevivencia"
   },
   {
     "id": "G12",
@@ -170,14 +192,16 @@
     "category": "gerais",
     "copies": 2,
     "timing": "Antes de sua ação",
-    "rulesText": "Receba 2 munições na carga, respeitando capacidade.",
+    "rulesText": "Antes de sua ação, receba 1 munição na carga, respeitando a capacidade.",
     "extraCargo": null,
     "slots": 0,
     "image": "gerais/G12.png",
     "width": 1024,
     "height": 1536,
-    "status": "proposed",
-    "sha256": "3fd895f74bbe1ab9cb33713d1538c253173a73561997e0ad3f1f3f9549e08319"
+    "status": "playtest",
+    "sha256": "8aece02682fcadac70f3c95eaf85dde2ae0c9192e6f74ec1addc2ca812f31f1c",
+    "unique": false,
+    "uiTag": "sobrevivencia"
   },
   {
     "id": "G13",
@@ -192,7 +216,9 @@
     "width": 1024,
     "height": 1536,
     "status": "proposed",
-    "sha256": "ba87efafb5d2368f6e27295676b1687097fb4ad912d0147ba4df5d854c70a620"
+    "sha256": "ba87efafb5d2368f6e27295676b1687097fb4ad912d0147ba4df5d854c70a620",
+    "unique": false,
+    "uiTag": "sobrevivencia"
   },
   {
     "id": "G14",
@@ -207,7 +233,9 @@
     "width": 1024,
     "height": 1536,
     "status": "proposed",
-    "sha256": "9aaaab54202f6946bc96cdf69448af2b0a826f8229d00bf4ea8255c101ae83ff"
+    "sha256": "9aaaab54202f6946bc96cdf69448af2b0a826f8229d00bf4ea8255c101ae83ff",
+    "unique": false,
+    "uiTag": "sobrevivencia"
   },
   {
     "id": "G15",
@@ -222,7 +250,9 @@
     "width": 1024,
     "height": 1536,
     "status": "proposed",
-    "sha256": "31390a9f3f3951090b2ba0bac6433e4ac6ce4d99f10ea1e6cedcc33fb0b9ac75"
+    "sha256": "31390a9f3f3951090b2ba0bac6433e4ac6ce4d99f10ea1e6cedcc33fb0b9ac75",
+    "unique": false,
+    "uiTag": "tatica"
   },
   {
     "id": "G16",
@@ -237,22 +267,26 @@
     "width": 1024,
     "height": 1536,
     "status": "proposed",
-    "sha256": "682a49a0b006957d6ea2b2fce8d7792fbef652a9a83d763b78673be416b3f974"
+    "sha256": "682a49a0b006957d6ea2b2fce8d7792fbef652a9a83d763b78673be416b3f974",
+    "unique": false,
+    "uiTag": "mobilidade"
   },
   {
     "id": "G17",
     "name": "Barricada na estrada",
     "category": "gerais",
     "copies": 2,
-    "timing": "Antes de uma viagem ou ação",
-    "rulesText": "Bloqueie uma estrada aberta até o início do seu próximo turno. Não pode retirar a última saída compatível de nenhum carro presente.",
+    "timing": "Somente turno próprio, antes de viajar ou agir, fora de combate/corrida",
+    "rulesText": "No seu turno, antes de viajar ou agir: gaste 1 sucata e sua ação principal. Bloqueie 1 estrada aberta até seu próximo turno. Não pode retirar a última saída compatível de nenhum carro presente.",
     "extraCargo": null,
     "slots": 0,
     "image": "gerais/G17.png",
     "width": 1024,
     "height": 1536,
-    "status": "proposed",
-    "sha256": "3702822ab88439a8d0aa47ebb8c8b17161781d26cd23b82d0aa47da492d302c8"
+    "status": "playtest",
+    "sha256": "4353883fbd6d739b12fac80c870f7a03ab740232d17aaf2529f2822dea755952",
+    "unique": false,
+    "uiTag": "pressao"
   },
   {
     "id": "G18",
@@ -267,7 +301,9 @@
     "width": 1024,
     "height": 1536,
     "status": "proposed",
-    "sha256": "ffbf4fb3de97c7816fd9daba0ba4ca9a615cb31f738d63828cdadaa0571f57ac"
+    "sha256": "ffbf4fb3de97c7816fd9daba0ba4ca9a615cb31f738d63828cdadaa0571f57ac",
+    "unique": false,
+    "uiTag": "mobilidade"
   },
   {
     "id": "G19",
@@ -282,7 +318,9 @@
     "width": 1024,
     "height": 1536,
     "status": "proposed",
-    "sha256": "fcadd06075aaa9a5613f0efeb63858b62de5c1e85ddaf8109f312c8f259cbf79"
+    "sha256": "fcadd06075aaa9a5613f0efeb63858b62de5c1e85ddaf8109f312c8f259cbf79",
+    "unique": false,
+    "uiTag": "pressao"
   },
   {
     "id": "G20",
@@ -297,7 +335,9 @@
     "width": 1024,
     "height": 1536,
     "status": "proposed",
-    "sha256": "7a289b7ab5c19d677b298fe6eadfa4aea74599da611300e76c5333238641d3d8"
+    "sha256": "7a289b7ab5c19d677b298fe6eadfa4aea74599da611300e76c5333238641d3d8",
+    "unique": false,
+    "uiTag": "territorio"
   },
   {
     "id": "G21",
@@ -305,14 +345,16 @@
     "category": "gerais",
     "copies": 2,
     "timing": "Antes do avanço de um participante na corrida",
-    "rulesText": "Some +2 ao avanço desta rolagem, sem alterar o dado natural.",
+    "rulesText": "Antes do avanço de um participante na corrida, some +1 ao avanço desta rolagem. Não altera o dado natural.",
     "extraCargo": null,
     "slots": 0,
     "image": "gerais/G21.png",
     "width": 1024,
     "height": 1536,
-    "status": "proposed",
-    "sha256": "9bdd8f63263d58cf532b6b3851132e9b212e9376c02f8564e0e441e3882aeb5c"
+    "status": "playtest",
+    "sha256": "37fe2da91c22546fb155b37f42edc82859a3949fa41b507844f7faf3c96de97f",
+    "unique": false,
+    "uiTag": "corrida"
   },
   {
     "id": "G22",
@@ -320,14 +362,16 @@
     "category": "gerais",
     "copies": 2,
     "timing": "Antes do avanço de um participante na corrida",
-    "rulesText": "Subtraia 2 do avanço desta rolagem, mínimo zero.",
+    "rulesText": "Antes do avanço de um participante na corrida, subtraia 1 do avanço desta rolagem, mínimo zero.",
     "extraCargo": null,
     "slots": 0,
     "image": "gerais/G22.png",
     "width": 1024,
     "height": 1536,
-    "status": "proposed",
-    "sha256": "29d2156e0766d9ccb0978f640e6fa63235a8cbf87abe7c3c782dc98582ade810"
+    "status": "playtest",
+    "sha256": "d6fa9ec93f780d46b70b2e0f3026ec016514c1a35575d437b57129ddece3e354",
+    "unique": false,
+    "uiTag": "pressao"
   },
   {
     "id": "G23",
@@ -342,7 +386,9 @@
     "width": 1024,
     "height": 1536,
     "status": "proposed",
-    "sha256": "dcd5fe8f327dfefdebb3c6ff950ee12deca65a7535eb7d5e27117bfbdceed757"
+    "sha256": "dcd5fe8f327dfefdebb3c6ff950ee12deca65a7535eb7d5e27117bfbdceed757",
+    "unique": false,
+    "uiTag": "territorio"
   },
   {
     "id": "G24",
@@ -357,7 +403,9 @@
     "width": 1024,
     "height": 1536,
     "status": "proposed",
-    "sha256": "0372afd1ec4a632499238d5c4a28130fb7a35f70afb466bf4d5e6b11d508dc1c"
+    "sha256": "0372afd1ec4a632499238d5c4a28130fb7a35f70afb466bf4d5e6b11d508dc1c",
+    "unique": false,
+    "uiTag": "sobrevivencia"
   },
   {
     "id": "E01",
@@ -365,14 +413,16 @@
     "category": "equipamentos",
     "copies": 2,
     "timing": "Equipamento instalado",
-    "rulesText": "Concede 1 ataque adicional por rodada, dano 1, custo 1 munição.",
+    "rulesText": "1 espaço. Concede 1 ataque adicional por rodada: dano 1, custo 1 munição. Use no máximo 1 arma adicional por rodada, somando todos os equipamentos.",
     "extraCargo": 0,
     "slots": 1,
     "image": "equipamentos/E01.png",
     "width": 1024,
     "height": 1536,
-    "status": "proposed",
-    "sha256": "92112f266776761d07bd7a3c5b449e50bfbdae75d4ed9f8178ff7a062d92eb88"
+    "status": "playtest",
+    "sha256": "d472ec30402b5b16b787d2733d5de28fb39d98d2edaec0efaf3717720de0ec0f",
+    "unique": false,
+    "uiTag": "equipamento"
   },
   {
     "id": "E02",
@@ -380,14 +430,16 @@
     "category": "equipamentos",
     "copies": 2,
     "timing": "Equipamento instalado",
-    "rulesText": "Concede 1 ataque adicional por rodada, dano 3, custo 1 munição; −1 no próprio acerto. Não cabe no hatch com carga máxima 1.",
+    "rulesText": "1 espaço e 2 cargas. Ataque adicional por rodada: dano 3, custo 1 munição, acerto −1. Use no máximo 1 arma adicional por rodada entre todos os equipamentos.",
     "extraCargo": 2,
     "slots": 1,
     "image": "equipamentos/E02.png",
     "width": 1024,
     "height": 1536,
-    "status": "proposed",
-    "sha256": "b3f459e5eef1e9104a78088b1cb0d726bcbfe541b32a817f4a586c4c73826775"
+    "status": "playtest",
+    "sha256": "0012edf6cadd385580cad8caef75058db606069f0730d0e5c43bcf642c14097a",
+    "unique": false,
+    "uiTag": "equipamento"
   },
   {
     "id": "E03",
@@ -395,14 +447,16 @@
     "category": "equipamentos",
     "copies": 2,
     "timing": "Equipamento instalado",
-    "rulesText": "Concede 1 ataque adicional por rodada, dano 2, custo 1 munição; só pode mirar carros.",
+    "rulesText": "1 espaço. Ataque adicional por rodada: dano 2, custo 1 munição. Só atinge carros. Use no máximo 1 arma adicional por rodada entre todos os equipamentos.",
     "extraCargo": 0,
     "slots": 1,
     "image": "equipamentos/E03.png",
     "width": 1024,
     "height": 1536,
-    "status": "proposed",
-    "sha256": "dc5c2d6ad3c83cbbf83d2396ae5c298ac1fb9a8309a5e2508964135b60a52f19"
+    "status": "playtest",
+    "sha256": "e09e361309605fa9e0560bde2b0804d68c2ba294eff15c20b086f7363406c7ac",
+    "unique": false,
+    "uiTag": "equipamento"
   },
   {
     "id": "E04",
@@ -410,14 +464,16 @@
     "category": "equipamentos",
     "copies": 2,
     "timing": "Equipamento instalado",
-    "rulesText": "Aumente sua Defesa em 1, até 6+.",
+    "rulesText": "ÚNICA. 1 espaço. Enquanto instalada, sua Defesa aumenta em 1, até 6+. Não reduz dano recebido.",
     "extraCargo": 0,
     "slots": 1,
     "image": "equipamentos/E04.png",
     "width": 1024,
     "height": 1536,
-    "status": "proposed",
-    "sha256": "c6ca816682740d64fe82c7639e69dbe5e01826d739287d49c5e999517bf5d297"
+    "status": "playtest",
+    "sha256": "63ed52cb5aa47ea7a6a401f8500957a3159040bc1a988e2a1573bbb3a4e2fea5",
+    "unique": true,
+    "uiTag": "equipamento"
   },
   {
     "id": "E05",
@@ -432,7 +488,9 @@
     "width": 1024,
     "height": 1536,
     "status": "proposed",
-    "sha256": "17923d620c39f2da999935e4e6bc04d8b5548fa2b764735d816928aed315d795"
+    "sha256": "17923d620c39f2da999935e4e6bc04d8b5548fa2b764735d816928aed315d795",
+    "unique": false,
+    "uiTag": "equipamento"
   },
   {
     "id": "E06",
@@ -440,14 +498,16 @@
     "category": "equipamentos",
     "copies": 2,
     "timing": "Equipamento instalado",
-    "rulesText": "Uma vez por rodada de combate, +1 ao acerto de um ataque seu. Declare antes do dado.",
+    "rulesText": "ÚNICA. 1 espaço. Uma vez por combate, some +1 ao acerto de um ataque seu. Declare antes do dado.",
     "extraCargo": 0,
     "slots": 1,
     "image": "equipamentos/E06.png",
     "width": 1024,
     "height": 1536,
-    "status": "proposed",
-    "sha256": "711f90749bee86311596effd66506334a54f79abd583241f376477c31e13f7e9"
+    "status": "playtest",
+    "sha256": "aee48cda860c1aa80dcd2f64b8989ddf8a34776b070831a3d933b71d1a7972f9",
+    "unique": true,
+    "uiTag": "equipamento"
   },
   {
     "id": "E07",
@@ -462,7 +522,9 @@
     "width": 1024,
     "height": 1536,
     "status": "proposed",
-    "sha256": "782f1ff8e27a32d42c81dbea71b92c93d1099eb1e8bed05154b34fecdec9f24f"
+    "sha256": "782f1ff8e27a32d42c81dbea71b92c93d1099eb1e8bed05154b34fecdec9f24f",
+    "unique": true,
+    "uiTag": "equipamento"
   },
   {
     "id": "E08",
@@ -477,7 +539,9 @@
     "width": 1024,
     "height": 1536,
     "status": "proposed",
-    "sha256": "11fec21ef061f8443bcbd6481f858d93d965b9478e0762b7ccf39a8381547c1c"
+    "sha256": "11fec21ef061f8443bcbd6481f858d93d965b9478e0762b7ccf39a8381547c1c",
+    "unique": true,
+    "uiTag": "equipamento"
   },
   {
     "id": "E09",
@@ -485,14 +549,16 @@
     "category": "equipamentos",
     "copies": 2,
     "timing": "Equipamento instalado",
-    "rulesText": "+1 ao teste de fuga. Não remove custo de combustível ou pagamento de carta PvP.",
+    "rulesText": "ÚNICA. 1 espaço. +1 ao teste de fuga. Não remove o custo de combustível nem o pagamento de carta na fuga entre jogadores.",
     "extraCargo": 0,
     "slots": 1,
     "image": "equipamentos/E09.png",
     "width": 1024,
     "height": 1536,
-    "status": "proposed",
-    "sha256": "cc3389a5e8cf67a098cbe35d8467454933061caec6aecf5d37bf05d447b3c19f"
+    "status": "playtest",
+    "sha256": "b265cc2cfc7d08fc1fcd77252d98d9831412aee2680e425d859edf2ca285d44e",
+    "unique": true,
+    "uiTag": "equipamento"
   },
   {
     "id": "E10",
@@ -507,7 +573,9 @@
     "width": 1024,
     "height": 1536,
     "status": "proposed",
-    "sha256": "c41e6790a509ba8381bc416f4e36090169214e855ae71e32e72420471528cb6a"
+    "sha256": "c41e6790a509ba8381bc416f4e36090169214e855ae71e32e72420471528cb6a",
+    "unique": true,
+    "uiTag": "equipamento"
   },
   {
     "id": "E11",
@@ -522,7 +590,9 @@
     "width": 1024,
     "height": 1536,
     "status": "proposed",
-    "sha256": "c89ed04ddc5bd16e95bf57541b91e9349ddeb9e49e2d865766854c20813c30a9"
+    "sha256": "c89ed04ddc5bd16e95bf57541b91e9349ddeb9e49e2d865766854c20813c30a9",
+    "unique": false,
+    "uiTag": "equipamento"
   },
   {
     "id": "E12",
@@ -537,7 +607,9 @@
     "width": 1024,
     "height": 1536,
     "status": "proposed",
-    "sha256": "d1e2bafd71f699c3b34f2fd9eb4d6a4dc27cbe8d68ff971d04ac6301d8fa785a"
+    "sha256": "d1e2bafd71f699c3b34f2fd9eb4d6a4dc27cbe8d68ff971d04ac6301d8fa785a",
+    "unique": false,
+    "uiTag": "equipamento"
   },
   {
     "id": "T01",
@@ -552,7 +624,9 @@
     "width": 1024,
     "height": 1536,
     "status": "proposed",
-    "sha256": "848a500d01316efd160c00fafaca2e1b1b08f752485982dfdb08f61da8a5a388"
+    "sha256": "848a500d01316efd160c00fafaca2e1b1b08f752485982dfdb08f61da8a5a388",
+    "unique": false,
+    "uiTag": "territorio"
   },
   {
     "id": "T02",
@@ -567,7 +641,9 @@
     "width": 1024,
     "height": 1536,
     "status": "proposed",
-    "sha256": "ac74043e891cab02eef1190c797b28523cb66329487eafe5aec6536e9661fd7d"
+    "sha256": "ac74043e891cab02eef1190c797b28523cb66329487eafe5aec6536e9661fd7d",
+    "unique": false,
+    "uiTag": "territorio"
   },
   {
     "id": "T03",
@@ -582,7 +658,9 @@
     "width": 1024,
     "height": 1536,
     "status": "proposed",
-    "sha256": "d083919968598844fa71f0cdc29a34c812e25bf241dcc9ceb46907945a02d43d"
+    "sha256": "d083919968598844fa71f0cdc29a34c812e25bf241dcc9ceb46907945a02d43d",
+    "unique": false,
+    "uiTag": "territorio"
   },
   {
     "id": "T04",
@@ -597,7 +675,9 @@
     "width": 1024,
     "height": 1536,
     "status": "proposed",
-    "sha256": "4a9822b0c8f9ee2ba336b59e7dd42c22c866ef9fded5ce248a3f66f764a568bc"
+    "sha256": "4a9822b0c8f9ee2ba336b59e7dd42c22c866ef9fded5ce248a3f66f764a568bc",
+    "unique": false,
+    "uiTag": "territorio"
   },
   {
     "id": "T05",
@@ -612,7 +692,9 @@
     "width": 1024,
     "height": 1536,
     "status": "proposed",
-    "sha256": "fc7e3db07fbb256c2e70c7958c40fbaafdd4df7ea85dcbb8004aa3a924fad550"
+    "sha256": "fc7e3db07fbb256c2e70c7958c40fbaafdd4df7ea85dcbb8004aa3a924fad550",
+    "unique": true,
+    "uiTag": "territorio"
   },
   {
     "id": "T06",
@@ -627,7 +709,9 @@
     "width": 1024,
     "height": 1536,
     "status": "proposed",
-    "sha256": "12781ad534d01d1486e4b95c021d3907654c276cfbbd1f522755b709ec3bee24"
+    "sha256": "12781ad534d01d1486e4b95c021d3907654c276cfbbd1f522755b709ec3bee24",
+    "unique": false,
+    "uiTag": "territorio"
   },
   {
     "id": "R01",
@@ -642,7 +726,9 @@
     "width": 1024,
     "height": 1536,
     "status": "proposed",
-    "sha256": "56c5e9ca68a686c49b1009c97d7d37d1eaa57c32a7f165d9209187126bfc0215"
+    "sha256": "56c5e9ca68a686c49b1009c97d7d37d1eaa57c32a7f165d9209187126bfc0215",
+    "unique": false,
+    "uiTag": "corrida"
   },
   {
     "id": "R02",
@@ -657,7 +743,9 @@
     "width": 1024,
     "height": 1536,
     "status": "proposed",
-    "sha256": "9941b87f884cedc5cb64787e21eba07faaa2486cd6a1ddd8e2944d3aaa47a3bb"
+    "sha256": "9941b87f884cedc5cb64787e21eba07faaa2486cd6a1ddd8e2944d3aaa47a3bb",
+    "unique": false,
+    "uiTag": "corrida"
   },
   {
     "id": "R03",
@@ -672,7 +760,9 @@
     "width": 1024,
     "height": 1536,
     "status": "proposed",
-    "sha256": "27c76c69ff788af37d188c1e9a87ddd7b0cdf0f8cfc7ca3b8fddef06af867759"
+    "sha256": "27c76c69ff788af37d188c1e9a87ddd7b0cdf0f8cfc7ca3b8fddef06af867759",
+    "unique": false,
+    "uiTag": "corrida"
   },
   {
     "id": "R04",
@@ -687,7 +777,9 @@
     "width": 1024,
     "height": 1536,
     "status": "proposed",
-    "sha256": "dee877b737468f1adee9c745eb4a6a045fe978d116c08ede689bbfb91d4575e8"
+    "sha256": "dee877b737468f1adee9c745eb4a6a045fe978d116c08ede689bbfb91d4575e8",
+    "unique": false,
+    "uiTag": "corrida"
   },
   {
     "id": "R05",
@@ -702,7 +794,9 @@
     "width": 1024,
     "height": 1536,
     "status": "proposed",
-    "sha256": "df4edf793c5491b1649b9fa68ab2b4aea709a971b3f05e8e077a3bd1a8a3e13a"
+    "sha256": "df4edf793c5491b1649b9fa68ab2b4aea709a971b3f05e8e077a3bd1a8a3e13a",
+    "unique": false,
+    "uiTag": "corrida"
   },
   {
     "id": "R06",
@@ -717,7 +811,9 @@
     "width": 1024,
     "height": 1536,
     "status": "proposed",
-    "sha256": "8f67bc3d89d594133b9d987edce61715bfaf1b5585e1aa4ba8d07f46cfce620a"
+    "sha256": "8f67bc3d89d594133b9d987edce61715bfaf1b5585e1aa4ba8d07f46cfce620a",
+    "unique": false,
+    "uiTag": "corrida"
   },
   {
     "id": "R07",
@@ -732,7 +828,9 @@
     "width": 1024,
     "height": 1536,
     "status": "proposed",
-    "sha256": "d2b0f91a7a7f11ec16a13c57337d2b6cffabb92de3c0dd575887ad148cc48d9b"
+    "sha256": "d2b0f91a7a7f11ec16a13c57337d2b6cffabb92de3c0dd575887ad148cc48d9b",
+    "unique": false,
+    "uiTag": "corrida"
   },
   {
     "id": "R08",
@@ -747,7 +845,9 @@
     "width": 1024,
     "height": 1536,
     "status": "proposed",
-    "sha256": "e13b6d4b518947253d21191a80ec1b4a35e891bb56c87446fdeb766d61c4f2d4"
+    "sha256": "e13b6d4b518947253d21191a80ec1b4a35e891bb56c87446fdeb766d61c4f2d4",
+    "unique": false,
+    "uiTag": "corrida"
   },
   {
     "id": "R09",
@@ -762,7 +862,9 @@
     "width": 1024,
     "height": 1536,
     "status": "proposed",
-    "sha256": "9b5dbf5b78e935e11b10e10a4a172da2d244e50c15443fa96fde37499c7f4a75"
+    "sha256": "9b5dbf5b78e935e11b10e10a4a172da2d244e50c15443fa96fde37499c7f4a75",
+    "unique": false,
+    "uiTag": "corrida"
   },
   {
     "id": "R10",
@@ -777,7 +879,9 @@
     "width": 1024,
     "height": 1536,
     "status": "proposed",
-    "sha256": "d4677606127b46ca1fb87d69a5fc7e039e0235e1d9c66eda87078c87b788c746"
+    "sha256": "d4677606127b46ca1fb87d69a5fc7e039e0235e1d9c66eda87078c87b788c746",
+    "unique": false,
+    "uiTag": "corrida"
   },
   {
     "id": "R11",
@@ -792,7 +896,9 @@
     "width": 1024,
     "height": 1536,
     "status": "proposed",
-    "sha256": "19d124b38e468a016ab2cc4abf17bb5d0942cb53180344b53b36a9bf4d13de96"
+    "sha256": "19d124b38e468a016ab2cc4abf17bb5d0942cb53180344b53b36a9bf4d13de96",
+    "unique": false,
+    "uiTag": "corrida"
   },
   {
     "id": "R12",
@@ -807,7 +913,9 @@
     "width": 1024,
     "height": 1536,
     "status": "proposed",
-    "sha256": "e2a374a9f4cdb0c32c2e459a154721150d21acbc3383355de4b601f56cc62c5b"
+    "sha256": "e2a374a9f4cdb0c32c2e459a154721150d21acbc3383355de4b601f56cc62c5b",
+    "unique": false,
+    "uiTag": "corrida"
   },
   {
     "id": "R13",
@@ -822,7 +930,9 @@
     "width": 1024,
     "height": 1536,
     "status": "proposed",
-    "sha256": "5a9228f02aa450ffa27dd197c0919595c8388dc51bb5a6a88499a4a578135fe2"
+    "sha256": "5a9228f02aa450ffa27dd197c0919595c8388dc51bb5a6a88499a4a578135fe2",
+    "unique": false,
+    "uiTag": "corrida"
   },
   {
     "id": "R14",
@@ -837,7 +947,9 @@
     "width": 1024,
     "height": 1536,
     "status": "proposed",
-    "sha256": "9c9a082041084e3d34b5f9f178677b12ee3435376eab9a3780353ea8ef3c8fe4"
+    "sha256": "9c9a082041084e3d34b5f9f178677b12ee3435376eab9a3780353ea8ef3c8fe4",
+    "unique": false,
+    "uiTag": "corrida"
   },
   {
     "id": "R15",
@@ -852,7 +964,9 @@
     "width": 1024,
     "height": 1536,
     "status": "proposed",
-    "sha256": "754db37f3b1313cdd21c8faeb0c287abca98c325bfd70a8fc2871296dec3c563"
+    "sha256": "754db37f3b1313cdd21c8faeb0c287abca98c325bfd70a8fc2871296dec3c563",
+    "unique": false,
+    "uiTag": "corrida"
   },
   {
     "id": "R16",
@@ -867,7 +981,9 @@
     "width": 1024,
     "height": 1536,
     "status": "proposed",
-    "sha256": "0601b9e38e545e202fb5811e1c799d3015aa1dae992f3da675ba044f1541a48f"
+    "sha256": "0601b9e38e545e202fb5811e1c799d3015aa1dae992f3da675ba044f1541a48f",
+    "unique": false,
+    "uiTag": "corrida"
   },
   {
     "id": "V01",
@@ -882,7 +998,9 @@
     "width": 1024,
     "height": 1536,
     "status": "proposed",
-    "sha256": "db90b024fbe5cb8c2f4b38dbebbe4380a8901fd602b5f2902ae484629079b4f4"
+    "sha256": "db90b024fbe5cb8c2f4b38dbebbe4380a8901fd602b5f2902ae484629079b4f4",
+    "unique": false,
+    "uiTag": "evento"
   },
   {
     "id": "V02",
@@ -897,7 +1015,9 @@
     "width": 1024,
     "height": 1536,
     "status": "proposed",
-    "sha256": "b5683a6c3c3b452646625bddd83388ba9c7c01e60912ffa33f75d91c2be3c804"
+    "sha256": "b5683a6c3c3b452646625bddd83388ba9c7c01e60912ffa33f75d91c2be3c804",
+    "unique": false,
+    "uiTag": "evento"
   },
   {
     "id": "V03",
@@ -912,7 +1032,9 @@
     "width": 1024,
     "height": 1536,
     "status": "proposed",
-    "sha256": "14f415a54a44e726775b1a23352e5da0d82363cdf205f37481f3f21a04d9cc52"
+    "sha256": "14f415a54a44e726775b1a23352e5da0d82363cdf205f37481f3f21a04d9cc52",
+    "unique": false,
+    "uiTag": "evento"
   },
   {
     "id": "V04",
@@ -927,7 +1049,9 @@
     "width": 1024,
     "height": 1536,
     "status": "proposed",
-    "sha256": "ed541764c1f9efa0536e280690b988af21bd2fb6152c7a5d786c84853044e88e"
+    "sha256": "ed541764c1f9efa0536e280690b988af21bd2fb6152c7a5d786c84853044e88e",
+    "unique": false,
+    "uiTag": "evento"
   },
   {
     "id": "V05",
@@ -942,7 +1066,9 @@
     "width": 1024,
     "height": 1536,
     "status": "proposed",
-    "sha256": "9e4e9a6c21fa148e1b53ad94f254b2f919ea64864b546881a6dbf1fc8998b04e"
+    "sha256": "9e4e9a6c21fa148e1b53ad94f254b2f919ea64864b546881a6dbf1fc8998b04e",
+    "unique": false,
+    "uiTag": "evento"
   },
   {
     "id": "V06",
@@ -957,7 +1083,9 @@
     "width": 1024,
     "height": 1536,
     "status": "proposed",
-    "sha256": "722f5967d8274f26a5ac48f94ea593f7b02bfd9c1c9f333b64d6f5092db1a614"
+    "sha256": "722f5967d8274f26a5ac48f94ea593f7b02bfd9c1c9f333b64d6f5092db1a614",
+    "unique": false,
+    "uiTag": "evento"
   },
   {
     "id": "V07",
@@ -972,7 +1100,9 @@
     "width": 1024,
     "height": 1536,
     "status": "proposed",
-    "sha256": "f003714ef03f3ce6711992516601e917d89469eef5d07115af06d5a2c14edc2c"
+    "sha256": "f003714ef03f3ce6711992516601e917d89469eef5d07115af06d5a2c14edc2c",
+    "unique": false,
+    "uiTag": "evento"
   },
   {
     "id": "V08",
@@ -987,7 +1117,9 @@
     "width": 1024,
     "height": 1536,
     "status": "proposed",
-    "sha256": "4d3c92e537d50aaafc571add0c8d3a775f9d42650e07ac8ced9d5d44fb293cb7"
+    "sha256": "4d3c92e537d50aaafc571add0c8d3a775f9d42650e07ac8ced9d5d44fb293cb7",
+    "unique": false,
+    "uiTag": "evento"
   },
   {
     "id": "V09",
@@ -1002,7 +1134,9 @@
     "width": 1024,
     "height": 1536,
     "status": "proposed",
-    "sha256": "5cf6a80bb4490c3e9cc7d89e79daed98cd3564720a453cce97e735634ff3a40e"
+    "sha256": "5cf6a80bb4490c3e9cc7d89e79daed98cd3564720a453cce97e735634ff3a40e",
+    "unique": false,
+    "uiTag": "evento"
   },
   {
     "id": "V10",
@@ -1017,7 +1151,9 @@
     "width": 1024,
     "height": 1536,
     "status": "proposed",
-    "sha256": "ecfeed796f6ea692e39624a81e6d92abcfa4ba7eab876443becb078f25eb12ef"
+    "sha256": "ecfeed796f6ea692e39624a81e6d92abcfa4ba7eab876443becb078f25eb12ef",
+    "unique": false,
+    "uiTag": "evento"
   },
   {
     "id": "V11",
@@ -1032,7 +1168,9 @@
     "width": 1024,
     "height": 1536,
     "status": "proposed",
-    "sha256": "669372d28368185cfeb16a2d00e08513869f569b7603f7c72e2f4db5a336df1a"
+    "sha256": "669372d28368185cfeb16a2d00e08513869f569b7603f7c72e2f4db5a336df1a",
+    "unique": false,
+    "uiTag": "evento"
   },
   {
     "id": "V12",
@@ -1047,7 +1185,9 @@
     "width": 1024,
     "height": 1536,
     "status": "proposed",
-    "sha256": "a96c40f93d7419080c67eb25000f439cd68e0ebb59fcabb1261d81fd3c8ad0aa"
+    "sha256": "a96c40f93d7419080c67eb25000f439cd68e0ebb59fcabb1261d81fd3c8ad0aa",
+    "unique": false,
+    "uiTag": "evento"
   },
   {
     "id": "V13",
@@ -1062,7 +1202,9 @@
     "width": 1024,
     "height": 1536,
     "status": "proposed",
-    "sha256": "544d0c25b60d1f1aa1a87746e8d27feb22b3272a304fc35f4ae2705027c64a00"
+    "sha256": "544d0c25b60d1f1aa1a87746e8d27feb22b3272a304fc35f4ae2705027c64a00",
+    "unique": false,
+    "uiTag": "evento"
   },
   {
     "id": "V14",
@@ -1077,7 +1219,9 @@
     "width": 1024,
     "height": 1536,
     "status": "proposed",
-    "sha256": "032715482b16e4756cdb5bbd228ade4cb8b7cc9dda6494a9038ea8bd5b0284f1"
+    "sha256": "032715482b16e4756cdb5bbd228ade4cb8b7cc9dda6494a9038ea8bd5b0284f1",
+    "unique": false,
+    "uiTag": "evento"
   },
   {
     "id": "V15",
@@ -1092,7 +1236,9 @@
     "width": 1024,
     "height": 1536,
     "status": "proposed",
-    "sha256": "bab7424650bc143bc749ed940c55298dcb2e0a29a33dc68e511dfd75dcf0eec3"
+    "sha256": "bab7424650bc143bc749ed940c55298dcb2e0a29a33dc68e511dfd75dcf0eec3",
+    "unique": false,
+    "uiTag": "evento"
   },
   {
     "id": "V16",
@@ -1107,6 +1253,8 @@
     "width": 1024,
     "height": 1536,
     "status": "proposed",
-    "sha256": "b5350ee30b75bbd95a824f8d5a4d9ad2e3ad2b6c3f8b5b5dfa538be53bb6a205"
+    "sha256": "b5350ee30b75bbd95a824f8d5a4d9ad2e3ad2b6c3f8b5b5dfa538be53bb6a205",
+    "unique": false,
+    "uiTag": "evento"
   }
 ]

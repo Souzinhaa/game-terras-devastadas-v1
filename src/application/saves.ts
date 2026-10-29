@@ -1,5 +1,3 @@
-import { migrateHostiles } from '../engine/hostiles';
-import { migrateCatalog } from '../engine/cardRules';
 import { assertInvariants, CONTENT_VERSION, type Game } from '../engine/game';
 import { laboratoryRules } from '../engine/config';
 
@@ -12,29 +10,12 @@ export function encodeSave(game: Game): string {
 export function decodeSave(raw: string): LoadResult {
   try {
     const envelope = JSON.parse(raw);
-    if (!envelope || envelope.format !== 'terras-devastadas' || ![3, 4].includes(envelope.schemaVersion)) throw Error('Formato sem versão reconhecida. O protótipo v0.1 não tinha save; não é seguro inferir sua unidade ou topologia.');
-    if (!['whole', 'half'].includes(envelope.fuelUnit) || (envelope.schemaVersion === 4 && envelope.fuelUnit !== 'whole')) throw Error('Unidade de combustível incompatível.');
+    if (!envelope || envelope.format !== 'terras-devastadas' || envelope.schemaVersion !== 4) throw Error('Formato sem versão compatível com v0.5.');
+    if (envelope.fuelUnit !== 'whole') throw Error('Unidade de combustível incompatível.');
     if (!envelope.state || envelope.state.schemaVersion !== envelope.schemaVersion || envelope.state.contentVersion !== envelope.contentVersion) throw Error('Versões do envelope e estado divergem.');
-    if (envelope.schemaVersion === 4 && ![CONTENT_VERSION, '0.4.0', '0.4.1'].includes(envelope.contentVersion)) throw Error('Versão de conteúdo não suportada.');
-    if (envelope.schemaVersion === 3 && envelope.contentVersion !== '0.3.0') throw Error('Schema legado sem contrato de conteúdo conhecido.');
+    if (envelope.contentVersion !== CONTENT_VERSION) throw Error('Partida de edição anterior incompatível com v0.5. Inicie uma nova partida; o original não será convertido.');
     const game = structuredClone(envelope.state) as Game;
     const warnings: string[] = [];
-    if (envelope.schemaVersion === 3) {
-      // Contrato v3: mesmas entidades/IDs, combustível em whole ou ticks half explícitos.
-      // Valores ímpares de ticks não têm conversão inteira sem perda: rejeitar.
-      if (envelope.fuelUnit === 'half') {
-        const convert = (n: number) => { if (!Number.isSafeInteger(n) || n < 0 || n % 2) throw Error('Meia unidade remanescente não admite conversão inteira sem perda.'); return n / 2; };
-        for (const p of game.players) { p.vehicle.fuelUnits = convert(p.vehicle.fuelUnits); p.stock.fuel = convert(p.stock.fuel); }
-        for (const t of Object.values(game.territories)) t.stock.fuel = convert(t.stock.fuel);
-        for (const f of game.found) f.vehicle.fuelUnits = convert(f.vehicle.fuelUnits);
-      }
-      game.schemaVersion = 4; game.contentVersion = CONTENT_VERSION;
-      game.rules = structuredClone(laboratoryRules);
-      warnings.push('Contrato v3 migrado para v4. Seed, IDs, posição, cartas e recursos preservados; nenhum tanque foi completado. Capacidades agora seguem o GDD v0.4.');
-    }
-    if(!game.cardState){migrateCatalog(game);warnings.push('Catálogo de 74 cartas integrado; cartas antigas de bloqueio mantêm seus IDs e recebem os efeitos G17/G18. Seed, tanques e recursos preservados.');}
-    if(game.contentVersion!==CONTENT_VERSION){game.contentVersion=CONTENT_VERSION;warnings.push('Conteúdo atualizado para 0.4.2 com catálogo de hostis.');}
-    warnings.push(...migrateHostiles(game));
     validateRules(game);
     assertInvariants(game);
     return { game, warnings };

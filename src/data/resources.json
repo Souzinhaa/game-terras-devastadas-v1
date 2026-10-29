@@ -1,0 +1,103 @@
+{
+  "schemaVersion": 1,
+  "style": "flat_resource_pictograms",
+  "resources": [
+    {
+      "id": "combustivel",
+      "name": "Combustível",
+      "color": "#DA9A18",
+      "visual": "Galão",
+      "svg": "svg/combustivel.svg",
+      "png": {
+        "32": "png/32/combustivel.png",
+        "64": "png/64/combustivel.png",
+        "128": "png/128/combustivel.png",
+        "256": "png/256/combustivel.png"
+      },
+      "modifierFamily": "combustivel",
+      "quantityInImage": false,
+      "inventoryLocation": "tank"
+    },
+    {
+      "id": "sucata",
+      "name": "Sucata",
+      "color": "#A6AAB3",
+      "visual": "Peças de metal",
+      "svg": "svg/sucata.svg",
+      "png": {
+        "32": "png/32/sucata.png",
+        "64": "png/64/sucata.png",
+        "128": "png/128/sucata.png",
+        "256": "png/256/sucata.png"
+      },
+      "modifierFamily": "sucata",
+      "quantityInImage": false,
+      "inventoryLocation": "cargo_or_owned_depot"
+    },
+    {
+      "id": "municao",
+      "name": "Munição",
+      "color": "#BEA260",
+      "visual": "Três cartuchos",
+      "svg": "svg/municao.svg",
+      "png": {
+        "32": "png/32/municao.png",
+        "64": "png/64/municao.png",
+        "128": "png/128/municao.png",
+        "256": "png/256/municao.png"
+      },
+      "modifierFamily": "municao",
+      "quantityInImage": false,
+      "inventoryLocation": "cargo_or_owned_depot"
+    },
+    {
+      "id": "pneu",
+      "name": "Pneu",
+      "color": "#596473",
+      "visual": "Pneu com sulcos",
+      "svg": "svg/pneu.svg",
+      "png": {
+        "32": "png/32/pneu.png",
+        "64": "png/64/pneu.png",
+        "128": "png/128/pneu.png",
+        "256": "png/256/pneu.png"
+      },
+      "modifierFamily": "pneu",
+      "quantityInImage": false,
+      "inventoryLocation": "cargo_or_owned_depot"
+    },
+    {
+      "id": "bateria",
+      "name": "Bateria",
+      "color": "#B4DF43",
+      "visual": "Bateria automotiva",
+      "svg": "svg/bateria.svg",
+      "png": {
+        "32": "png/32/bateria.png",
+        "64": "png/64/bateria.png",
+        "128": "png/128/bateria.png",
+        "256": "png/256/bateria.png"
+      },
+      "modifierFamily": "bateria",
+      "quantityInImage": false,
+      "inventoryLocation": "cargo_or_owned_depot"
+    },
+    {
+      "id": "agua",
+      "name": "Água",
+      "color": "#388FD7",
+      "visual": "Garrafa de água",
+      "svg": "svg/agua.svg",
+      "png": {
+        "32": "png/32/agua.png",
+        "64": "png/64/agua.png",
+        "128": "png/128/agua.png",
+        "256": "png/256/agua.png"
+      },
+      "modifierFamily": "agua",
+      "quantityInImage": false,
+      "inventoryLocation": "cargo_or_owned_depot"
+    }
+  ],
+  "note": "Ícones visuais. Usar IDs reais do projeto por adaptador, sem renomear enums ou saves."
+}

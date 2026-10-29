@@ -28,7 +28,7 @@ Combate mostra participantes e integridade individual; o último registro reprod
 
 49 testes de motor/persistência e build TypeScript/Vite aprovados. Seis cenários Chrome cobrem fluxo de quatro jogadores e reload, móvel/importação inválida, mapa/zoom, migração com excesso, navegação/movimento reduzido e combate. Capturas de setup, desktop, móvel e combate ficam em `test-results/` (ignorado pelo Git). Capturas de setup/desktop/móvel inspecionadas.
 
-O motor, o schema de save, os números dos veículos e as regras não foram alterados. Permanecem as limitações funcionais em `ATUALIZACAO_V04.md`; não houve playtest humano ou auditoria completa de acessibilidade.
+O motor, o schema de save, os números dos veículos e as regras não foram alterados. Permanecem as limitações funcionais em `REBALANCEAMENTO_V05.md`; não houve playtest humano ou auditoria completa de acessibilidade.
 
 ## Mapa em tela cheia e controles sobrepostos
 

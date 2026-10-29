@@ -1,6 +1,8 @@
+> Atualização v0.5: rules.md/rules-cards.md prevalecem; armas compartilham um ataque por rodada, E04/E06/E09 são únicos e E06 é por combate.
+
 # Integração do catálogo de cartas — conteúdo 0.4.1
 
-Implementação baseada em `assets/cartas/CONTEXTO_CODEX.md`, `Catalogo_Cartas.md`, `cartas.json` e no GDD v0.4. Os valores do catálogo continuam propostas de balanceamento. A instrução do usuário inclui implementar os efeitos; o rival neutro permanece desativado conforme a restrição expressa do catálogo.
+Implementação baseada em `rules-cards.md`, `src/data/catalog.json` e `rules.md` v0.5. Os valores do catálogo continuam propostas de balanceamento. A instrução do usuário inclui implementar os efeitos; o rival neutro permanece desativado conforme a restrição expressa do catálogo.
 
 ## Conteúdo e módulos
 

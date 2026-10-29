@@ -60,27 +60,14 @@ test('mapa e painéis em desktop',async({page})=>{
   await page.keyboard.press('Escape');
   await expect(page.locator('#carro')).toBeHidden();
 });
-test('save legado com excesso exige escolha, mantém tanque parcial e guarda original',async({page})=>{
-  await page.goto('/');await expect(page.getByRole('button',{name:'Importar JSON'})).toBeEnabled();
-  const raw=await page.evaluate(async()=>{
-    const enginePath='/src/engine/game.ts',savePath='/src/application/saves.ts';
-    const {createGame,makeVehicle}=await import(enginePath),{encodeSave}=await import(savePath);
-    const state=createGame(['Legado','Outro'],99),p=state.players[state.active];
-    p.vehicle=makeVehicle(state,'hatch');p.vehicle.fuelUnits=6;p.stock.scrap=2;
-    const legacy=JSON.parse(encodeSave(state));legacy.schemaVersion=3;legacy.contentVersion='0.3.0';legacy.fuelUnit='half';legacy.state.schemaVersion=3;legacy.state.contentVersion='0.3.0';
-    for(const player of legacy.state.players){player.vehicle.fuelUnits*=2;player.stock.fuel*=2;}
-    return JSON.stringify(legacy);
-  });
-  await page.locator('input[type=file]').setInputFiles({name:'legado.json',mimeType:'application/json',buffer:Buffer.from(raw)});
-  await page.getByRole('button',{name:'Confirmar',exact:true}).click();await page.getByRole('button',{name:'Estou pronto'}).click();
-  await expect(page.getByRole('dialog',{name:'Escolha como resolver os excedentes'})).toBeVisible();
-  await page.getByRole('button',{name:'Descartar 1 Sucata (2)',exact:true}).click();
-  await expect(page.getByRole('dialog')).toHaveCount(0);
-  await page.getByRole('button',{name:'Abrir veículo e recursos'}).click();
-  await expect(page.locator('.meter strong').first()).toHaveText('6/8');
-  await expect(page.getByRole('status').first()).toHaveText('Salvo neste navegador');
-  const savedOriginal=await page.evaluate(async()=>{const db=await new Promise<IDBDatabase>(resolve=>{const r=indexedDB.open('terras-devastadas-local',1);r.onsuccess=()=>resolve(r.result);});return new Promise<unknown[]>(resolve=>{const r=db.transaction('saves','readonly').objectStore('saves').getAll();r.onsuccess=()=>{resolve(r.result);db.close();};});});
-  expect(savedOriginal).toContain(raw);
+test('save de edição antiga é recusado sem substituir a sessão',async({page})=>{
+ await page.goto('/');await page.getByRole('button',{name:'Sortear e iniciar'}).click();await page.getByRole('button',{name:'Estou pronto'}).click();
+ const original=await page.evaluate(async()=>{const {readLocal}=await import('/src/application/saves.ts');return await readLocal();});
+ const legacy=JSON.parse(original!);legacy.contentVersion=legacy.state.contentVersion='0.4.2';
+ await page.getByRole('button',{name:'Opções da partida'}).click();await page.getByRole('button',{name:'Importar JSON'}).click();
+ await page.locator('input[type=file]').setInputFiles({name:'legado.json',mimeType:'application/json',buffer:Buffer.from(JSON.stringify(legacy))});
+ await expect(page.getByText(/Save não carregado. Original preservado/)).toBeVisible();
+ const current=await page.evaluate(async()=>{const {readLocal}=await import('/src/application/saves.ts');return await readLocal();});expect(current).toBe(original);
 });
 test('navegação acessível e movimento reduzido mantêm ações disponíveis',async({page})=>{
   await page.emulateMedia({reducedMotion:'reduce'});

@@ -1,0 +1,145 @@
+{
+  "rulesVersion": "0.5",
+  "contentVersion": "0.2",
+  "status": "playtest",
+  "appliesTo": "new_games_only",
+  "setup": {
+    "generalCards": 1,
+    "scrapInCargo": 1,
+    "integrity": "maximum",
+    "territoriesPerPlayer": 1,
+    "fuelUnits": {
+      "hatch": 3,
+      "sedan": 6,
+      "suv": 6,
+      "pickup": 9
+    },
+    "drawOnFirstOwnTurn": true,
+    "extraEquipment": 0
+  },
+  "vehicles": {
+    "hatch": {
+      "cargo": 1,
+      "tank": 8,
+      "consumption": 1,
+      "surfaces": [
+        "asphalt"
+      ],
+      "health": 6,
+      "defense": 4,
+      "agility": 1
+    },
+    "sedan": {
+      "cargo": 7,
+      "tank": 12,
+      "consumption": 2,
+      "surfaces": [
+        "asphalt"
+      ],
+      "health": 8,
+      "defense": 4,
+      "agility": 0
+    },
+    "suv": {
+      "cargo": 6,
+      "tank": 12,
+      "consumption": 2,
+      "surfaces": [
+        "asphalt",
+        "dirt"
+      ],
+      "health": 10,
+      "defense": 3,
+      "agility": 0
+    },
+    "pickup": {
+      "cargo": 10,
+      "tank": 15,
+      "consumption": 3,
+      "surfaces": [
+        "asphalt",
+        "dirt"
+      ],
+      "health": 10,
+      "defense": 3,
+      "agility": 0
+    }
+  },
+  "general": {
+    "maxPerPlayerPerMapTurn": 1,
+    "resetOnCombat": false,
+    "resetOnRace": false,
+    "playBeforeAffectedRoll": true
+  },
+  "combat": {
+    "maxEquipmentAttacksPerVehiclePerRound": 1,
+    "fixedAttackCountsAgainstEquipmentLimit": false,
+    "consumeEquipmentAttackLimitOnMiss": true,
+    "uniqueEquipment": [
+      "E04",
+      "E06",
+      "E07",
+      "E08",
+      "E09",
+      "E10"
+    ],
+    "E06UsesPerCombat": 1,
+    "escapeTarget": 5,
+    "defenseCap": 6
+  },
+  "roadBlock": {
+    "ownerOwnTurnOnly": true,
+    "costScrap": 1,
+    "costMainAction": true,
+    "requiresUnusedGeneral": true,
+    "outsideCombatAndRace": true,
+    "requiresOpenRoad": true,
+    "maxActivePerSourcePlayer": 1,
+    "expires": "start_of_source_next_turn",
+    "bidirectional": true,
+    "protectLastCompatibleExit": true,
+    "lastExitCheckIncludesFuel": false,
+    "removalByMaintenance": false
+  },
+  "victory": {
+    "points": 4,
+    "cityPoints": {
+      "under4Territories": 0.5,
+      "atLeast4Territories": 1
+    },
+    "territorialMode": "declare_end_own_turn_hold_until_start_next_own_turn",
+    "cancelWhenBelowThresholdAfterResolvedTransaction": true,
+    "checkBeforeDrawAfterExpirations": true,
+    "lastSurvivorImmediate": true
+  },
+  "race": {
+    "singleParticipant": "cancel_and_refund",
+    "neutralRivalEnabled": false,
+    "generalAdvanceBonus": 1,
+    "generalAdvancePenalty": 1,
+    "leaveAtZeroIntegrity": true,
+    "zeroIntegrityEliminatesPlayer": false
+  },
+  "unchanged": {
+    "improvementPriceScrap": 3,
+    "vehicleEquipmentSlots": 2,
+    "territorialSlots": 2,
+    "storageCapacity": 10,
+    "raidFuel": 1,
+    "raidMaxLoot": 2,
+    "raidFailureDamage": 2,
+    "raidDefenseBonus": 1,
+    "territoryDefense": {
+      "health": 4,
+      "defense": 4,
+      "damage": 1
+    }
+  },
+  "openItems": [
+    "regional_exploration_content",
+    "mechanical_conditions",
+    "vehicle_deck_composition",
+    "no_damage_combat_stalemate",
+    "fresh_hostile_on_player_owned_reconquest"
+  ]
+}

@@ -1,3 +1,4 @@
+import { equipmentBadge } from './activeEffects';
 import { InventoryTabs } from './TurnActions';
 import { useEffect, useRef, useState } from 'react';
 import { catalog, cardDefinition } from '../engine/catalog';
@@ -44,7 +45,7 @@ export function Cards({game,act,visible,onToggle,handoff,onNavigate}:{game:Game;
   </>}
   <details><summary>Equipamentos instalados e melhorias territoriais</summary><p>Carga total: {Object.values(p.stock).reduce((a,b)=>a+b,0)+extraCargo(game,p)}/{cargoCapacity(game,p)} · tanque: {p.vehicle.fuelUnits}/{tankCapacity(game,p)}</p>
    {game.players.map(owner=><div key={owner.id}><h3>{owner.name} · equipamentos</h3>{!owner.vehicle.installed.length&&<p className="hint">Nenhum equipamento adicional instalado.</p>}{owner.vehicle.installed.map(key=>{const card=state?.installed[key];return card&&<article key={key}><CardArt id={card.definitionId}/><p>{cardDefinition(card.definitionId)?.rulesText}</p>
-    {['E01','E02','E03'].includes(card.definitionId)?<button onClick={()=>act({type:'equipmentAttack',instanceId:key})}>Ataque adicional · 1 munição</button>:['E05','E06','E10','E12'].includes(card.definitionId)&&<button onClick={()=>act({type:'useEquipment',instanceId:key})}>Declarar benefício antes do dado</button>}
+    {['E01','E02','E03'].includes(card.definitionId)?<button disabled={!game.encounter||!owner.stock.ammo||!!equipmentBadge(game,owner,key)?.spec.used} onClick={()=>act({type:'equipmentAttack',instanceId:key})}>Ataque adicional · 1 munição</button>:['E05','E06','E10','E12'].includes(card.definitionId)&&<button onClick={()=>act({type:'useEquipment',instanceId:key})}>Declarar benefício antes do dado</button>}
     {owner.id===p.id&&card.definitionId==='E11'&&<><label>Depósito do guincho<select value={territory} onChange={e=>setTerritory(e.target.value)}>{Object.values(game.territories).filter(t=>t.owner===p.id&&t.city===p.city).map(t=><option key={t.id} value={t.id}>{t.label}</option>)}</select></label><button onClick={()=>act({type:'winch',instanceId:key,territoryId:territory})}>Guincho: 1 sucata para depósito</button></>}
     {owner.id===p.id&&<button onClick={()=>act({type:'removeUpgrade',instanceId:key})}>Retirar e descartar</button>}
    </article>;})}</div>)}

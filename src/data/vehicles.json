@@ -1,6 +1,56 @@
 [
- {"id":"hatch","name":"Hatch","capacity":4,"tank":8,"consumption":1,"allowedSurfaces":["paved"],"fixedEquipmentId":"fixed-hatch","additionalSlots":2,"art":"hatch-cima.png"},
- {"id":"sedan","name":"Sedã","capacity":7,"tank":12,"consumption":2,"allowedSurfaces":["paved"],"fixedEquipmentId":"fixed-sedan","additionalSlots":2,"art":"sedan-cima.png"},
- {"id":"suv","name":"SUV","capacity":6,"tank":12,"consumption":2,"allowedSurfaces":["paved","rural"],"fixedEquipmentId":"fixed-suv","additionalSlots":2,"art":"suv-cima.png"},
- {"id":"pickup","name":"Caminhonete","capacity":10,"tank":15,"consumption":3,"allowedSurfaces":["paved","rural"],"fixedEquipmentId":"fixed-pickup","additionalSlots":2,"art":"caminhonete-cima.png"}
+  {
+    "id": "hatch",
+    "name": "Hatch",
+    "capacity": 1,
+    "tank": 8,
+    "consumption": 1,
+    "allowedSurfaces": [
+      "paved"
+    ],
+    "fixedEquipmentId": "fixed-hatch",
+    "additionalSlots": 2,
+    "art": "hatch-cima.png"
+  },
+  {
+    "id": "sedan",
+    "name": "Sedã",
+    "capacity": 7,
+    "tank": 12,
+    "consumption": 2,
+    "allowedSurfaces": [
+      "paved"
+    ],
+    "fixedEquipmentId": "fixed-sedan",
+    "additionalSlots": 2,
+    "art": "sedan-cima.png"
+  },
+  {
+    "id": "suv",
+    "name": "SUV",
+    "capacity": 6,
+    "tank": 12,
+    "consumption": 2,
+    "allowedSurfaces": [
+      "paved",
+      "rural"
+    ],
+    "fixedEquipmentId": "fixed-suv",
+    "additionalSlots": 2,
+    "art": "suv-cima.png"
+  },
+  {
+    "id": "pickup",
+    "name": "Caminhonete",
+    "capacity": 10,
+    "tank": 15,
+    "consumption": 3,
+    "allowedSurfaces": [
+      "paved",
+      "rural"
+    ],
+    "fixedEquipmentId": "fixed-pickup",
+    "additionalSlots": 2,
+    "art": "caminhonete-cima.png"
+  }
 ]

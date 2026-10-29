@@ -1,4 +1,4 @@
-﻿import { describe, expect, it } from 'vitest';
+import { describe, expect, it } from 'vitest';
 import { assertInvariants, capacityIssues, cities, cityTerritories, createGame, emptyStock, load, makeVehicle, model, points, routeReason, routes, transition, travelCost, vehicles, type Game, type ModelId } from './game';
 import { decodeSave, encodeSave } from '../application/saves';
 const setup = (id: ModelId = 'suv', seed = 42) => {
@@ -29,10 +29,10 @@ describe('conteúdo confirmado v0.4',()=>{
   expect(routes.filter(r=>[r.from,r.to].includes('araras')&&[r.from,r.to].includes('rio-claro'))).toHaveLength(2);
   const seen=new Set(['araras']); for(let i=0;i<12;i++) for(const r of routes.filter(r=>r.terrain==='paved')) if(seen.has(r.from)||seen.has(r.to)){seen.add(r.from);seen.add(r.to);} expect(seen.size).toBe(12);
  });
- it('novas partidas têm tanque cheio, 1 sucata, fixo, 2 gerais e zero adicional; sorteio alcança quatro classes',()=>{
+ it('novas partidas têm três viagens de combustível, 1 sucata, fixo, 1 geral e zero adicional; sorteio alcança quatro classes',()=>{
   const seen=new Set<string>();
   for(let seed=0;seed<60;seed++) { const s=createGame(['A','B','C','D'],seed); expect(s.started).toBe(false); const starts=new Set<string>();
-   for(const p of s.players){seen.add(p.vehicle.modelId);starts.add(p.city);expect(p.vehicle.fuelUnits).toBe(model(p).tank);expect(p.stock).toEqual({...emptyStock(),scrap:1});expect(p.hand).toHaveLength(2);expect(p.hand.every(c=>c.type==='general')).toBe(true);expect(p.vehicle.installed).toEqual([]);expect(p.vehicle.fixedEquipmentId).toBe(model(p).fixedEquipmentId);expect(cityTerritories(s,p.city).filter(t=>t.owner===p.id)).toHaveLength(1);}
+   for(const p of s.players){seen.add(p.vehicle.modelId);starts.add(p.city);expect(p.vehicle.fuelUnits).toBe(model(p).consumption*3);expect(p.stock).toEqual({...emptyStock(),scrap:1});expect(p.hand).toHaveLength(1);expect(p.hand.every(c=>c.type==='general')).toBe(true);expect(p.vehicle.installed).toEqual([]);expect(p.vehicle.fixedEquipmentId).toBe(model(p).fixedEquipmentId);expect(cityTerritories(s,p.city).filter(t=>t.owner===p.id)).toHaveLength(1);}
    expect(starts.size).toBe(4);assertInvariants(s);
   }expect(seen).toEqual(new Set(['hatch','sedan','suv','pickup']));
  });
@@ -53,7 +53,7 @@ describe('viagem, tanque e turno',()=>{
   s=transition(s,{type:'transfer',territoryId:'araras-2',resource:'water',quantity:1,direction:'withdraw'});expect(load(active(s))).toBe(2);expect(capacityIssues(s)).not.toEqual([]);expect(s.actions).toBe(1);expect(active(s).vehicle.fuelUnits).toBe(8);
   snapshotFailure(s,{type:'end'},'excedentes');s=transition(s,{type:'transfer',territoryId:'araras-1',resource:'scrap',quantity:1,direction:'deposit'});expect(capacityIssues(s)).toEqual([]);expect(s.territories['araras-1'].stock.scrap).toBe(1);
  });
- it('compra geral uma vez no início, não no combate; inventário não consome água por turno',()=>{let s=createGame(['A','B'],4);expect(active(s).hand).toHaveLength(2);s=transition(s,{type:'start'});expect(active(s).hand).toHaveLength(3);snapshotFailure(s,{type:'start'},'já iniciado');const before=active(s).stock.water;s=transition(s,{type:'end'});expect(s.started).toBe(false);expect(s.players.find(p=>p.id===active(createGame(['A','B'],4)).id)!.stock.water).toBe(before);});
+ it('compra geral uma vez no início, não no combate; inventário não consome água por turno',()=>{let s=createGame(['A','B'],4);expect(active(s).hand).toHaveLength(1);s=transition(s,{type:'start'});expect(active(s).hand).toHaveLength(2);snapshotFailure(s,{type:'start'},'já iniciado');const before=active(s).stock.water;s=transition(s,{type:'end'});expect(s.started).toBe(false);expect(s.players.find(p=>p.id===active(createGame(['A','B'],4)).id)!.stock.water).toBe(before);});
 });
 describe('bloqueios por carta',()=>{
  function scenario(id:ModelId){const s=setup(id);active(s).city='artur-nogueira';active(s).hand[0].definitionId='block';s.blocks=[{routeId:'conchal-artur-nogueira',by:s.players[1].id}];return s;}
@@ -92,11 +92,10 @@ describe('save/load e migração sem perdas silenciosas',()=>{
   const s=setup('pickup');active(s).vehicle.fuelUnits=4;active(s).vehicle.installed=['armor'];active(s).stock.water=2;s.blocks.push({routeId:'araras-rio-claro',by:active(s).id});
   const n=decodeSave(encodeSave(s)).game;expect(n).toEqual(s);expect(transition(n,{type:'move',route:'araras-leme'})).toEqual(transition(s,{type:'move',route:'araras-leme'}));
  });
- it('converte ticks de meia unidade somente por schema explícito e não completa tanque',()=>{const s=setup('pickup');active(s).vehicle.fuelUnits=4;active(s).stock.fuel=2;const raw=JSON.stringify(legacy(s,'half'));const n=decodeSave(raw).game;expect(active(n).vehicle.fuelUnits).toBe(4);expect(active(n).stock.fuel).toBe(2);expect(n.seed).toBe(s.seed);expect(n.players.map(p=>p.vehicle.id)).toEqual(s.players.map(p=>p.vehicle.id));expect(JSON.stringify(JSON.parse(raw))).toBe(raw);});
- it('migra excesso de tanque/carga intacto para escolha; nunca reaplica o kit',()=>{const s=setup('hatch');active(s).vehicle.fuelUnits=10;active(s).stock.scrap=3;const n=decodeSave(JSON.stringify(legacy(s))).game;expect(active(n).vehicle.fuelUnits).toBe(10);expect(active(n).stock.scrap).toBe(3);expect(capacityIssues(n)).toHaveLength(2);snapshotFailure(n,{type:'end'},'excedentes');const resolved=transition(n,{type:'discard',resource:'scrap',quantity:2});expect(active(resolved).stock.scrap).toBe(1);});
+ it('recusa schemas antigos sem converter combustível ou reaplicar kit',()=>{const s=setup('pickup');active(s).vehicle.fuelUnits=4;for(const unit of ['whole','half'] as const){const raw=JSON.stringify(legacy(s,unit));expect(()=>decodeSave(raw)).toThrow('Original preservado');expect(active(s).vehicle.fuelUnits).toBe(4);}});
  it('recusa unidade ausente, tick ímpar, versão futura, JSON inválido, IDs duplicados e negativos',()=>{
-  const s=setup();const half=legacy(s,'half');half.state.players[0].vehicle.fuelUnits=3;expect(()=>decodeSave(JSON.stringify(half))).toThrow('sem perda');
-  const missing=legacy(s);delete missing.fuelUnit;expect(()=>decodeSave(JSON.stringify(missing))).toThrow('incompatível');
+  const s=setup();const half=legacy(s,'half');half.state.players[0].vehicle.fuelUnits=3;expect(()=>decodeSave(JSON.stringify(half))).toThrow('Original preservado');
+  const missing=legacy(s);delete missing.fuelUnit;expect(()=>decodeSave(JSON.stringify(missing))).toThrow('Original preservado');
   const future=JSON.parse(encodeSave(s));future.schemaVersion=9;expect(()=>decodeSave(JSON.stringify(future))).toThrow('Original preservado');
   expect(()=>decodeSave('{broken')).toThrow('Original preservado');expect(()=>decodeSave(JSON.stringify(s))).toThrow('sem versão');
   const invalid=structuredClone(s);active(invalid).vehicle.fuelUnits=-1;expect(()=>encodeSave(invalid)).toThrow();
@@ -108,9 +107,9 @@ describe('save/load e migração sem perdas silenciosas',()=>{
 });
 
 describe('regressões de fronteira',()=>{
- it('bloqueio protege também outro jogador de classe diferente',()=>{const s=setup('pickup');active(s).hand[0].definitionId='block';const other=s.players[1];other.city='artur-nogueira';other.vehicle=makeVehicle(s,'hatch');s.blocks=[{routeId:'conchal-artur-nogueira',by:active(s).id}];snapshotFailure(s,{type:'playGeneral',cardId:active(s).hand[0].id,route:'artur-nogueira-limeira'},'sem saída');});
+ it('bloqueio protege também outro jogador de classe diferente',()=>{const s=setup('pickup');active(s).hand[0].definitionId='block';const other=s.players[1];other.city='artur-nogueira';other.vehicle=makeVehicle(s,'hatch');s.blocks=[{routeId:'conchal-artur-nogueira',by:other.id}];snapshotFailure(s,{type:'playGeneral',cardId:active(s).hand[0].id,route:'artur-nogueira-limeira'},'sem saída');});
  it('falha na fuga não dá ataque extra nem gasta carta ou combustível',()=>{const s=setup();s.players[1].city='araras';s.rules.escapeTarget=100;s.encounter={kind:'combat',actorId:active(s).id,defenderId:s.players[1].id,betweenRounds:true,lootResolved:false};const before=structuredClone(s);const n=transition(s,{type:'escape',route:'araras-leme',playerId:active(s).id});expect(active(n).hand).toEqual(active(before).hand);expect(active(n).vehicle).toEqual(active(before).vehicle);expect(n.encounter?.betweenRounds).toBe(true);expect(n.seed).not.toBe(s.seed);});
  it('excedente territorial conserva tudo até o jogador descartar',()=>{const s=setup();s.territories['araras-1'].stock.scrap=9;s.rules.lootQuantity=2;const n=transition(s,{type:'explore',territoryId:'araras-1'});expect(Object.values(n.territories['araras-1'].stock).reduce((a,b)=>a+b)).toBe(11);expect(capacityIssues(n)).not.toEqual([]);snapshotFailure(n,{type:'end'},'excedentes');});
- it('sexta geral exige escolha antes de prosseguir; combate não renova cota',()=>{const s=setup();s.started=false;active(s).usedGeneral=true;for(let i=0;i<2;i++)active(s).hand.push({id:`extra-${i}`,type:'general',definitionId:'block'});const n=transition(s,{type:'start'});expect(active(n).hand).toHaveLength(6);snapshotFailure(n,{type:'end'},'excedentes');const resolved=transition(n,{type:'discardCard',playerId:active(n).id,cardId:active(n).hand[0].id});expect(capacityIssues(resolved)).toEqual([]);active(resolved).usedGeneral=true;resolved.territories['araras-2'].owner=null;const combat=transition(resolved,{type:'conquer',territoryId:'araras-2'});expect(active(combat).usedGeneral).toBe(true);});
+ it('sexta geral exige escolha antes de prosseguir; combate não renova cota',()=>{const s=setup();s.started=false;active(s).usedGeneral=true;for(let i=0;i<3;i++)active(s).hand.push({id:`extra-${i}`,type:'general',definitionId:'block'});const n=transition(s,{type:'start'});expect(active(n).hand).toHaveLength(6);snapshotFailure(n,{type:'end'},'excedentes');const resolved=transition(n,{type:'discardCard',playerId:active(n).id,cardId:active(n).hand[0].id});expect(capacityIssues(resolved)).toEqual([]);active(resolved).usedGeneral=true;resolved.territories['araras-2'].owner=null;const combat=transition(resolved,{type:'conquer',territoryId:'araras-2'});expect(active(combat).usedGeneral).toBe(true);});
  it('comando inválido em runtime é recusado',()=>{const s=setup();snapshotFailure(s,{type:'desconhecido'} as never,'desconhecido');});
 });

@@ -1,12 +1,12 @@
-import { initHostiles, migrateHostiles, attachHostile, startHostileCombat, nextHostileRound, hostileEscapeModifier, assertHostiles, type HostileInstance, type HostileContext, type HostileConfig, type HostileTier } from './hostiles';
+import { initHostiles, attachHostile, startHostileCombat, nextHostileRound, hostileEscapeModifier, assertHostiles, type HostileInstance, type HostileContext, type HostileConfig, type HostileTier } from './hostiles';
 import { initCatalog, assertCatalog, drawCatalog, discardCatalog, resolveEvent, handleCardAction, playCatalog, cargoCapacity, tankCapacity, extraCargo, depotCapacity, equipment, takeModifier, resolveAttack, counterAttack, type CatalogState, type CardAction } from './cardRules';
 import cities from '../data/cities.json';
 import routes from '../data/routes.json';
 import cards from '../data/cards.json';
 import vehicles from '../data/vehicles.json';
-import { laboratoryRules, type RuleConfig } from './config';
+import { laboratoryRules, rebalance, type RuleConfig } from './config';
 export { cities, routes, cards, vehicles };
-export const CONTENT_VERSION = '0.4.2';
+export const CONTENT_VERSION = '0.5.0';
 export type ModelId = 'hatch' | 'sedan' | 'suv' | 'pickup';
 export type Resource = 'fuel' | 'scrap' | 'tire' | 'battery' | 'water' | 'ammo';
 export type Stock = Record<Resource, number>;
@@ -17,7 +17,7 @@ export interface Territory { hostile?: HostileInstance; difficulty?: HostileTier
 export interface Block { sourceCardId?: string; sourceInstanceId?: string; routeId: string; by: number }
 export interface FoundVehicle { city: string; vehicle: Vehicle; repairedOnTurn: number | null }
 export interface Combat { eventHostile?: HostileInstance; hostileContext?: HostileContext; lastRoll?: {natural:number;total:number;defense:number;hit:boolean}; threatTurn?: boolean; eventIntegrity?: number; kind: 'combat'; territoryId?: string; defenderId?: number; actorId: number; betweenRounds: boolean; lootResolved: boolean }
-export interface Game { hostileConfig?: HostileConfig; hostileDiscarded?: HostileInstance[]; cardState?: CatalogState; schemaVersion: 4; contentVersion: string; seed: number; nextId: number; turn: number; active: number; actions: number; started: boolean; moved: boolean; players: Player[]; territories: Record<string, Territory>; encounter: Combat | null; blocks: Block[]; found: FoundVehicle[]; localScrap: Record<string, number>; discarded: Card[]; log: string[]; rules: RuleConfig; winner: number | null }
+export interface Game { victoryAnnouncements?: Record<string, {declaredTurn:number}>; travelAfterBlock?: boolean; hostileConfig?: HostileConfig; hostileDiscarded?: HostileInstance[]; cardState?: CatalogState; schemaVersion: 4; contentVersion: string; seed: number; nextId: number; turn: number; active: number; actions: number; started: boolean; moved: boolean; players: Player[]; territories: Record<string, Territory>; encounter: Combat | null; blocks: Block[]; found: FoundVehicle[]; localScrap: Record<string, number>; discarded: Card[]; log: string[]; rules: RuleConfig; winner: number | null }
 export type Action = CardAction
  | { type: 'start' } | { type: 'move'; route: string } | { type: 'conquer'; territoryId: string }
  | { type: 'duel'; defenderId: number } | { type: 'attack' } | { type: 'escape'; route: string; playerId: number }
@@ -43,7 +43,7 @@ export function makeVehicle(s: Game, modelId: ModelId): Vehicle {
 function draw(s: Game, p: Player) { if(s.cardState) drawCatalog(s, 'general', p); else p.hand.push({ id: `card-${s.nextId++}`, definitionId: cards.generals[random(s, cards.generals.length)].id, type: 'general' }); }
 export function createGame(names: string[], seed: number, rules = laboratoryRules): Game {
  if (names.length < 2 || names.length > 4 || names.some(n => !n.trim()) || !Number.isSafeInteger(seed) || seed < 0 || seed > 0xffffffff) throw Error('Informe 2–4 nomes e uma seed inteira de 0 a 4294967295.');
- const s: Game = { schemaVersion: 4, contentVersion: CONTENT_VERSION, seed, nextId: 1, turn: 1, active: 0, actions: 1, started: false, moved: false, players: [], territories: {}, encounter: null, blocks: [], found: [], localScrap: {}, discarded: [], log: [], rules: structuredClone(rules), winner: null };
+ const s: Game = { schemaVersion: 4, contentVersion: CONTENT_VERSION, seed, nextId: 1, turn: 1, active: 0, actions: 1, started: false, moved: false, players: [], territories: {}, encounter: null, blocks: [], found: [], localScrap: {}, discarded: [], log: [], rules: structuredClone(rules), winner: null, victoryAnnouncements: {}, travelAfterBlock: false };
  const availableCities = [...cities];
  initCatalog(s);initHostiles(s);
  for (const city of cities) {
@@ -52,13 +52,13 @@ export function createGame(names: string[], seed: number, rules = laboratoryRule
  }
  for (const [id, name] of names.entries()) {
   const city = availableCities.splice(random(s, availableCities.length), 1)[0];
-  const vehicle = makeVehicle(s, vehicles[random(s, vehicles.length)].id as ModelId); vehicle.fuelUnits = model(vehicle).tank;
+  const vehicle = makeVehicle(s, vehicles[random(s, vehicles.length)].id as ModelId); vehicle.fuelUnits = rebalance.setup.fuelUnits[vehicle.modelId];
   const p: Player = { id, name: name.trim(), city: city.id, vehicle, stock: { ...emptyStock(), scrap: 1 }, hand: [], repairs: 0, usedGeneral: false };
-  draw(s, p); draw(s, p); s.players.push(p);
+  draw(s, p); s.players.push(p);
   const t = s.territories[`${city.id}-${random(s, city.regions) + 1}`]; t.owner = id;t.resistance=rules.territoryIntegrity;t.threat = null;delete t.hostile;
  }
  for (let i = s.players.length - 1; i > 0; i--) { const j = random(s, i + 1); [s.players[i], s.players[j]] = [s.players[j], s.players[i]]; }
- note(s, 'GDD v0.4: ordem, carros e posições sorteados; tanque cheio, 1 sucata e 2 gerais. Inicie o turno para comprar a geral da vez.');
+ note(s, 'Regras v0.5: ordem, carros e posições sorteados; combustível para 3 viagens, 1 sucata e 1 geral. Inicie o turno para comprar a geral da vez.');
  assertInvariants(s); return s;
 }
 export const cityTerritories = (s: Game, city: string) => Object.values(s.territories).filter(t => t.city === city);
@@ -106,7 +106,8 @@ function disable(s: Game, loser: Player, winner?: Player) {
  note(s, `${loser.name}: carro inutilizado, recuperável no local.`);
 }
 export function transition(previous: Game, action: Action): Game {
- const s = structuredClone(previous), p = s.players[s.active], r = s.rules;if(!s.hostileConfig&&s.contentVersion!==CONTENT_VERSION){migrateHostiles(s);s.contentVersion=CONTENT_VERSION;}const combatBefore=s.encounter;
+ if(previous.contentVersion!==CONTENT_VERSION)throw Error('Partida de edição anterior incompatível com v0.5. Original preservado; inicie uma nova partida.');
+ const s = structuredClone(previous), p = s.players[s.active], r = s.rules;const combatBefore=s.encounter;
  const resolving = ['discard', 'discardCard', 'transfer', 'refuel'].includes(action.type);
  if (capacityIssues(s).length && !resolving) throw Error('Resolva excedentes de carga, tanque, depósito ou mão antes de continuar.');
  if (s.winner !== null && !resolving) throw Error('Partida encerrada.');
@@ -121,10 +122,12 @@ export function transition(previous: Game, action: Action): Game {
  if(!handleCardAction(s,action)) switch (action.type) {
   case 'start':
    if (s.started) throw Error('Turno já iniciado.');
-   if(s.cardState){s.cardState.used=[];s.cardState.pending=[];}s.blocks = s.blocks.filter(b => b.by !== p.id); s.started = true; s.actions = 1; s.moved = false; p.repairs = 0; s.players.forEach(p => { p.usedGeneral = false; }); draw(s, p); note(s, `${p.name} comprou 1 geral; bloqueios próprios expiraram.`); break;
+   if(s.cardState){s.cardState.used=[];s.cardState.pending=[];}s.blocks = s.blocks.filter(b => b.by !== p.id); s.started = true; s.actions = 1; s.moved = false; p.repairs = 0; s.players.forEach(p => { p.usedGeneral = false; }); s.travelAfterBlock=false; cancelInvalidAnnouncements(s);
+   if(s.victoryAnnouncements?.[p.id]){s.winner=p.id;note(s, `${p.name} sustentou 4 pontos até o próximo turno e venceu.`);break;}
+   draw(s, p); note(s, `${p.name} comprou 1 geral; bloqueios próprios expiraram.`); break;
   case 'move': {
-   operational(); if (s.moved || !s.actions) throw Error('Viaje uma vez, antes da ação principal.');
-   travel(s, p, action.route); s.moved = true;
+   operational(); if (!canTravelThisTurn(s)) throw Error('Viaje uma vez, antes da ação principal ou após G17.');
+   travel(s, p, action.route); s.moved = true; s.travelAfterBlock=false;
    if(s.cardState) resolveEvent(s,p);
    break;
   }
@@ -225,13 +228,20 @@ export function transition(previous: Game, action: Action): Game {
    target.hand = target.hand.filter(c => c.id !== card.id); if(s.cardState)discardCatalog(s,card);else s.discarded.push(card); break;
   }
   case 'end':
+   cancelInvalidAnnouncements(s);
+   if(points(s,p.id)>=rebalance.victory.points&&!s.victoryAnnouncements?.[p.id]){(s.victoryAnnouncements??={})[p.id]={declaredTurn:s.turn};note(s,`${p.name} anunciou vitória territorial; adversários podem responder até seu próximo turno.`);}
+   s.travelAfterBlock=false;
    s.active = (s.active + 1) % s.players.length; s.turn++; s.started = false; s.moved = false; s.actions = 1; note(s, `Passagem para ${s.players[s.active].name}.`); break;
   default: throw Error('Comando desconhecido.');
  }
  if(combatBefore?.eventHostile&&!s.encounter)(s.hostileDiscarded??=[]).push(combatBefore.eventHostile);
  if(previous.encounter&&!s.encounter&&s.cardState){s.cardState.pending=s.cardState.pending.filter(v=>['race','lootAttack','lootDefense'].includes(v.effect));s.cardState.used=s.cardState.used.filter(v=>!v.startsWith('round:')&&!v.startsWith('combat:'));}
- if (!s.encounter && !s.cardState?.race && !capacityIssues(s).length) s.winner = s.players.find(v => points(s, v.id) >= 4)?.id ?? null;
+ cancelInvalidAnnouncements(s);
  assertInvariants(s); return s;
+}
+export function canTravelThisTurn(s: Game): boolean { return !s.moved && !!(s.actions || s.travelAfterBlock); }
+function cancelInvalidAnnouncements(s:Game){
+ for(const id of Object.keys(s.victoryAnnouncements??{})){if(!s.players.some(p=>String(p.id)===id&&points(s,p.id)>=rebalance.victory.points)){delete s.victoryAnnouncements![id];note(s,'Anúncio territorial cancelado: pontuação abaixo de 4.');}}
 }
 export function assertInvariants(s: Game): void {
  assertCatalog(s);assertHostiles(s);
@@ -250,6 +260,7 @@ export function assertInvariants(s: Game): void {
 
  for (const f of s.found) { vehicle(f.vehicle); if (!cities.some(c=>c.id === f.city) || (f.repairedOnTurn !== null && !integer(f.repairedOnTurn))) throw Error('Descoberta inválida.'); }
  for (const c of cities) if (!integer(s.localScrap[c.id])) throw Error('Sucata local inválida.');
+ if(s.contentVersion===CONTENT_VERSION){if(!s.victoryAnnouncements||typeof s.victoryAnnouncements!=='object'||Array.isArray(s.victoryAnnouncements)||typeof s.travelAfterBlock!=='boolean')throw Error('Estado de rebalanceamento inválido.');for(const [id,a] of Object.entries(s.victoryAnnouncements)){if(!s.players.some(p=>String(p.id)===id)||!a||!integer(a.declaredTurn)||a.declaredTurn<1||a.declaredTurn>s.turn)throw Error('Anúncio territorial inválido.');}}
  if (!Array.isArray(s.log) || s.log.some(v=>typeof v !== 'string') || (s.winner !== null && !playerIds.has(s.winner))) throw Error('Histórico/resultado inválido.');
  if (s.encounter) { const e = s.encounter; if (e.kind !== 'combat' || !playerIds.has(e.actorId) || (e.territoryId ? !s.territories[e.territoryId] : e.eventIntegrity===undefined && !playerIds.has(e.defenderId!)) || typeof e.betweenRounds !== 'boolean' || typeof e.lootResolved !== 'boolean') throw Error('Combate inválido.'); }
  if(s.encounter?.lastRoll){const roll=s.encounter.lastRoll;if(!integer(roll.natural)||roll.natural<1||roll.natural>6||!Number.isSafeInteger(roll.total)||!integer(roll.defense)||roll.defense>6||typeof roll.hit!=='boolean')throw Error('Resultado de combate inválido.');}

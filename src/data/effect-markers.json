@@ -939,6 +939,34 @@
         "64": "png/64/incendio_plus1.png",
         "256": "png/256/incendio_plus1.png"
       }
+    },
+    {
+      "id": "combustivel_plus1",
+      "family": "combustivel",
+      "label": "+1",
+      "description": "Combustível no tanque",
+      "color": "#DA9A18",
+      "shape": "drop",
+      "svg": "svg/combustivel_plus1.svg",
+      "png": {
+        "32": "png/32/combustivel_plus1.png",
+        "64": "png/64/combustivel_plus1.png",
+        "256": "png/256/combustivel_plus1.png"
+      }
+    },
+    {
+      "id": "sucata_minus1",
+      "family": "sucata",
+      "label": "−1",
+      "description": "Sucata recebida",
+      "color": "#A6AAB3",
+      "shape": "hex",
+      "svg": "svg/sucata_minus1.svg",
+      "png": {
+        "32": "png/32/sucata_minus1.png",
+        "64": "png/64/sucata_minus1.png",
+        "256": "png/256/sucata_minus1.png"
+      }
     }
   ],
   "cards": [
@@ -1033,9 +1061,9 @@
     {
       "cardId": "G09",
       "name": "Combustível de emergência",
-      "rulesText": "Coloque 2 combustíveis diretamente no tanque escolhido. Pode ajudar um carro em emergência.",
+      "rulesText": "Antes de uma ação, qualquer jogador. Adicione 1 combustível ao tanque escolhido. Respeite a capacidade. Pode ajudar um carro em emergência.",
       "icons": [
-        "combustivel_plus2"
+        "combustivel_plus1"
       ],
       "displayPolicy": "contextual",
       "rulesAuthority": "rulesText and existing game engine",
@@ -1055,9 +1083,9 @@
     {
       "cardId": "G11",
       "name": "Suprimento de sucata",
-      "rulesText": "Receba 2 sucatas na carga. Pode armazená-las em depósito próprio da cidade antes de descartar excedente.",
+      "rulesText": "Antes de sua ação, receba 1 sucata na carga. Pode armazená-la em depósito próprio da cidade antes de descartar excedente.",
       "icons": [
-        "sucata_plus2"
+        "sucata_plus1"
       ],
       "displayPolicy": "contextual",
       "rulesAuthority": "rulesText and existing game engine",
@@ -1066,9 +1094,9 @@
     {
       "cardId": "G12",
       "name": "Caixa de munição",
-      "rulesText": "Receba 2 munições na carga, respeitando capacidade.",
+      "rulesText": "Antes de sua ação, receba 1 munição na carga, respeitando a capacidade.",
       "icons": [
-        "municao_plus2"
+        "municao_plus1"
       ],
       "displayPolicy": "contextual",
       "rulesAuthority": "rulesText and existing game engine",
@@ -1121,9 +1149,11 @@
     {
       "cardId": "G17",
       "name": "Barricada na estrada",
-      "rulesText": "Bloqueie uma estrada aberta até o início do seu próximo turno. Não pode retirar a última saída compatível de nenhum carro presente.",
+      "rulesText": "No seu turno, antes de viajar ou agir: gaste 1 sucata e sua ação principal. Bloqueie 1 estrada aberta até seu próximo turno. Não pode retirar a última saída compatível de nenhum carro presente.",
       "icons": [
-        "bloqueio_x"
+        "bloqueio_x",
+        "sucata_minus1",
+        "acao_minus1"
       ],
       "displayPolicy": "contextual",
       "rulesAuthority": "rulesText and existing game engine",
@@ -1165,9 +1195,9 @@
     {
       "cardId": "G21",
       "name": "Pé embaixo",
-      "rulesText": "Some +2 ao avanço desta rolagem, sem alterar o dado natural.",
+      "rulesText": "Antes do avanço de um participante na corrida, some +1 ao avanço desta rolagem. Não altera o dado natural.",
       "icons": [
-        "corrida_plus2"
+        "corrida_plus1"
       ],
       "displayPolicy": "contextual",
       "rulesAuthority": "rulesText and existing game engine",
@@ -1176,9 +1206,9 @@
     {
       "cardId": "G22",
       "name": "Pressão no rival",
-      "rulesText": "Subtraia 2 do avanço desta rolagem, mínimo zero.",
+      "rulesText": "Antes do avanço de um participante na corrida, subtraia 1 do avanço desta rolagem, mínimo zero.",
       "icons": [
-        "corrida_minus2"
+        "corrida_minus1"
       ],
       "displayPolicy": "contextual",
       "rulesAuthority": "rulesText and existing game engine",
@@ -1209,7 +1239,7 @@
     {
       "cardId": "E01",
       "name": "Metralhadora lateral",
-      "rulesText": "Concede 1 ataque adicional por rodada, dano 1, custo 1 munição.",
+      "rulesText": "1 espaço. Concede 1 ataque adicional por rodada: dano 1, custo 1 munição. Use no máximo 1 arma adicional por rodada, somando todos os equipamentos.",
       "icons": [
         "ataque_extra_plus1",
         "dano_1",
@@ -1222,7 +1252,7 @@
     {
       "cardId": "E02",
       "name": "Canhão de sucata",
-      "rulesText": "Concede 1 ataque adicional por rodada, dano 3, custo 1 munição; −1 no próprio acerto. Não cabe no hatch com carga máxima 1.",
+      "rulesText": "1 espaço e 2 cargas. Ataque adicional por rodada: dano 3, custo 1 munição, acerto −1. Use no máximo 1 arma adicional por rodada entre todos os equipamentos.",
       "icons": [
         "ataque_extra_plus1",
         "dano_3",
@@ -1237,7 +1267,7 @@
     {
       "cardId": "E03",
       "name": "Espingarda de bordo",
-      "rulesText": "Concede 1 ataque adicional por rodada, dano 2, custo 1 munição; só pode mirar carros.",
+      "rulesText": "1 espaço. Ataque adicional por rodada: dano 2, custo 1 munição. Só atinge carros. Use no máximo 1 arma adicional por rodada entre todos os equipamentos.",
       "icons": [
         "ataque_extra_plus1",
         "dano_2",
@@ -1250,7 +1280,7 @@
     {
       "cardId": "E04",
       "name": "Blindagem rebitada",
-      "rulesText": "Aumente sua Defesa em 1, até o teto provisório 6+.",
+      "rulesText": "ÚNICA. 1 espaço. Enquanto instalada, sua Defesa aumenta em 1, até 6+. Não reduz dano recebido.",
       "icons": [
         "defesa_plus1"
       ],
@@ -1273,7 +1303,7 @@
     {
       "cardId": "E06",
       "name": "Mira estabilizada",
-      "rulesText": "Uma vez por rodada de combate, +1 ao acerto de um ataque seu. Declare antes do dado.",
+      "rulesText": "ÚNICA. 1 espaço. Uma vez por combate, some +1 ao acerto de um ataque seu. Declare antes do dado.",
       "icons": [
         "acerto_plus1"
       ],
@@ -1306,7 +1336,7 @@
     {
       "cardId": "E09",
       "name": "Kit de extração",
-      "rulesText": "+1 ao teste de fuga. Não remove custo de combustível ou pagamento de carta PvP.",
+      "rulesText": "ÚNICA. 1 espaço. +1 ao teste de fuga. Não remove o custo de combustível nem o pagamento de carta na fuga entre jogadores.",
       "icons": [
         "fuga_plus1"
       ],
@@ -1891,5 +1921,6 @@
       "rulesAuthority": "rulesText and existing game engine",
       "note": "Ícones múltiplos podem ser custos, efeitos conjuntos ou alternativas. Não executar todos automaticamente."
     }
-  ]
+  ],
+  "contentVersion": "0.2"
 }
