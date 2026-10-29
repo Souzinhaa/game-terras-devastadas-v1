@@ -1,0 +1,171 @@
+/* The map is the playing surface. All game controls live above it. */
+body:has(.is-playing) { overflow: hidden; }
+.mini-vehicle-hud,.close-panel { display: none; }
+.is-playing { height: 100dvh; overflow: hidden; isolation: isolate; }
+.is-playing .board-layout,.is-playing .map-column,.is-playing .sidebar { display: contents; }
+.is-playing .board-layout .panel { display: none; position: fixed; z-index: 10; right: 20px; top: 100px; bottom: 116px; width: min(420px,calc(100vw - 40px)); margin: 0; overflow: auto; overscroll-behavior: contain; animation: settle 350ms var(--ease); }
+.is-playing .board-layout .board-panel { display: block; inset: 0; width: 100%; height: 100dvh; z-index: 0; padding: 0; border: 0; border-radius: 0; overflow: hidden; background: var(--moss); }
+.is-playing .map-viewport { position: absolute; inset: 0; width: 100vw; height: 100dvh; max-height: none; min-height: 0; border: 0; border-radius: 0; scrollbar-width: none; }
+.is-playing .map-viewport::-webkit-scrollbar { display: none; }
+.is-playing .map { background-image: linear-gradient(#34412b22,#34412b44),url('../assets/mapa-principal.png'); }
+.is-playing .board-panel>.panel-heading { position: fixed; z-index: 4; bottom: 21px; left: 20px; padding: 8px; margin: 0; border: 1px solid #a3ac8d; border-radius: 20px; background: #e8dcc7f2; }
+.is-playing .board-panel>.panel-heading>div:first-child { display: none; }
+.is-playing .map-legend { position: fixed; z-index: 3; left: 20px; bottom: 84px; padding: 9px 13px; gap: 12px; background: #e8dcc7ed; border: 1px solid #a3ac8d; border-radius: 16px; }
+.is-playing .board-panel>.hint { display: none; }
+.is-playing .app-header { position: fixed; z-index: 7; inset: 16px 20px auto; padding: 0; background: none; pointer-events: none; gap: 16px; }
+.is-playing .app-header>div,.is-playing .app-header nav { pointer-events: auto; background: #e8dcc7f2; border: 1px solid #9daa87; border-radius: 24px; padding: 12px 18px; }
+.is-playing .app-header h1 { color: var(--ink); font-size: 28px; letter-spacing: -1px; }
+.is-playing .app-header h1 em { display: inline; color: var(--moss); }
+.is-playing .app-header .eyebrow { color: var(--moss); font-size: 8px; letter-spacing: 1px; }
+.is-playing .app-header nav { gap: 6px; padding: 9px 12px; }
+.is-playing .app-header button { color: var(--ink); border-color: #a8b294; padding: 8px 12px; min-height: 37px; font-size: 11px; }
+.is-playing .app-header button:hover:enabled { background: #ccd1b2; }
+.is-playing .save-status { color: var(--moss); font-size: 9px; max-width: 95px; margin-right: 4px; }
+.is-playing .notice,.is-playing footer { display: none; }
+.is-playing .turn-strip { position: fixed; z-index: 6; left: 20px; top: 99px; right: auto; max-width: calc(100vw - 40px); background: #e8dcc7ed; color: var(--ink); border: 1px solid #9daa87; border-radius: 22px; padding: 11px 16px; gap: 9px; flex-direction: column; align-items: flex-start; }
+.is-playing .turn-strip>div { gap: 9px; }
+.is-playing .turn-strip span { font-size: 11px; }
+.is-playing .turn-strip .player-number { color: var(--moss); width: 24px; height: 24px; }
+.is-playing .turn-strip>div:nth-child(2)>span { padding-left: 0; border: 0; font-size: 10px; color: var(--moss); }
+.is-playing .turn-strip>div:nth-child(2)>span+span { border-left: 1px solid #b1b99a; padding-left: 9px; }
+.is-playing .turn-strip>.primary { position: fixed; bottom: 24px; right: 20px; width: 190px; min-height: 54px; background: var(--moss); color: var(--sand); border-color: #bdc6a4; border-radius: 20px; }
+.is-playing .turn-strip>.primary:hover:enabled { background: #4d5c2d; }
+.is-playing .players-strip { position: fixed; z-index: 6; top: 198px; left: 20px; padding: 8px; gap: 5px; width: 215px; max-height: 220px; overflow: auto; background: #e8dcc7e8; border: 1px solid #9daa87; border-radius: 22px; display: flex; flex-direction: column; }
+.is-playing .player-summary { min-width: 0; padding: 7px 9px; gap: 9px; border-radius: 16px; background: none; border-color: transparent; width: 100%; }
+.is-playing .player-summary.is-active { background: #c6cead; border-color: #a3af88; }
+.is-playing .player-summary>div>small { display: none; }
+.is-playing .player-summary strong { font-size: 11px; }
+.is-playing .player-summary .player-number { width: 22px; height: 22px; font-size: 10px; }
+.is-playing .player-score { font-size: 22px; }
+.is-playing .player-score small { display: inline; font-size: 9px; margin-left: 3px; }
+.is-playing .game-navigation { position: fixed; z-index: 12; left: 50%; bottom: 20px; top: auto; transform: translateX(-50%); display: flex; align-items: center; padding: 7px; gap: 3px; width: max-content; max-width: calc(100vw - 420px); overflow: auto; border: 1px solid #a4af8e; border-radius: 26px; background: #e8dcc7f5; backdrop-filter: blur(8px); }
+.is-playing .game-navigation button { display: flex; flex-direction: column; gap: 5px; justify-content: center; align-items: center; padding: 8px 10px; min-width: 64px; min-height: 61px; font-size: 9px; border-radius: 18px; }
+.is-playing .game-navigation .icon { width: 26px; height: 26px; }
+.is-playing .victory-target { display: none; }
+.is-playing .mini-vehicle-hud { display: flex; align-items: center; gap: 11px; position: fixed; z-index: 6; left: 20px; bottom: 128px; background: #e8dcc7ed; border: 1px solid #9daa87; padding: 10px 14px; border-radius: 22px; font-size: 12px; }
+.mini-vehicle-hud .vehicle-marker { width: 26px; height: 45px; }
+.mini-vehicle-hud>span { display: flex; flex-direction: column; align-items: center; gap: 5px; font-variant-numeric: tabular-nums; }
+.mini-vehicle-hud .mini-model { align-items: flex-start; font-family: var(--display); font-size: 21px; margin-right: 8px; }
+.mini-model small { font-family: 'Avenir Next','Trebuchet MS',sans-serif; font-size: 9px; }
+.mini-vehicle-hud .icon { width: 19px; height: 19px; color: var(--moss); }
+.is-playing .close-panel { display: grid; place-items: center; position: fixed; z-index: 13; top: 108px; right: 28px; background: var(--sand); border-color: #a4af8e; width: 38px; min-height: 38px; padding: 6px; border-radius: 16px; }
+.is-playing[data-panel='territorios'] .board-layout .territory-panel { display: block; width: min(580px,calc(100vw - 40px)); }
+.is-playing[data-panel='carro'] .board-layout .vehicle-panel,
+.is-playing[data-panel='rotas'] .board-layout .travel-panel,
+.is-playing[data-panel='cartas'] .board-layout .hand-panel,
+.is-playing[data-panel='administrar'] .board-layout .administration-panel,
+.is-playing[data-panel='historico'] .board-layout .history-panel,
+.is-playing[data-panel='combate'] .board-layout .encounter { display: block; }
+.is-playing .panel>.panel-heading { padding-right: 38px; }
+.is-playing .panel>h2:first-child { padding-right: 35px; }
+.is-playing .territories { max-height: none; overflow: visible; }
+.is-playing .history-panel .log { max-height: none; }
+.is-playing .city,.is-playing .city.current { width: 145px; min-height: 80px; background: none; border: 0; outline: none; padding: 0; display: flex; flex-direction: column; align-items: center; gap: 4px; }
+.is-playing .city:hover:enabled { background: none; }
+.city-emblem { display: none; }
+.is-playing .city-emblem { display: grid; place-items: center; width: 48px; height: 48px; border-radius: 20px; border: 1px solid #a4af8e; background: #e8dcc7f2; color: var(--moss); transition: transform 350ms var(--ease),background 350ms var(--ease); }
+.city-emblem .icon { width: 29px; height: 29px; }
+.is-playing .city.selected .city-emblem { outline: 3px solid var(--oat); outline-offset: 3px; background: var(--sand); }
+.is-playing .city.current .city-emblem { background: var(--moss); color: var(--sand); border-color: var(--oat); }
+.is-playing .city:hover .city-emblem { transform: translateY(-3px); }
+.is-playing .city>strong { font-family: var(--display); font-size: 15px; padding: 5px 10px; border-radius: 16px; background: #e8dcc7ef; max-width: 145px; }
+.is-playing .city-summary { display: none; background: var(--sand); border-radius: 16px; padding: 4px 9px; margin: 0; }
+.is-playing .city:hover .city-summary,.is-playing .city:focus-visible .city-summary { display: block; }
+.is-playing .city:focus-visible .city-emblem { outline: 3px solid var(--terracotta); outline-offset: 4px; }
+.is-playing .city .region-dots { background: #e8dcc7e8; border-radius: 16px; padding: 4px 7px; margin: 0; }
+.is-playing .city .yard { min-height: 0; gap: 5px; }
+.is-playing .yard-car { background: #e8dcc7e8; border-radius: 16px; padding: 2px 5px; }
+.is-playing .city .here { color: var(--sand); background: var(--moss); border-radius: 16px; padding: 3px 8px; margin: 0; }
+.is-playing>.feedback { position: fixed; z-index: 16; top: 91px; left: 50%; transform: translateX(-50%); max-width: min(660px,calc(100vw - 32px)); width: max-content; border-radius: 20px; padding: 12px 18px; border: 1px solid #9daa87; }
+.is-playing .action-receipt { bottom: 110px; z-index: 14; }
+@media(max-width:1100px) {
+  .is-playing .players-strip { width: 180px; }
+  .is-playing .mini-vehicle-hud { bottom: 186px; }
+  .is-playing .game-navigation { max-width: calc(100vw - 230px); left: 20px; transform: none; }
+  .is-playing .board-panel>.panel-heading { bottom: 113px; }
+  .is-playing .map-legend { bottom: 164px; font-size: 9px; }
+}
+@media(max-width:700px) {
+  .is-playing .app-header { inset: 10px 12px auto; align-items: flex-start; flex-direction: row; gap: 8px; }
+  .is-playing .app-header>div { padding: 10px 12px; }
+  .is-playing .app-header h1 { font-size: 22px; max-width: 160px; }
+  .is-playing .app-header h1 em { display: block; margin-left: 0; }
+  .is-playing .app-header .eyebrow { font-size: 7px; }
+  .is-playing .app-header nav { width: 152px; max-width: 152px; padding: 7px; justify-content: flex-end; gap: 4px; }
+  .is-playing .save-status { font-size: 8px; text-align: right; margin: 0; width: 100%; max-width: none; }
+  .is-playing .app-header button { padding: 6px 7px; min-height: 28px; font-size: 8px; border-radius: 16px; }
+  .is-playing .turn-strip { left: 12px; top: 104px; max-width: calc(100vw - 24px); padding: 9px 12px; gap: 6px; }
+  .is-playing .turn-strip>div:nth-child(2) { flex-basis: auto; }
+  .is-playing .turn-strip>.primary { bottom: 94px; right: 12px; width: 150px; min-height: 45px; font-size: 11px; }
+  .is-playing .players-strip { top: 189px; left: 12px; width: auto; max-width: 165px; padding: 5px; max-height: 180px; }
+  .is-playing .player-summary { padding: 4px 6px; }
+  .is-playing .player-summary strong { font-size: 10px; }
+  .is-playing .player-score { font-size: 17px; }
+  .is-playing .mini-vehicle-hud { left: 12px; bottom: 152px; padding: 8px 10px; gap: 8px; border-radius: 20px; }
+  .mini-vehicle-hud .mini-model { font-size: 17px; margin-right: 2px; }
+  .mini-vehicle-hud .vehicle-marker { width: 20px; height: 34px; }
+  .mini-vehicle-hud .icon { width: 16px; height: 16px; }
+  .is-playing .mini-vehicle-hud>span { font-size: 10px; gap: 3px; }
+  .is-playing .game-navigation { left: 12px; right: 12px; bottom: 12px; max-width: none; width: auto; transform: none; padding: 5px; gap: 0; border-radius: 24px; }
+  .is-playing .game-navigation button { flex: 1 0 52px; min-width: 52px; min-height: 58px; padding: 7px 6px; font-size: 8px; }
+  .is-playing .game-navigation .icon { width: 24px; height: 24px; }
+  .is-playing .board-panel>.panel-heading { left: 12px; bottom: 91px; padding: 5px; border-radius: 18px; }
+  .is-playing .zoom-controls button { min-height: 32px; min-width: 29px; padding: 1px 6px; }
+  .is-playing .zoom-controls output { font-size: 10px; }
+  .is-playing .map-legend { display: none; }
+  .is-playing .board-layout .panel:not(.board-panel) { top: 104px; bottom: 150px; left: 12px; right: 12px; width: auto; padding: 20px; }
+  .is-playing[data-panel='territorios'] .board-layout .territory-panel { width: auto; }
+  .is-playing .close-panel { top: 112px; right: 20px; }
+  .is-playing .city>strong { font-size: 13px; max-width: 130px; }
+  .is-playing .city-emblem { width: 43px; height: 43px; border-radius: 18px; }
+  .is-playing .city-emblem .icon { width: 26px; height: 26px; }
+  .is-playing>.feedback { top: 104px; }
+  .is-playing .action-receipt { bottom: 220px; }
+}
+.is-playing .city-emblem .icon { position: static; inset: auto; }
+@media(max-width:700px) { .is-playing .game-navigation button { flex-basis: 46px; min-width: 46px; } }
+/* Vehicles are independent map pieces, not thumbnails inside city labels. */
+.board-vehicles { position: absolute; inset: 0; pointer-events: none; }
+.vehicle-piece { position: absolute; width: 76px; min-height: 118px; padding: 0; border: 0; background: none; border-radius: 24px; pointer-events: auto; transform: translate(calc(-50% + var(--park-x)),calc(-50% + var(--park-y))); display: flex; flex-direction: column; align-items: center; justify-content: flex-end; gap: 3px; z-index: 2; transition: none; }
+.vehicle-piece:hover:enabled,.vehicle-piece:active:enabled { background: none; border: 0; transform: translate(calc(-50% + var(--park-x)),calc(-50% + var(--park-y))); }
+.vehicle-piece.is-moving { transition: left 800ms linear,top 800ms linear; z-index: 3; }
+.vehicle-base { position: absolute; width: 63px; height: 63px; left: 50%; top: 25px; translate: -50% 0; border: 1px solid currentColor; border-radius: 50%; background: #e8dcc755; }
+.active-piece .vehicle-base { outline: 2px solid var(--sand); outline-offset: 4px; background: #e8dcc788; }
+.piece-art { display: block; height: 92px; width: 58px; transform: rotate(var(--heading)); transition: transform 350ms var(--ease); }
+.vehicle-piece .piece-art .vehicle-art { width: 58px; height: 92px; object-fit: contain; transform: none; }
+.vehicle-piece:hover .piece-art .vehicle-art { transform: translateY(-3px); }
+.piece-number { position: absolute; left: 0; top: 7px; width: 24px; height: 24px; display: grid; place-items: center; background: var(--sand); border: 1px solid currentColor; border-radius: 16px; font-size: 11px; font-weight: 700; }
+.piece-name { font-size: 10px; font-weight: 700; line-height: 1.4; max-width: 115px; white-space: nowrap; text-overflow: ellipsis; overflow: hidden; border-radius: 16px; background: var(--sand); color: var(--ink); padding: 4px 9px; }
+.piece-state { font-size: 8px; line-height: 1.3; background: var(--moss); color: var(--sand); border-radius: 16px; padding: 3px 8px; white-space: nowrap; }
+.disabled-piece .piece-art { opacity: .55; }
+.vehicle-piece:focus-visible { outline: 3px solid var(--terracotta); outline-offset: 6px; }
+@media(max-width:700px) { .vehicle-piece { width: 68px; min-height: 108px; } .piece-art,.vehicle-piece .piece-art .vehicle-art { width: 52px; height: 84px; } .vehicle-base { width: 56px; height: 56px; } }
+@media(prefers-reduced-motion:reduce) { .vehicle-piece.is-moving { transition: none; } }
+/* Readability correction: opaque HUD, quieter map and a true silhouette outline. */
+.is-playing .map { background-image: linear-gradient(#34412b0d,#34412b1a),url('../assets/mapa-expandido-v2.png'); }
+.is-playing .map-viewport { scrollbar-width: thin; scrollbar-color: #d4b895 #34412b; touch-action: none; }
+.is-playing .map-viewport::-webkit-scrollbar { display: block; width: 10px; height: 10px; }
+.is-playing .map-viewport::-webkit-scrollbar-thumb { background: #d4b895; border: 2px solid #34412b; border-radius: 16px; }
+.is-playing .map-viewport::-webkit-scrollbar-track { background: #34412b; }
+.is-playing .app-header>div,.is-playing .app-header nav,.is-playing .turn-strip,
+.is-playing .players-strip,.is-playing .mini-vehicle-hud,.is-playing .game-navigation,
+.is-playing .map-legend,.is-playing .board-panel>.panel-heading { background: var(--sand); border-color: #606c38; backdrop-filter: none; }
+.is-playing .save-status { color: #34412b; }
+.is-playing .player-summary strong,.is-playing .player-summary .player-score { color: #34412b; }
+.is-playing .city-emblem,.is-playing .city>strong,.is-playing .city .region-dots { background: var(--sand); color: #34412b; border-color: #606c38; }
+.is-playing .city.current .city-emblem { background: #4d5c2d; color: var(--sand); }
+.vehicle-piece .piece-art .vehicle-art { filter: drop-shadow(2px 0 0 #e8dcc7) drop-shadow(-2px 0 0 #e8dcc7) drop-shadow(0 2px 0 #e8dcc7) drop-shadow(0 -2px 0 #e8dcc7) drop-shadow(0 0 3px #34412b); }
+.vehicle-base { background: #34412be6; border: 2px solid var(--sand); }
+.active-piece .vehicle-base { background: #34412be6; outline: 3px solid var(--oat); outline-offset: 4px; }
+.piece-name { color: var(--sand); background: #34412b; border: 1px solid var(--sand); }
+.piece-number { background: var(--sand); color: #34412b; border: 2px solid #34412b; font-weight: 800; }
+.piece-state { background: #34412b; color: var(--sand); border: 1px solid #d4b895; }
+.is-playing .recenter-map { display: grid; place-items: center; }
+.is-playing .recenter-map .icon { position: static; width: 18px; height: 18px; }
+@media(max-width:700px) { .is-playing .board-panel>.panel-heading { max-width: 188px; } }
+/* Keep roads legible without turning them into wide stripes on the larger world. */
+.is-playing .map line { vector-effect: non-scaling-stroke; stroke-width: 2px; }
+.is-playing .map line.available { stroke-width: 3px; }
+.is-playing .map line.blocked { stroke-width: 3px; stroke-dasharray: 3 4; }
+.is-playing .map line.rural { stroke-dasharray: 7 5; }
+.is-playing .map line.traveled { stroke-width: 4px; }

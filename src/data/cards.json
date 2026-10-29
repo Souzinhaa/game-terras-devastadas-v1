@@ -1,0 +1,15 @@
+﻿{
+ "generals":[
+  {"id":"block","name":"Bloqueio rodoviário","effect":"block","status":"PROVISÓRIO","description":"Bloqueia uma ligação até o início do seu próximo turno; nunca pode deixar um carro sem saída compatível."},
+  {"id":"unblock","name":"Passagem liberada","effect":"unblock","status":"PROVISÓRIO","description":"Remove um bloqueio por carta. Não custa sucata."}
+ ],
+ "fixedEquipment":[
+  {"id":"fixed-hatch","name":"Fixo do Hatch","description":"Vinculado ao modelo. Habilidade ABERTA; sem efeito adicional."},
+  {"id":"fixed-sedan","name":"Fixo do Sedã","description":"Vinculado ao modelo. Habilidade ABERTA; sem efeito adicional."},
+  {"id":"fixed-suv","name":"Fixo do SUV","description":"Vinculado ao modelo. Habilidade ABERTA; sem efeito adicional."},
+  {"id":"fixed-pickup","name":"Fixo da Caminhonete","description":"Vinculado ao modelo. Habilidade ABERTA; sem efeito adicional."}
+ ],
+ "threats":["Saqueadores","Animais hostis","Sobreviventes hostis"],
+ "events":[{"id":"quiet","name":"Passagem tranquila"},{"id":"wear","name":"Desgaste na estrada"},{"id":"discovery","name":"Veículo abandonado"}],
+ "resources":["fuel","scrap","tire","battery","water","ammo"]
+}

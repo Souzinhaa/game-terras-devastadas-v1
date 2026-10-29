@@ -1,0 +1,86 @@
+[
+    {
+        "id":  "araras",
+        "name":  "Araras",
+        "x":  51,
+        "y":  46,
+        "regions":  3
+    },
+    {
+        "id":  "rio-claro",
+        "name":  "Rio Claro",
+        "x":  18,
+        "y":  31,
+        "regions":  4
+    },
+    {
+        "id":  "santa-gertrudes",
+        "name":  "Santa Gertrudes",
+        "x":  17,
+        "y":  50,
+        "regions":  2
+    },
+    {
+        "id":  "cordeiropolis",
+        "name":  "Cordeirópolis",
+        "x":  18,
+        "y":  65,
+        "regions":  2
+    },
+    {
+        "id":  "conchal",
+        "name":  "Conchal",
+        "x":  86,
+        "y":  48,
+        "regions":  2
+    },
+    {
+        "id":  "limeira",
+        "name":  "Limeira",
+        "x":  50,
+        "y":  65,
+        "regions":  4
+    },
+    {
+        "id":  "artur-nogueira",
+        "name":  "Artur Nogueira",
+        "x":  87,
+        "y":  68,
+        "regions":  2
+    },
+    {
+        "id":  "leme",
+        "name":  "Leme",
+        "x":  52,
+        "y":  29,
+        "regions":  3
+    },
+    {
+        "id":  "santa-cruz",
+        "name":  "Santa Cruz da Conceição",
+        "x":  83,
+        "y":  13,
+        "regions":  2
+    },
+    {
+        "id":  "pirassununga",
+        "name":  "Pirassununga",
+        "x":  48,
+        "y":  12,
+        "regions":  3
+    },
+    {
+        "id":  "americana",
+        "name":  "Americana",
+        "x":  49,
+        "y":  85,
+        "regions":  4
+    },
+    {
+        "id":  "piracicaba",
+        "name":  "Piracicaba",
+        "x":  17,
+        "y":  85,
+        "regions":  4
+    }
+]

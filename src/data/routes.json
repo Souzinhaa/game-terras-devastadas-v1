@@ -1,0 +1,20 @@
+﻿[
+ {"id":"araras-leme","from":"araras","to":"leme","terrain":"paved","label":"Anhanguera · SP-330"},
+ {"id":"leme-pirassununga","from":"leme","to":"pirassununga","terrain":"paved","label":"Anhanguera · SP-330"},
+ {"id":"pirassununga-santa-cruz","from":"pirassununga","to":"santa-cruz","terrain":"paved","label":"Acesso local + SP-330"},
+ {"id":"araras-rio-claro","from":"araras","to":"rio-claro","terrain":"paved","label":"Wilson Finardi · SP-191"},
+ {"id":"rio-claro-santa-gertrudes","from":"rio-claro","to":"santa-gertrudes","terrain":"paved","label":"Washington Luís · SP-310"},
+ {"id":"santa-gertrudes-cordeiropolis","from":"santa-gertrudes","to":"cordeiropolis","terrain":"paved","label":"Washington Luís · SP-310"},
+ {"id":"cordeiropolis-limeira","from":"cordeiropolis","to":"limeira","terrain":"paved","label":"Anhanguera · SP-330"},
+ {"id":"cordeiropolis-araras","from":"cordeiropolis","to":"araras","terrain":"paved","label":"Anhanguera · SP-330"},
+ {"id":"araras-conchal","from":"araras","to":"conchal","terrain":"paved","label":"Wilson Finardi · SP-191"},
+ {"id":"conchal-artur-nogueira","from":"conchal","to":"artur-nogueira","terrain":"paved","label":"Professor Zeferino Vaz · SP-332"},
+ {"id":"artur-nogueira-limeira","from":"artur-nogueira","to":"limeira","terrain":"paved","label":"SP-147 + SP-332"},
+ {"id":"limeira-americana","from":"limeira","to":"americana","terrain":"paved","label":"Anhanguera · SP-330"},
+ {"id":"americana-piracicaba","from":"americana","to":"piracicaba","terrain":"paved","label":"Luiz de Queiroz · SP-304"},
+ {"id":"piracicaba-limeira","from":"piracicaba","to":"limeira","terrain":"paved","label":"Deputado Laércio Corte · SP-147"},
+ {"id":"piracicaba-rio-claro","from":"piracicaba","to":"rio-claro","terrain":"paved","label":"Fausto Santomauro · SP-127"},
+ {"id":"santa-cruz-leme","from":"santa-cruz","to":"leme","terrain":"paved","label":"Acesso local + SP-330"},
+ {"id":"araras-rio-claro-terra","from":"araras","to":"rio-claro","terrain":"rural","label":"Terra ilustrativa · SUV / Caminhonete"},
+ {"id":"araras-artur-nogueira-terra","from":"araras","to":"artur-nogueira","terrain":"rural","label":"Terra ilustrativa · SUV / Caminhonete"}
+]

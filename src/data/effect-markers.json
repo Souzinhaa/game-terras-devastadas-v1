@@ -1,0 +1,1895 @@
+{
+  "schemaVersion": 1,
+  "style": "flat_numeric_badges",
+  "families": {
+    "acerto": {
+      "name": "Acerto do ataque",
+      "color": "#E92232",
+      "shape": "circle"
+    },
+    "dano": {
+      "name": "Dano causado",
+      "color": "#F58025",
+      "shape": "diamond"
+    },
+    "defesa": {
+      "name": "Defesa",
+      "color": "#2464CE",
+      "shape": "shield"
+    },
+    "reducao_dano": {
+      "name": "Redução de dano recebido",
+      "color": "#83D8F2",
+      "shape": "shield"
+    },
+    "vida": {
+      "name": "Recuperação de Integridade",
+      "color": "#26B86A",
+      "shape": "cross"
+    },
+    "vida_max": {
+      "name": "Integridade máxima",
+      "color": "#146844",
+      "shape": "cross"
+    },
+    "fuga": {
+      "name": "Teste de fuga",
+      "color": "#A05AE0",
+      "shape": "triangle"
+    },
+    "corrida": {
+      "name": "Posição ou avanço na corrida",
+      "color": "#F4D13D",
+      "shape": "arrow"
+    },
+    "combustivel": {
+      "name": "Combustível no tanque",
+      "color": "#DA9A18",
+      "shape": "drop"
+    },
+    "carga_max": {
+      "name": "Capacidade de carga",
+      "color": "#9B6545",
+      "shape": "square"
+    },
+    "tanque_max": {
+      "name": "Capacidade do tanque",
+      "color": "#27B8B0",
+      "shape": "drop"
+    },
+    "saque_ataque": {
+      "name": "Dado de saque do atacante",
+      "color": "#DE589B",
+      "shape": "hex"
+    },
+    "saque_defesa": {
+      "name": "Dado de saque da defesa",
+      "color": "#9F376D",
+      "shape": "hex"
+    },
+    "deposito_max": {
+      "name": "Capacidade do depósito",
+      "color": "#83963F",
+      "shape": "square"
+    },
+    "sucata": {
+      "name": "Sucata recebida",
+      "color": "#A6AAB3",
+      "shape": "hex"
+    },
+    "municao": {
+      "name": "Munição recebida ou gasta",
+      "color": "#BEA260",
+      "shape": "hex"
+    },
+    "pneu": {
+      "name": "Pneu recebido",
+      "color": "#596473",
+      "shape": "circle"
+    },
+    "bateria": {
+      "name": "Bateria recebida",
+      "color": "#B4DF43",
+      "shape": "square"
+    },
+    "agua": {
+      "name": "Água recebida",
+      "color": "#388FD7",
+      "shape": "drop"
+    },
+    "compra": {
+      "name": "Compra de melhoria",
+      "color": "#C49CF4",
+      "shape": "square"
+    },
+    "inspecao": {
+      "name": "Consultar topo do baralho",
+      "color": "#58CCC4",
+      "shape": "hex"
+    },
+    "bloqueio": {
+      "name": "Bloqueio de estrada",
+      "color": "#7C213E",
+      "shape": "square"
+    },
+    "desbloqueio": {
+      "name": "Remover bloqueio",
+      "color": "#68AE94",
+      "shape": "square"
+    },
+    "ataque_extra": {
+      "name": "Ataque adicional",
+      "color": "#C63354",
+      "shape": "triangle"
+    },
+    "peso": {
+      "name": "Carga ocupada por equipamento",
+      "color": "#665146",
+      "shape": "square"
+    },
+    "cofre": {
+      "name": "Limite de recursos levados no saque",
+      "color": "#BDAA77",
+      "shape": "hex"
+    },
+    "reparo_bonus": {
+      "name": "Bônus de reparo Administrar",
+      "color": "#78B66C",
+      "shape": "cross"
+    },
+    "substituir": {
+      "name": "Substituição de melhoria",
+      "color": "#C7C2A7",
+      "shape": "square"
+    },
+    "transferir": {
+      "name": "Transferir sucata para depósito",
+      "color": "#B3A286",
+      "shape": "square"
+    },
+    "recurso": {
+      "name": "Recurso genérico ganho ou perdido",
+      "color": "#9F826C",
+      "shape": "hex"
+    },
+    "acao": {
+      "name": "Ação principal consumida",
+      "color": "#CA7470",
+      "shape": "square"
+    },
+    "convocar": {
+      "name": "Convocação de corrida",
+      "color": "#E8C359",
+      "shape": "arrow"
+    },
+    "emboscada": {
+      "name": "Combate de evento",
+      "color": "#79243D",
+      "shape": "triangle"
+    },
+    "veiculo": {
+      "name": "Veículo disponível",
+      "color": "#718D9C",
+      "shape": "square"
+    },
+    "neutro": {
+      "name": "Sem efeito",
+      "color": "#87918C",
+      "shape": "circle"
+    },
+    "incendio": {
+      "name": "Dano extra no 6 natural que acerta",
+      "color": "#B32255",
+      "shape": "diamond"
+    }
+  },
+  "icons": [
+    {
+      "id": "acerto_plus1",
+      "family": "acerto",
+      "label": "+1",
+      "description": "Acerto do ataque",
+      "color": "#E92232",
+      "shape": "circle",
+      "svg": "svg/acerto_plus1.svg",
+      "png": {
+        "32": "png/32/acerto_plus1.png",
+        "64": "png/64/acerto_plus1.png",
+        "256": "png/256/acerto_plus1.png"
+      }
+    },
+    {
+      "id": "acerto_minus1",
+      "family": "acerto",
+      "label": "−1",
+      "description": "Acerto do ataque",
+      "color": "#E92232",
+      "shape": "circle",
+      "svg": "svg/acerto_minus1.svg",
+      "png": {
+        "32": "png/32/acerto_minus1.png",
+        "64": "png/64/acerto_minus1.png",
+        "256": "png/256/acerto_minus1.png"
+      }
+    },
+    {
+      "id": "dano_plus1",
+      "family": "dano",
+      "label": "+1",
+      "description": "Dano causado",
+      "color": "#F58025",
+      "shape": "diamond",
+      "svg": "svg/dano_plus1.svg",
+      "png": {
+        "32": "png/32/dano_plus1.png",
+        "64": "png/64/dano_plus1.png",
+        "256": "png/256/dano_plus1.png"
+      }
+    },
+    {
+      "id": "reducao_dano_minus1",
+      "family": "reducao_dano",
+      "label": "−1",
+      "description": "Redução de dano recebido",
+      "color": "#83D8F2",
+      "shape": "shield",
+      "svg": "svg/reducao_dano_minus1.svg",
+      "png": {
+        "32": "png/32/reducao_dano_minus1.png",
+        "64": "png/64/reducao_dano_minus1.png",
+        "256": "png/256/reducao_dano_minus1.png"
+      }
+    },
+    {
+      "id": "fuga_plus1",
+      "family": "fuga",
+      "label": "+1",
+      "description": "Teste de fuga",
+      "color": "#A05AE0",
+      "shape": "triangle",
+      "svg": "svg/fuga_plus1.svg",
+      "png": {
+        "32": "png/32/fuga_plus1.png",
+        "64": "png/64/fuga_plus1.png",
+        "256": "png/256/fuga_plus1.png"
+      }
+    },
+    {
+      "id": "fuga_minus1",
+      "family": "fuga",
+      "label": "−1",
+      "description": "Teste de fuga",
+      "color": "#A05AE0",
+      "shape": "triangle",
+      "svg": "svg/fuga_minus1.svg",
+      "png": {
+        "32": "png/32/fuga_minus1.png",
+        "64": "png/64/fuga_minus1.png",
+        "256": "png/256/fuga_minus1.png"
+      }
+    },
+    {
+      "id": "vida_plus2",
+      "family": "vida",
+      "label": "+2",
+      "description": "Recuperação de Integridade",
+      "color": "#26B86A",
+      "shape": "cross",
+      "svg": "svg/vida_plus2.svg",
+      "png": {
+        "32": "png/32/vida_plus2.png",
+        "64": "png/64/vida_plus2.png",
+        "256": "png/256/vida_plus2.png"
+      }
+    },
+    {
+      "id": "combustivel_plus2",
+      "family": "combustivel",
+      "label": "+2",
+      "description": "Combustível no tanque",
+      "color": "#DA9A18",
+      "shape": "drop",
+      "svg": "svg/combustivel_plus2.svg",
+      "png": {
+        "32": "png/32/combustivel_plus2.png",
+        "64": "png/64/combustivel_plus2.png",
+        "256": "png/256/combustivel_plus2.png"
+      }
+    },
+    {
+      "id": "sucata_plus2",
+      "family": "sucata",
+      "label": "+2",
+      "description": "Sucata recebida",
+      "color": "#A6AAB3",
+      "shape": "hex",
+      "svg": "svg/sucata_plus2.svg",
+      "png": {
+        "32": "png/32/sucata_plus2.png",
+        "64": "png/64/sucata_plus2.png",
+        "256": "png/256/sucata_plus2.png"
+      }
+    },
+    {
+      "id": "municao_plus2",
+      "family": "municao",
+      "label": "+2",
+      "description": "Munição recebida ou gasta",
+      "color": "#BEA260",
+      "shape": "hex",
+      "svg": "svg/municao_plus2.svg",
+      "png": {
+        "32": "png/32/municao_plus2.png",
+        "64": "png/64/municao_plus2.png",
+        "256": "png/256/municao_plus2.png"
+      }
+    },
+    {
+      "id": "pneu_plus1",
+      "family": "pneu",
+      "label": "+1",
+      "description": "Pneu recebido",
+      "color": "#596473",
+      "shape": "circle",
+      "svg": "svg/pneu_plus1.svg",
+      "png": {
+        "32": "png/32/pneu_plus1.png",
+        "64": "png/64/pneu_plus1.png",
+        "256": "png/256/pneu_plus1.png"
+      }
+    },
+    {
+      "id": "bateria_plus1",
+      "family": "bateria",
+      "label": "+1",
+      "description": "Bateria recebida",
+      "color": "#B4DF43",
+      "shape": "square",
+      "svg": "svg/bateria_plus1.svg",
+      "png": {
+        "32": "png/32/bateria_plus1.png",
+        "64": "png/64/bateria_plus1.png",
+        "256": "png/256/bateria_plus1.png"
+      }
+    },
+    {
+      "id": "compra_plus1",
+      "family": "compra",
+      "label": "+1",
+      "description": "Compra de melhoria",
+      "color": "#C49CF4",
+      "shape": "square",
+      "svg": "svg/compra_plus1.svg",
+      "png": {
+        "32": "png/32/compra_plus1.png",
+        "64": "png/64/compra_plus1.png",
+        "256": "png/256/compra_plus1.png"
+      }
+    },
+    {
+      "id": "inspecao_symbol",
+      "family": "inspecao",
+      "label": "?",
+      "description": "Consultar topo do baralho",
+      "color": "#58CCC4",
+      "shape": "hex",
+      "svg": "svg/inspecao_symbol.svg",
+      "png": {
+        "32": "png/32/inspecao_symbol.png",
+        "64": "png/64/inspecao_symbol.png",
+        "256": "png/256/inspecao_symbol.png"
+      }
+    },
+    {
+      "id": "bloqueio_x",
+      "family": "bloqueio",
+      "label": "×",
+      "description": "Bloqueio de estrada",
+      "color": "#7C213E",
+      "shape": "square",
+      "svg": "svg/bloqueio_x.svg",
+      "png": {
+        "32": "png/32/bloqueio_x.png",
+        "64": "png/64/bloqueio_x.png",
+        "256": "png/256/bloqueio_x.png"
+      }
+    },
+    {
+      "id": "desbloqueio_ok",
+      "family": "desbloqueio",
+      "label": "✓",
+      "description": "Remover bloqueio",
+      "color": "#68AE94",
+      "shape": "square",
+      "svg": "svg/desbloqueio_ok.svg",
+      "png": {
+        "32": "png/32/desbloqueio_ok.png",
+        "64": "png/64/desbloqueio_ok.png",
+        "256": "png/256/desbloqueio_ok.png"
+      }
+    },
+    {
+      "id": "saque_ataque_plus1",
+      "family": "saque_ataque",
+      "label": "+1",
+      "description": "Dado de saque do atacante",
+      "color": "#DE589B",
+      "shape": "hex",
+      "svg": "svg/saque_ataque_plus1.svg",
+      "png": {
+        "32": "png/32/saque_ataque_plus1.png",
+        "64": "png/64/saque_ataque_plus1.png",
+        "256": "png/256/saque_ataque_plus1.png"
+      }
+    },
+    {
+      "id": "saque_defesa_plus1",
+      "family": "saque_defesa",
+      "label": "+1",
+      "description": "Dado de saque da defesa",
+      "color": "#9F376D",
+      "shape": "hex",
+      "svg": "svg/saque_defesa_plus1.svg",
+      "png": {
+        "32": "png/32/saque_defesa_plus1.png",
+        "64": "png/64/saque_defesa_plus1.png",
+        "256": "png/256/saque_defesa_plus1.png"
+      }
+    },
+    {
+      "id": "corrida_plus2",
+      "family": "corrida",
+      "label": "+2",
+      "description": "Posição ou avanço na corrida",
+      "color": "#F4D13D",
+      "shape": "arrow",
+      "svg": "svg/corrida_plus2.svg",
+      "png": {
+        "32": "png/32/corrida_plus2.png",
+        "64": "png/64/corrida_plus2.png",
+        "256": "png/256/corrida_plus2.png"
+      }
+    },
+    {
+      "id": "corrida_minus2",
+      "family": "corrida",
+      "label": "−2",
+      "description": "Posição ou avanço na corrida",
+      "color": "#F4D13D",
+      "shape": "arrow",
+      "svg": "svg/corrida_minus2.svg",
+      "png": {
+        "32": "png/32/corrida_minus2.png",
+        "64": "png/64/corrida_minus2.png",
+        "256": "png/256/corrida_minus2.png"
+      }
+    },
+    {
+      "id": "agua_plus1",
+      "family": "agua",
+      "label": "+1",
+      "description": "Água recebida",
+      "color": "#388FD7",
+      "shape": "drop",
+      "svg": "svg/agua_plus1.svg",
+      "png": {
+        "32": "png/32/agua_plus1.png",
+        "64": "png/64/agua_plus1.png",
+        "256": "png/256/agua_plus1.png"
+      }
+    },
+    {
+      "id": "ataque_extra_plus1",
+      "family": "ataque_extra",
+      "label": "+1",
+      "description": "Ataque adicional",
+      "color": "#C63354",
+      "shape": "triangle",
+      "svg": "svg/ataque_extra_plus1.svg",
+      "png": {
+        "32": "png/32/ataque_extra_plus1.png",
+        "64": "png/64/ataque_extra_plus1.png",
+        "256": "png/256/ataque_extra_plus1.png"
+      }
+    },
+    {
+      "id": "dano_1",
+      "family": "dano",
+      "label": "1",
+      "description": "Dano causado",
+      "color": "#F58025",
+      "shape": "diamond",
+      "svg": "svg/dano_1.svg",
+      "png": {
+        "32": "png/32/dano_1.png",
+        "64": "png/64/dano_1.png",
+        "256": "png/256/dano_1.png"
+      }
+    },
+    {
+      "id": "municao_minus1",
+      "family": "municao",
+      "label": "−1",
+      "description": "Munição recebida ou gasta",
+      "color": "#BEA260",
+      "shape": "hex",
+      "svg": "svg/municao_minus1.svg",
+      "png": {
+        "32": "png/32/municao_minus1.png",
+        "64": "png/64/municao_minus1.png",
+        "256": "png/256/municao_minus1.png"
+      }
+    },
+    {
+      "id": "dano_3",
+      "family": "dano",
+      "label": "3",
+      "description": "Dano causado",
+      "color": "#F58025",
+      "shape": "diamond",
+      "svg": "svg/dano_3.svg",
+      "png": {
+        "32": "png/32/dano_3.png",
+        "64": "png/64/dano_3.png",
+        "256": "png/256/dano_3.png"
+      }
+    },
+    {
+      "id": "peso_2",
+      "family": "peso",
+      "label": "2",
+      "description": "Carga ocupada por equipamento",
+      "color": "#665146",
+      "shape": "square",
+      "svg": "svg/peso_2.svg",
+      "png": {
+        "32": "png/32/peso_2.png",
+        "64": "png/64/peso_2.png",
+        "256": "png/256/peso_2.png"
+      }
+    },
+    {
+      "id": "dano_2",
+      "family": "dano",
+      "label": "2",
+      "description": "Dano causado",
+      "color": "#F58025",
+      "shape": "diamond",
+      "svg": "svg/dano_2.svg",
+      "png": {
+        "32": "png/32/dano_2.png",
+        "64": "png/64/dano_2.png",
+        "256": "png/256/dano_2.png"
+      }
+    },
+    {
+      "id": "defesa_plus1",
+      "family": "defesa",
+      "label": "+1",
+      "description": "Defesa",
+      "color": "#2464CE",
+      "shape": "shield",
+      "svg": "svg/defesa_plus1.svg",
+      "png": {
+        "32": "png/32/defesa_plus1.png",
+        "64": "png/64/defesa_plus1.png",
+        "256": "png/256/defesa_plus1.png"
+      }
+    },
+    {
+      "id": "peso_1",
+      "family": "peso",
+      "label": "1",
+      "description": "Carga ocupada por equipamento",
+      "color": "#665146",
+      "shape": "square",
+      "svg": "svg/peso_1.svg",
+      "png": {
+        "32": "png/32/peso_1.png",
+        "64": "png/64/peso_1.png",
+        "256": "png/256/peso_1.png"
+      }
+    },
+    {
+      "id": "tanque_max_plus3",
+      "family": "tanque_max",
+      "label": "+3",
+      "description": "Capacidade do tanque",
+      "color": "#27B8B0",
+      "shape": "drop",
+      "svg": "svg/tanque_max_plus3.svg",
+      "png": {
+        "32": "png/32/tanque_max_plus3.png",
+        "64": "png/64/tanque_max_plus3.png",
+        "256": "png/256/tanque_max_plus3.png"
+      }
+    },
+    {
+      "id": "carga_max_plus2",
+      "family": "carga_max",
+      "label": "+2",
+      "description": "Capacidade de carga",
+      "color": "#9B6545",
+      "shape": "square",
+      "svg": "svg/carga_max_plus2.svg",
+      "png": {
+        "32": "png/32/carga_max_plus2.png",
+        "64": "png/64/carga_max_plus2.png",
+        "256": "png/256/carga_max_plus2.png"
+      }
+    },
+    {
+      "id": "transferir_1",
+      "family": "transferir",
+      "label": "1",
+      "description": "Transferir sucata para depósito",
+      "color": "#B3A286",
+      "shape": "square",
+      "svg": "svg/transferir_1.svg",
+      "png": {
+        "32": "png/32/transferir_1.png",
+        "64": "png/64/transferir_1.png",
+        "256": "png/256/transferir_1.png"
+      }
+    },
+    {
+      "id": "reducao_dano_minus2",
+      "family": "reducao_dano",
+      "label": "−2",
+      "description": "Redução de dano recebido",
+      "color": "#83D8F2",
+      "shape": "shield",
+      "svg": "svg/reducao_dano_minus2.svg",
+      "png": {
+        "32": "png/32/reducao_dano_minus2.png",
+        "64": "png/64/reducao_dano_minus2.png",
+        "256": "png/256/reducao_dano_minus2.png"
+      }
+    },
+    {
+      "id": "vida_max_plus2",
+      "family": "vida_max",
+      "label": "+2",
+      "description": "Integridade máxima",
+      "color": "#146844",
+      "shape": "cross",
+      "svg": "svg/vida_max_plus2.svg",
+      "png": {
+        "32": "png/32/vida_max_plus2.png",
+        "64": "png/64/vida_max_plus2.png",
+        "256": "png/256/vida_max_plus2.png"
+      }
+    },
+    {
+      "id": "deposito_max_plus5",
+      "family": "deposito_max",
+      "label": "+5",
+      "description": "Capacidade do depósito",
+      "color": "#83963F",
+      "shape": "square",
+      "svg": "svg/deposito_max_plus5.svg",
+      "png": {
+        "32": "png/32/deposito_max_plus5.png",
+        "64": "png/64/deposito_max_plus5.png",
+        "256": "png/256/deposito_max_plus5.png"
+      }
+    },
+    {
+      "id": "cofre_1",
+      "family": "cofre",
+      "label": "1",
+      "description": "Limite de recursos levados no saque",
+      "color": "#BDAA77",
+      "shape": "hex",
+      "svg": "svg/cofre_1.svg",
+      "png": {
+        "32": "png/32/cofre_1.png",
+        "64": "png/64/cofre_1.png",
+        "256": "png/256/cofre_1.png"
+      }
+    },
+    {
+      "id": "substituir_swap",
+      "family": "substituir",
+      "label": "↻",
+      "description": "Substituição de melhoria",
+      "color": "#C7C2A7",
+      "shape": "square",
+      "svg": "svg/substituir_swap.svg",
+      "png": {
+        "32": "png/32/substituir_swap.png",
+        "64": "png/64/substituir_swap.png",
+        "256": "png/256/substituir_swap.png"
+      }
+    },
+    {
+      "id": "reparo_bonus_plus1",
+      "family": "reparo_bonus",
+      "label": "+1",
+      "description": "Bônus de reparo Administrar",
+      "color": "#78B66C",
+      "shape": "cross",
+      "svg": "svg/reparo_bonus_plus1.svg",
+      "png": {
+        "32": "png/32/reparo_bonus_plus1.png",
+        "64": "png/64/reparo_bonus_plus1.png",
+        "256": "png/256/reparo_bonus_plus1.png"
+      }
+    },
+    {
+      "id": "corrida_plus3",
+      "family": "corrida",
+      "label": "+3",
+      "description": "Posição ou avanço na corrida",
+      "color": "#F4D13D",
+      "shape": "arrow",
+      "svg": "svg/corrida_plus3.svg",
+      "png": {
+        "32": "png/32/corrida_plus3.png",
+        "64": "png/64/corrida_plus3.png",
+        "256": "png/256/corrida_plus3.png"
+      }
+    },
+    {
+      "id": "corrida_plus1",
+      "family": "corrida",
+      "label": "+1",
+      "description": "Posição ou avanço na corrida",
+      "color": "#F4D13D",
+      "shape": "arrow",
+      "svg": "svg/corrida_plus1.svg",
+      "png": {
+        "32": "png/32/corrida_plus1.png",
+        "64": "png/64/corrida_plus1.png",
+        "256": "png/256/corrida_plus1.png"
+      }
+    },
+    {
+      "id": "corrida_minus1",
+      "family": "corrida",
+      "label": "−1",
+      "description": "Posição ou avanço na corrida",
+      "color": "#F4D13D",
+      "shape": "arrow",
+      "svg": "svg/corrida_minus1.svg",
+      "png": {
+        "32": "png/32/corrida_minus1.png",
+        "64": "png/64/corrida_minus1.png",
+        "256": "png/256/corrida_minus1.png"
+      }
+    },
+    {
+      "id": "neutro_none",
+      "family": "neutro",
+      "label": "∅",
+      "description": "Sem efeito",
+      "color": "#87918C",
+      "shape": "circle",
+      "svg": "svg/neutro_none.svg",
+      "png": {
+        "32": "png/32/neutro_none.png",
+        "64": "png/64/neutro_none.png",
+        "256": "png/256/neutro_none.png"
+      }
+    },
+    {
+      "id": "vida_plus1",
+      "family": "vida",
+      "label": "+1",
+      "description": "Recuperação de Integridade",
+      "color": "#26B86A",
+      "shape": "cross",
+      "svg": "svg/vida_plus1.svg",
+      "png": {
+        "32": "png/32/vida_plus1.png",
+        "64": "png/64/vida_plus1.png",
+        "256": "png/256/vida_plus1.png"
+      }
+    },
+    {
+      "id": "sucata_plus1",
+      "family": "sucata",
+      "label": "+1",
+      "description": "Sucata recebida",
+      "color": "#A6AAB3",
+      "shape": "hex",
+      "svg": "svg/sucata_plus1.svg",
+      "png": {
+        "32": "png/32/sucata_plus1.png",
+        "64": "png/64/sucata_plus1.png",
+        "256": "png/256/sucata_plus1.png"
+      }
+    },
+    {
+      "id": "combustivel_minus1",
+      "family": "combustivel",
+      "label": "−1",
+      "description": "Combustível no tanque",
+      "color": "#DA9A18",
+      "shape": "drop",
+      "svg": "svg/combustivel_minus1.svg",
+      "png": {
+        "32": "png/32/combustivel_minus1.png",
+        "64": "png/64/combustivel_minus1.png",
+        "256": "png/256/combustivel_minus1.png"
+      }
+    },
+    {
+      "id": "recurso_minus1",
+      "family": "recurso",
+      "label": "−1",
+      "description": "Recurso genérico ganho ou perdido",
+      "color": "#9F826C",
+      "shape": "hex",
+      "svg": "svg/recurso_minus1.svg",
+      "png": {
+        "32": "png/32/recurso_minus1.png",
+        "64": "png/64/recurso_minus1.png",
+        "256": "png/256/recurso_minus1.png"
+      }
+    },
+    {
+      "id": "municao_plus1",
+      "family": "municao",
+      "label": "+1",
+      "description": "Munição recebida ou gasta",
+      "color": "#BEA260",
+      "shape": "hex",
+      "svg": "svg/municao_plus1.svg",
+      "png": {
+        "32": "png/32/municao_plus1.png",
+        "64": "png/64/municao_plus1.png",
+        "256": "png/256/municao_plus1.png"
+      }
+    },
+    {
+      "id": "acao_minus1",
+      "family": "acao",
+      "label": "−1",
+      "description": "Ação principal consumida",
+      "color": "#CA7470",
+      "shape": "square",
+      "svg": "svg/acao_minus1.svg",
+      "png": {
+        "32": "png/32/acao_minus1.png",
+        "64": "png/64/acao_minus1.png",
+        "256": "png/256/acao_minus1.png"
+      }
+    },
+    {
+      "id": "convocar_P01",
+      "family": "convocar",
+      "label": "P01",
+      "description": "Convocação de corrida",
+      "color": "#E8C359",
+      "shape": "arrow",
+      "svg": "svg/convocar_P01.svg",
+      "png": {
+        "32": "png/32/convocar_P01.png",
+        "64": "png/64/convocar_P01.png",
+        "256": "png/256/convocar_P01.png"
+      }
+    },
+    {
+      "id": "convocar_P02",
+      "family": "convocar",
+      "label": "P02",
+      "description": "Convocação de corrida",
+      "color": "#E8C359",
+      "shape": "arrow",
+      "svg": "svg/convocar_P02.svg",
+      "png": {
+        "32": "png/32/convocar_P02.png",
+        "64": "png/64/convocar_P02.png",
+        "256": "png/256/convocar_P02.png"
+      }
+    },
+    {
+      "id": "convocar_P03",
+      "family": "convocar",
+      "label": "P03",
+      "description": "Convocação de corrida",
+      "color": "#E8C359",
+      "shape": "arrow",
+      "svg": "svg/convocar_P03.svg",
+      "png": {
+        "32": "png/32/convocar_P03.png",
+        "64": "png/64/convocar_P03.png",
+        "256": "png/256/convocar_P03.png"
+      }
+    },
+    {
+      "id": "emboscada_alert",
+      "family": "emboscada",
+      "label": "!",
+      "description": "Combate de evento",
+      "color": "#79243D",
+      "shape": "triangle",
+      "svg": "svg/emboscada_alert.svg",
+      "png": {
+        "32": "png/32/emboscada_alert.png",
+        "64": "png/64/emboscada_alert.png",
+        "256": "png/256/emboscada_alert.png"
+      }
+    },
+    {
+      "id": "veiculo_plus1",
+      "family": "veiculo",
+      "label": "+1",
+      "description": "Veículo disponível",
+      "color": "#718D9C",
+      "shape": "square",
+      "svg": "svg/veiculo_plus1.svg",
+      "png": {
+        "32": "png/32/veiculo_plus1.png",
+        "64": "png/64/veiculo_plus1.png",
+        "256": "png/256/veiculo_plus1.png"
+      }
+    },
+    {
+      "id": "incendio_plus1",
+      "family": "incendio",
+      "label": "+1",
+      "description": "Dano extra no 6 natural que acerta",
+      "color": "#B32255",
+      "shape": "diamond",
+      "svg": "svg/incendio_plus1.svg",
+      "png": {
+        "32": "png/32/incendio_plus1.png",
+        "64": "png/64/incendio_plus1.png",
+        "256": "png/256/incendio_plus1.png"
+      }
+    }
+  ],
+  "cards": [
+    {
+      "cardId": "G01",
+      "name": "Mira de ferro",
+      "rulesText": "Some +1 à rolagem deste ataque.",
+      "icons": [
+        "acerto_plus1"
+      ],
+      "displayPolicy": "contextual",
+      "rulesAuthority": "rulesText and existing game engine",
+      "note": "Ícones múltiplos podem ser custos, efeitos conjuntos ou alternativas. Não executar todos automaticamente."
+    },
+    {
+      "cardId": "G02",
+      "name": "Nuvem de poeira",
+      "rulesText": "Aplique −1 à rolagem deste ataque.",
+      "icons": [
+        "acerto_minus1"
+      ],
+      "displayPolicy": "contextual",
+      "rulesAuthority": "rulesText and existing game engine",
+      "note": "Ícones múltiplos podem ser custos, efeitos conjuntos ou alternativas. Não executar todos automaticamente."
+    },
+    {
+      "cardId": "G03",
+      "name": "Impacto brutal",
+      "rulesText": "Se este ataque acertar, cause +1 dano.",
+      "icons": [
+        "dano_plus1"
+      ],
+      "displayPolicy": "contextual",
+      "rulesAuthority": "rulesText and existing game engine",
+      "note": "Ícones múltiplos podem ser custos, efeitos conjuntos ou alternativas. Não executar todos automaticamente."
+    },
+    {
+      "cardId": "G04",
+      "name": "Chapa improvisada",
+      "rulesText": "Reduza em 1 o dano deste ataque se acertar.",
+      "icons": [
+        "reducao_dano_minus1"
+      ],
+      "displayPolicy": "contextual",
+      "rulesAuthority": "rulesText and existing game engine",
+      "note": "Ícones múltiplos podem ser custos, efeitos conjuntos ou alternativas. Não executar todos automaticamente."
+    },
+    {
+      "cardId": "G05",
+      "name": "Cortina de fumaça",
+      "rulesText": "Some +1 ao teste de fuga. Os custos normais permanecem.",
+      "icons": [
+        "fuga_plus1"
+      ],
+      "displayPolicy": "contextual",
+      "rulesAuthority": "rulesText and existing game engine",
+      "note": "Ícones múltiplos podem ser custos, efeitos conjuntos ou alternativas. Não executar todos automaticamente."
+    },
+    {
+      "cardId": "G06",
+      "name": "Cerco fechado",
+      "rulesText": "Aplique −1 ao teste de fuga.",
+      "icons": [
+        "fuga_minus1"
+      ],
+      "displayPolicy": "contextual",
+      "rulesAuthority": "rulesText and existing game engine",
+      "note": "Ícones múltiplos podem ser custos, efeitos conjuntos ou alternativas. Não executar todos automaticamente."
+    },
+    {
+      "cardId": "G07",
+      "name": "Reforço hostil",
+      "rulesText": "Some +1 à rolagem desse ataque da ameaça.",
+      "icons": [
+        "acerto_plus1"
+      ],
+      "displayPolicy": "contextual",
+      "rulesAuthority": "rulesText and existing game engine",
+      "note": "Ícones múltiplos podem ser custos, efeitos conjuntos ou alternativas. Não executar todos automaticamente."
+    },
+    {
+      "cardId": "G08",
+      "name": "Socorro aos hostis",
+      "rulesText": "Recupere 2 de Integridade dessa ameaça.",
+      "icons": [
+        "vida_plus2"
+      ],
+      "displayPolicy": "contextual",
+      "rulesAuthority": "rulesText and existing game engine",
+      "note": "Ícones múltiplos podem ser custos, efeitos conjuntos ou alternativas. Não executar todos automaticamente."
+    },
+    {
+      "cardId": "G09",
+      "name": "Combustível de emergência",
+      "rulesText": "Coloque 2 combustíveis diretamente no tanque escolhido. Pode ajudar um carro em emergência.",
+      "icons": [
+        "combustivel_plus2"
+      ],
+      "displayPolicy": "contextual",
+      "rulesAuthority": "rulesText and existing game engine",
+      "note": "Ícones múltiplos podem ser custos, efeitos conjuntos ou alternativas. Não executar todos automaticamente."
+    },
+    {
+      "cardId": "G10",
+      "name": "Remendo de campo",
+      "rulesText": "Recupere 2 de Integridade se o carro já tiver pelo menos 1. Não reativa carro inutilizado.",
+      "icons": [
+        "vida_plus2"
+      ],
+      "displayPolicy": "contextual",
+      "rulesAuthority": "rulesText and existing game engine",
+      "note": "Ícones múltiplos podem ser custos, efeitos conjuntos ou alternativas. Não executar todos automaticamente."
+    },
+    {
+      "cardId": "G11",
+      "name": "Suprimento de sucata",
+      "rulesText": "Receba 2 sucatas na carga. Pode armazená-las em depósito próprio da cidade antes de descartar excedente.",
+      "icons": [
+        "sucata_plus2"
+      ],
+      "displayPolicy": "contextual",
+      "rulesAuthority": "rulesText and existing game engine",
+      "note": "Ícones múltiplos podem ser custos, efeitos conjuntos ou alternativas. Não executar todos automaticamente."
+    },
+    {
+      "cardId": "G12",
+      "name": "Caixa de munição",
+      "rulesText": "Receba 2 munições na carga, respeitando capacidade.",
+      "icons": [
+        "municao_plus2"
+      ],
+      "displayPolicy": "contextual",
+      "rulesAuthority": "rulesText and existing game engine",
+      "note": "Ícones múltiplos podem ser custos, efeitos conjuntos ou alternativas. Não executar todos automaticamente."
+    },
+    {
+      "cardId": "G13",
+      "name": "Pneu de reserva",
+      "rulesText": "Receba 1 pneu na carga.",
+      "icons": [
+        "pneu_plus1"
+      ],
+      "displayPolicy": "contextual",
+      "rulesAuthority": "rulesText and existing game engine",
+      "note": "Ícones múltiplos podem ser custos, efeitos conjuntos ou alternativas. Não executar todos automaticamente."
+    },
+    {
+      "cardId": "G14",
+      "name": "Bateria recuperada",
+      "rulesText": "Receba 1 bateria na carga.",
+      "icons": [
+        "bateria_plus1"
+      ],
+      "displayPolicy": "contextual",
+      "rulesAuthority": "rulesText and existing game engine",
+      "note": "Ícones múltiplos podem ser custos, efeitos conjuntos ou alternativas. Não executar todos automaticamente."
+    },
+    {
+      "cardId": "G15",
+      "name": "Contato do ferro velho",
+      "rulesText": "Compre 1 carta do baralho de melhorias. Não consome a compra com sucata do turno.",
+      "icons": [
+        "compra_plus1"
+      ],
+      "displayPolicy": "contextual",
+      "rulesAuthority": "rulesText and existing game engine",
+      "note": "Ícones múltiplos podem ser custos, efeitos conjuntos ou alternativas. Não executar todos automaticamente."
+    },
+    {
+      "cardId": "G16",
+      "name": "Desvio sinalizado",
+      "rulesText": "Olhe a próxima carta de deslocamento. Devolva ao topo ou coloque no fundo. A viagem ainda resolve um evento normalmente.",
+      "icons": [
+        "inspecao_symbol"
+      ],
+      "displayPolicy": "contextual",
+      "rulesAuthority": "rulesText and existing game engine",
+      "note": "Ícones múltiplos podem ser custos, efeitos conjuntos ou alternativas. Não executar todos automaticamente."
+    },
+    {
+      "cardId": "G17",
+      "name": "Barricada na estrada",
+      "rulesText": "Bloqueie uma estrada aberta até o início do seu próximo turno. Não pode retirar a última saída compatível de nenhum carro presente.",
+      "icons": [
+        "bloqueio_x"
+      ],
+      "displayPolicy": "contextual",
+      "rulesAuthority": "rulesText and existing game engine",
+      "note": "Ícones múltiplos podem ser custos, efeitos conjuntos ou alternativas. Não executar todos automaticamente."
+    },
+    {
+      "cardId": "G18",
+      "name": "Equipe de desobstrução",
+      "rulesText": "Remova 1 efeito de bloqueio de uma estrada. Se houver outros bloqueios ativos, ela continua fechada.",
+      "icons": [
+        "desbloqueio_ok"
+      ],
+      "displayPolicy": "contextual",
+      "rulesAuthority": "rulesText and existing game engine",
+      "note": "Ícones múltiplos podem ser custos, efeitos conjuntos ou alternativas. Não executar todos automaticamente."
+    },
+    {
+      "cardId": "G19",
+      "name": "Golpe de oportunidade",
+      "rulesText": "Atacante soma +1 ao seu dado. Não altera combate com defesa pessoal.",
+      "icons": [
+        "saque_ataque_plus1"
+      ],
+      "displayPolicy": "contextual",
+      "rulesAuthority": "rulesText and existing game engine",
+      "note": "Ícones múltiplos podem ser custos, efeitos conjuntos ou alternativas. Não executar todos automaticamente."
+    },
+    {
+      "cardId": "G20",
+      "name": "Vigias atentos",
+      "rulesText": "Defesa soma +1 adicional ao seu dado.",
+      "icons": [
+        "saque_defesa_plus1"
+      ],
+      "displayPolicy": "contextual",
+      "rulesAuthority": "rulesText and existing game engine",
+      "note": "Ícones múltiplos podem ser custos, efeitos conjuntos ou alternativas. Não executar todos automaticamente."
+    },
+    {
+      "cardId": "G21",
+      "name": "Pé embaixo",
+      "rulesText": "Some +2 ao avanço desta rolagem, sem alterar o dado natural.",
+      "icons": [
+        "corrida_plus2"
+      ],
+      "displayPolicy": "contextual",
+      "rulesAuthority": "rulesText and existing game engine",
+      "note": "Ícones múltiplos podem ser custos, efeitos conjuntos ou alternativas. Não executar todos automaticamente."
+    },
+    {
+      "cardId": "G22",
+      "name": "Pressão no rival",
+      "rulesText": "Subtraia 2 do avanço desta rolagem, mínimo zero.",
+      "icons": [
+        "corrida_minus2"
+      ],
+      "displayPolicy": "contextual",
+      "rulesAuthority": "rulesText and existing game engine",
+      "note": "Ícones múltiplos podem ser custos, efeitos conjuntos ou alternativas. Não executar todos automaticamente."
+    },
+    {
+      "cardId": "G23",
+      "name": "Reforço da muralha",
+      "rulesText": "Recupere 2 de Integridade dessa defesa, mesmo se estiver a zero e a casa ainda for sua.",
+      "icons": [
+        "vida_plus2"
+      ],
+      "displayPolicy": "contextual",
+      "rulesAuthority": "rulesText and existing game engine",
+      "note": "Ícones múltiplos podem ser custos, efeitos conjuntos ou alternativas. Não executar todos automaticamente."
+    },
+    {
+      "cardId": "G24",
+      "name": "Água para o radiador",
+      "rulesText": "Receba 1 água na carga. Não remove condição ainda sem regra definida.",
+      "icons": [
+        "agua_plus1"
+      ],
+      "displayPolicy": "contextual",
+      "rulesAuthority": "rulesText and existing game engine",
+      "note": "Ícones múltiplos podem ser custos, efeitos conjuntos ou alternativas. Não executar todos automaticamente."
+    },
+    {
+      "cardId": "E01",
+      "name": "Metralhadora lateral",
+      "rulesText": "Concede 1 ataque adicional por rodada, dano 1, custo 1 munição.",
+      "icons": [
+        "ataque_extra_plus1",
+        "dano_1",
+        "municao_minus1"
+      ],
+      "displayPolicy": "contextual",
+      "rulesAuthority": "rulesText and existing game engine",
+      "note": "Ícones múltiplos podem ser custos, efeitos conjuntos ou alternativas. Não executar todos automaticamente."
+    },
+    {
+      "cardId": "E02",
+      "name": "Canhão de sucata",
+      "rulesText": "Concede 1 ataque adicional por rodada, dano 3, custo 1 munição; −1 no próprio acerto. Não cabe no hatch com carga máxima 1.",
+      "icons": [
+        "ataque_extra_plus1",
+        "dano_3",
+        "municao_minus1",
+        "acerto_minus1",
+        "peso_2"
+      ],
+      "displayPolicy": "contextual",
+      "rulesAuthority": "rulesText and existing game engine",
+      "note": "Ícones múltiplos podem ser custos, efeitos conjuntos ou alternativas. Não executar todos automaticamente."
+    },
+    {
+      "cardId": "E03",
+      "name": "Espingarda de bordo",
+      "rulesText": "Concede 1 ataque adicional por rodada, dano 2, custo 1 munição; só pode mirar carros.",
+      "icons": [
+        "ataque_extra_plus1",
+        "dano_2",
+        "municao_minus1"
+      ],
+      "displayPolicy": "contextual",
+      "rulesAuthority": "rulesText and existing game engine",
+      "note": "Ícones múltiplos podem ser custos, efeitos conjuntos ou alternativas. Não executar todos automaticamente."
+    },
+    {
+      "cardId": "E04",
+      "name": "Blindagem rebitada",
+      "rulesText": "Aumente sua Defesa em 1, até o teto provisório 6+.",
+      "icons": [
+        "defesa_plus1"
+      ],
+      "displayPolicy": "contextual",
+      "rulesAuthority": "rulesText and existing game engine",
+      "note": "Ícones múltiplos podem ser custos, efeitos conjuntos ou alternativas. Não executar todos automaticamente."
+    },
+    {
+      "cardId": "E05",
+      "name": "Placa de absorção",
+      "rulesText": "Uma vez por combate, reduza em 1 o dano de um ataque recebido. Declare antes da rolagem.",
+      "icons": [
+        "reducao_dano_minus1",
+        "peso_1"
+      ],
+      "displayPolicy": "contextual",
+      "rulesAuthority": "rulesText and existing game engine",
+      "note": "Ícones múltiplos podem ser custos, efeitos conjuntos ou alternativas. Não executar todos automaticamente."
+    },
+    {
+      "cardId": "E06",
+      "name": "Mira estabilizada",
+      "rulesText": "Uma vez por rodada de combate, +1 ao acerto de um ataque seu. Declare antes do dado.",
+      "icons": [
+        "acerto_plus1"
+      ],
+      "displayPolicy": "contextual",
+      "rulesAuthority": "rulesText and existing game engine",
+      "note": "Ícones múltiplos podem ser custos, efeitos conjuntos ou alternativas. Não executar todos automaticamente."
+    },
+    {
+      "cardId": "E07",
+      "name": "Tanque suplementar",
+      "rulesText": "ÚNICA. Capacidade do tanque +3. Instalar não gera combustível; remover exige descartar combustível acima da nova capacidade.",
+      "icons": [
+        "tanque_max_plus3"
+      ],
+      "displayPolicy": "contextual",
+      "rulesAuthority": "rulesText and existing game engine",
+      "note": "Ícones múltiplos podem ser custos, efeitos conjuntos ou alternativas. Não executar todos automaticamente."
+    },
+    {
+      "cardId": "E08",
+      "name": "Bagageiro reforçado",
+      "rulesText": "ÚNICA. Capacidade de carga +2. Remover exige ajustar excedente imediatamente.",
+      "icons": [
+        "carga_max_plus2"
+      ],
+      "displayPolicy": "contextual",
+      "rulesAuthority": "rulesText and existing game engine",
+      "note": "Ícones múltiplos podem ser custos, efeitos conjuntos ou alternativas. Não executar todos automaticamente."
+    },
+    {
+      "cardId": "E09",
+      "name": "Kit de extração",
+      "rulesText": "+1 ao teste de fuga. Não remove custo de combustível ou pagamento de carta PvP.",
+      "icons": [
+        "fuga_plus1"
+      ],
+      "displayPolicy": "contextual",
+      "rulesAuthority": "rulesText and existing game engine",
+      "note": "Ícones múltiplos podem ser custos, efeitos conjuntos ou alternativas. Não executar todos automaticamente."
+    },
+    {
+      "cardId": "E10",
+      "name": "Suspensão de corrida",
+      "rulesText": "ÚNICA. Uma vez por corrida, some +2 ao seu avanço. Declare antes de sua rolagem. Não concede acesso à terra.",
+      "icons": [
+        "corrida_plus2"
+      ],
+      "displayPolicy": "contextual",
+      "rulesAuthority": "rulesText and existing game engine",
+      "note": "Ícones múltiplos podem ser custos, efeitos conjuntos ou alternativas. Não executar todos automaticamente."
+    },
+    {
+      "cardId": "E11",
+      "name": "Guincho manual",
+      "rulesText": "Uma vez por turno próprio, ao recolher sucata local, transfira até 1 dela diretamente para depósito próprio da cidade. Restante segue regra de carga.",
+      "icons": [
+        "transferir_1"
+      ],
+      "displayPolicy": "contextual",
+      "rulesAuthority": "rulesText and existing game engine",
+      "note": "Ícones múltiplos podem ser custos, efeitos conjuntos ou alternativas. Não executar todos automaticamente."
+    },
+    {
+      "cardId": "E12",
+      "name": "Escudo descartável",
+      "rulesText": "Antes de um ataque contra seu carro, pode descartar este equipamento para reduzir em 2 o dano desse ataque. Decisão antes do dado.",
+      "icons": [
+        "reducao_dano_minus2"
+      ],
+      "displayPolicy": "contextual",
+      "rulesAuthority": "rulesText and existing game engine",
+      "note": "Ícones múltiplos podem ser custos, efeitos conjuntos ou alternativas. Não executar todos automaticamente."
+    },
+    {
+      "cardId": "T01",
+      "name": "Muralha de sucata",
+      "rulesText": "Integridade máxima da defesa +2. A instalação também aumenta sua Integridade atual em 2, preservando o dano já sofrido.",
+      "icons": [
+        "vida_max_plus2",
+        "vida_plus2"
+      ],
+      "displayPolicy": "contextual",
+      "rulesAuthority": "rulesText and existing game engine",
+      "note": "Ícones múltiplos podem ser custos, efeitos conjuntos ou alternativas. Não executar todos automaticamente."
+    },
+    {
+      "cardId": "T02",
+      "name": "Torre de tiro",
+      "rulesText": "O ataque da defesa territorial recebe +1 de dano. Não concede segundo ataque.",
+      "icons": [
+        "dano_plus1"
+      ],
+      "displayPolicy": "contextual",
+      "rulesAuthority": "rulesText and existing game engine",
+      "note": "Ícones múltiplos podem ser custos, efeitos conjuntos ou alternativas. Não executar todos automaticamente."
+    },
+    {
+      "cardId": "T03",
+      "name": "Posição elevada",
+      "rulesText": "Defesa da fortificação +1, até 6+. Não altera Defesa do carro do dono.",
+      "icons": [
+        "defesa_plus1"
+      ],
+      "displayPolicy": "contextual",
+      "rulesAuthority": "rulesText and existing game engine",
+      "note": "Ícones múltiplos podem ser custos, efeitos conjuntos ou alternativas. Não executar todos automaticamente."
+    },
+    {
+      "cardId": "T04",
+      "name": "Depósito ampliado",
+      "rulesText": "Capacidade do depósito +5. Ao remover, ajuste o excedente.",
+      "icons": [
+        "deposito_max_plus5"
+      ],
+      "displayPolicy": "contextual",
+      "rulesAuthority": "rulesText and existing game engine",
+      "note": "Ícones múltiplos podem ser custos, efeitos conjuntos ou alternativas. Não executar todos automaticamente."
+    },
+    {
+      "cardId": "T05",
+      "name": "Cofre enterrado",
+      "rulesText": "ÚNICA. Em saque bem-sucedido, o invasor leva no máximo 1 recurso deste depósito, inclusive após defesa pessoal.",
+      "icons": [
+        "cofre_1"
+      ],
+      "displayPolicy": "contextual",
+      "rulesAuthority": "rulesText and existing game engine",
+      "note": "Ícones múltiplos podem ser custos, efeitos conjuntos ou alternativas. Não executar todos automaticamente."
+    },
+    {
+      "cardId": "T06",
+      "name": "Reforma planejada",
+      "rulesText": "Ao instalar, pode descartar uma melhoria deste território para liberar espaço, mesmo se já houver duas. Depois, reparos Administrar nesta defesa recuperam +1 Integridade por ação, sem material extra.",
+      "icons": [
+        "substituir_swap",
+        "reparo_bonus_plus1"
+      ],
+      "displayPolicy": "contextual",
+      "rulesAuthority": "rulesText and existing game engine",
+      "note": "Ícones múltiplos podem ser custos, efeitos conjuntos ou alternativas. Não executar todos automaticamente."
+    },
+    {
+      "cardId": "R01",
+      "name": "Reta livre",
+      "rulesText": "Avance 2 posições.",
+      "icons": [
+        "corrida_plus2"
+      ],
+      "displayPolicy": "contextual",
+      "rulesAuthority": "rulesText and existing game engine",
+      "note": "Ícones múltiplos podem ser custos, efeitos conjuntos ou alternativas. Não executar todos automaticamente."
+    },
+    {
+      "cardId": "R02",
+      "name": "Atalho da pista",
+      "rulesText": "Avance 3 posições. Trecho temporário da prova, não concede rota rural no mapa.",
+      "icons": [
+        "corrida_plus3"
+      ],
+      "displayPolicy": "contextual",
+      "rulesAuthority": "rulesText and existing game engine",
+      "note": "Ícones múltiplos podem ser custos, efeitos conjuntos ou alternativas. Não executar todos automaticamente."
+    },
+    {
+      "cardId": "R03",
+      "name": "Vácuo perfeito",
+      "rulesText": "Se alguém estiver à sua frente, avance 2. Caso contrário, avance 1.",
+      "icons": [
+        "corrida_plus2",
+        "corrida_plus1"
+      ],
+      "displayPolicy": "contextual",
+      "rulesAuthority": "rulesText and existing game engine",
+      "note": "Ícones múltiplos podem ser custos, efeitos conjuntos ou alternativas. Não executar todos automaticamente."
+    },
+    {
+      "cardId": "R04",
+      "name": "Motor afinado",
+      "rulesText": "Na sua próxima rolagem de avanço, receba +2. Expira ao fim da corrida se não usado.",
+      "icons": [
+        "corrida_plus2"
+      ],
+      "displayPolicy": "contextual",
+      "rulesAuthority": "rulesText and existing game engine",
+      "note": "Ícones múltiplos podem ser custos, efeitos conjuntos ou alternativas. Não executar todos automaticamente."
+    },
+    {
+      "cardId": "R05",
+      "name": "Curva aberta",
+      "rulesText": "Escolha você ou outro participante ativo: ele avança 2.",
+      "icons": [
+        "corrida_plus2"
+      ],
+      "displayPolicy": "contextual",
+      "rulesAuthority": "rulesText and existing game engine",
+      "note": "Ícones múltiplos podem ser custos, efeitos conjuntos ou alternativas. Não executar todos automaticamente."
+    },
+    {
+      "cardId": "R06",
+      "name": "Bandeira amarela",
+      "rulesText": "Você recua 2 posições.",
+      "icons": [
+        "corrida_minus2"
+      ],
+      "displayPolicy": "contextual",
+      "rulesAuthority": "rulesText and existing game engine",
+      "note": "Ícones múltiplos podem ser custos, efeitos conjuntos ou alternativas. Não executar todos automaticamente."
+    },
+    {
+      "cardId": "R07",
+      "name": "Areia solta",
+      "rulesText": "Sua próxima rolagem de avanço tem −2, mínimo zero.",
+      "icons": [
+        "corrida_minus2"
+      ],
+      "displayPolicy": "contextual",
+      "rulesAuthority": "rulesText and existing game engine",
+      "note": "Ícones múltiplos podem ser custos, efeitos conjuntos ou alternativas. Não executar todos automaticamente."
+    },
+    {
+      "cardId": "R08",
+      "name": "Barreira improvisada",
+      "rulesText": "Escolha outro participante ativo: ele recua 2. Se não houver outro, você recua 1.",
+      "icons": [
+        "corrida_minus2",
+        "corrida_minus1"
+      ],
+      "displayPolicy": "contextual",
+      "rulesAuthority": "rulesText and existing game engine",
+      "note": "Ícones múltiplos podem ser custos, efeitos conjuntos ou alternativas. Não executar todos automaticamente."
+    },
+    {
+      "cardId": "R09",
+      "name": "Toque lateral",
+      "rulesText": "Escolha outro participante ativo: você e ele sofrem 1 dano. Sem outro alvo, você sofre 1.",
+      "icons": [
+        "dano_1"
+      ],
+      "displayPolicy": "contextual",
+      "rulesAuthority": "rulesText and existing game engine",
+      "note": "Ícones múltiplos podem ser custos, efeitos conjuntos ou alternativas. Não executar todos automaticamente."
+    },
+    {
+      "cardId": "R10",
+      "name": "Detritos no asfalto",
+      "rulesText": "Sofra 1 dano e recue 1 posição.",
+      "icons": [
+        "dano_1",
+        "corrida_minus1"
+      ],
+      "displayPolicy": "contextual",
+      "rulesAuthority": "rulesText and existing game engine",
+      "note": "Ícones múltiplos podem ser custos, efeitos conjuntos ou alternativas. Não executar todos automaticamente."
+    },
+    {
+      "cardId": "R11",
+      "name": "Colisão no guard rail",
+      "rulesText": "Sofra 2 danos. Se ainda operacional, permaneça na posição atual.",
+      "icons": [
+        "dano_2"
+      ],
+      "displayPolicy": "contextual",
+      "rulesAuthority": "rulesText and existing game engine",
+      "note": "Ícones múltiplos podem ser custos, efeitos conjuntos ou alternativas. Não executar todos automaticamente."
+    },
+    {
+      "cardId": "R12",
+      "name": "Rota segura",
+      "rulesText": "Nada acontece. A passagem foi limpa.",
+      "icons": [
+        "neutro_none"
+      ],
+      "displayPolicy": "contextual",
+      "rulesAuthority": "rulesText and existing game engine",
+      "note": "Ícones múltiplos podem ser custos, efeitos conjuntos ou alternativas. Não executar todos automaticamente."
+    },
+    {
+      "cardId": "R13",
+      "name": "Ajuste rápido",
+      "rulesText": "Recupere 1 Integridade do seu carro. Não reativa participante já retirado.",
+      "icons": [
+        "vida_plus1"
+      ],
+      "displayPolicy": "contextual",
+      "rulesAuthority": "rulesText and existing game engine",
+      "note": "Ícones múltiplos podem ser custos, efeitos conjuntos ou alternativas. Não executar todos automaticamente."
+    },
+    {
+      "cardId": "R14",
+      "name": "Embalo",
+      "rulesText": "Avance 1 e escolha outro participante ativo para avançar 1. Sem outro alvo, só você avança 1.",
+      "icons": [
+        "corrida_plus1"
+      ],
+      "displayPolicy": "contextual",
+      "rulesAuthority": "rulesText and existing game engine",
+      "note": "Ícones múltiplos podem ser custos, efeitos conjuntos ou alternativas. Não executar todos automaticamente."
+    },
+    {
+      "cardId": "R15",
+      "name": "Poeira na frente",
+      "rulesText": "O participante ativo mais à frente, exceto você, recua 1. Em empate, você escolhe entre empatados. Sem outro alvo, nada acontece.",
+      "icons": [
+        "corrida_minus1"
+      ],
+      "displayPolicy": "contextual",
+      "rulesAuthority": "rulesText and existing game engine",
+      "note": "Ícones múltiplos podem ser custos, efeitos conjuntos ou alternativas. Não executar todos automaticamente."
+    },
+    {
+      "cardId": "R16",
+      "name": "Passagem estreita",
+      "rulesText": "Se houver outro participante na mesma posição que você, escolha um: ele recua 1. Caso contrário, avance 1.",
+      "icons": [
+        "corrida_minus1",
+        "corrida_plus1"
+      ],
+      "displayPolicy": "contextual",
+      "rulesAuthority": "rulesText and existing game engine",
+      "note": "Ícones múltiplos podem ser custos, efeitos conjuntos ou alternativas. Não executar todos automaticamente."
+    },
+    {
+      "cardId": "V01",
+      "name": "Estrada vazia",
+      "rulesText": "Chegue sem incidentes. Pode agir normalmente.",
+      "icons": [
+        "neutro_none"
+      ],
+      "displayPolicy": "contextual",
+      "rulesAuthority": "rulesText and existing game engine",
+      "note": "Ícones múltiplos podem ser custos, efeitos conjuntos ou alternativas. Não executar todos automaticamente."
+    },
+    {
+      "cardId": "V02",
+      "name": "Trecho sinalizado",
+      "rulesText": "Chegue sem incidentes. Pode agir normalmente.",
+      "icons": [
+        "neutro_none"
+      ],
+      "displayPolicy": "contextual",
+      "rulesAuthority": "rulesText and existing game engine",
+      "note": "Ícones múltiplos podem ser custos, efeitos conjuntos ou alternativas. Não executar todos automaticamente."
+    },
+    {
+      "cardId": "V03",
+      "name": "Pequeno achado",
+      "rulesText": "Receba 1 sucata na carga; pode usar depósito próprio do destino antes de descartar excedente.",
+      "icons": [
+        "sucata_plus1"
+      ],
+      "displayPolicy": "contextual",
+      "rulesAuthority": "rulesText and existing game engine",
+      "note": "Ícones múltiplos podem ser custos, efeitos conjuntos ou alternativas. Não executar todos automaticamente."
+    },
+    {
+      "cardId": "V04",
+      "name": "Posto abandonado",
+      "rulesText": "Adicione 2 combustíveis ao tanque.",
+      "icons": [
+        "combustivel_plus2"
+      ],
+      "displayPolicy": "contextual",
+      "rulesAuthority": "rulesText and existing game engine",
+      "note": "Ícones múltiplos podem ser custos, efeitos conjuntos ou alternativas. Não executar todos automaticamente."
+    },
+    {
+      "cardId": "V05",
+      "name": "Vazamento na chegada",
+      "rulesText": "Perca até 1 combustível do tanque, sem saldo negativo. Se ficar imobilizado, aplique emergência normalmente.",
+      "icons": [
+        "combustivel_minus1"
+      ],
+      "displayPolicy": "contextual",
+      "rulesAuthority": "rulesText and existing game engine",
+      "note": "Ícones múltiplos podem ser custos, efeitos conjuntos ou alternativas. Não executar todos automaticamente."
+    },
+    {
+      "cardId": "V06",
+      "name": "Choque nos destroços",
+      "rulesText": "Sofra 1 dano de Integridade. Se continuar operacional, pode agir.",
+      "icons": [
+        "dano_1"
+      ],
+      "displayPolicy": "contextual",
+      "rulesAuthority": "rulesText and existing game engine",
+      "note": "Ícones múltiplos podem ser custos, efeitos conjuntos ou alternativas. Não executar todos automaticamente."
+    },
+    {
+      "cardId": "V07",
+      "name": "Carga mal presa",
+      "rulesText": "Descarte 1 recurso da carga, à sua escolha. Se não carregar recursos, nada acontece. Não afeta tanque nem equipamento.",
+      "icons": [
+        "recurso_minus1"
+      ],
+      "displayPolicy": "contextual",
+      "rulesAuthority": "rulesText and existing game engine",
+      "note": "Ícones múltiplos podem ser custos, efeitos conjuntos ou alternativas. Não executar todos automaticamente."
+    },
+    {
+      "cardId": "V08",
+      "name": "Bateria esquecida",
+      "rulesText": "Receba 1 bateria na carga.",
+      "icons": [
+        "bateria_plus1"
+      ],
+      "displayPolicy": "contextual",
+      "rulesAuthority": "rulesText and existing game engine",
+      "note": "Ícones múltiplos podem ser custos, efeitos conjuntos ou alternativas. Não executar todos automaticamente."
+    },
+    {
+      "cardId": "V09",
+      "name": "Pneu aproveitável",
+      "rulesText": "Receba 1 pneu na carga.",
+      "icons": [
+        "pneu_plus1"
+      ],
+      "displayPolicy": "contextual",
+      "rulesAuthority": "rulesText and existing game engine",
+      "note": "Ícones múltiplos podem ser custos, efeitos conjuntos ou alternativas. Não executar todos automaticamente."
+    },
+    {
+      "cardId": "V10",
+      "name": "Caixa de suprimentos",
+      "rulesText": "Escolha e receba 1 sucata ou 1 munição na carga.",
+      "icons": [
+        "sucata_plus1",
+        "municao_plus1"
+      ],
+      "displayPolicy": "contextual",
+      "rulesAuthority": "rulesText and existing game engine",
+      "note": "Ícones múltiplos podem ser custos, efeitos conjuntos ou alternativas. Não executar todos automaticamente."
+    },
+    {
+      "cardId": "V11",
+      "name": "Caminho obstruído",
+      "rulesText": "Você chega, mas perde a ação principal deste turno. Ações livres legais continuam disponíveis. Não cria bloqueio de estrada.",
+      "icons": [
+        "acao_minus1"
+      ],
+      "displayPolicy": "contextual",
+      "rulesAuthority": "rulesText and existing game engine",
+      "note": "Ícones múltiplos podem ser custos, efeitos conjuntos ou alternativas. Não executar todos automaticamente."
+    },
+    {
+      "cardId": "V12",
+      "name": "Corrida Araras–Limeira",
+      "rulesText": "Convoque a pista P01. Após a corrida, retome este turno, preservando a ação principal se operacional.",
+      "icons": [
+        "convocar_P01"
+      ],
+      "displayPolicy": "contextual",
+      "rulesAuthority": "rulesText and existing game engine",
+      "note": "Ícones múltiplos podem ser custos, efeitos conjuntos ou alternativas. Não executar todos automaticamente."
+    },
+    {
+      "cardId": "V13",
+      "name": "Corrida Araras–Piracicaba",
+      "rulesText": "Convoque a pista P02 e proceda como V12.",
+      "icons": [
+        "convocar_P02"
+      ],
+      "displayPolicy": "contextual",
+      "rulesAuthority": "rulesText and existing game engine",
+      "note": "Ícones múltiplos podem ser custos, efeitos conjuntos ou alternativas. Não executar todos automaticamente."
+    },
+    {
+      "cardId": "V14",
+      "name": "Corrida Rio Claro–Americana",
+      "rulesText": "Convoque a pista P03 e proceda como V12.",
+      "icons": [
+        "convocar_P03"
+      ],
+      "displayPolicy": "contextual",
+      "rulesAuthority": "rulesText and existing game engine",
+      "note": "Ícones múltiplos podem ser custos, efeitos conjuntos ou alternativas. Não executar todos automaticamente."
+    },
+    {
+      "cardId": "V15",
+      "name": "Emboscada de saqueadores",
+      "rulesText": "Enfrente uma ameaça leve de evento. Esta batalha substitui sua ação principal. Não concede território; descarte a ameaça ao encerrar, mesmo se fugiu.",
+      "icons": [
+        "emboscada_alert",
+        "acao_minus1"
+      ],
+      "displayPolicy": "contextual",
+      "rulesAuthority": "rulesText and existing game engine",
+      "note": "Ícones múltiplos podem ser custos, efeitos conjuntos ou alternativas. Não executar todos automaticamente."
+    },
+    {
+      "cardId": "V16",
+      "name": "Veículo abandonado",
+      "rulesText": "Revele 1 veículo disponível e deixe-o na cidade de destino, com tanque vazio e Integridade máxima, sem adicionais. Pode assumir usando sua ação Administrar na chegada.",
+      "icons": [
+        "veiculo_plus1"
+      ],
+      "displayPolicy": "contextual",
+      "rulesAuthority": "rulesText and existing game engine",
+      "note": "Ícones múltiplos podem ser custos, efeitos conjuntos ou alternativas. Não executar todos automaticamente."
+    },
+    {
+      "cardId": "H01",
+      "name": "Catador agressivo",
+      "rulesText": "Sem efeito especial.",
+      "icons": [],
+      "displayPolicy": "contextual",
+      "rulesAuthority": "rulesText and existing game engine",
+      "note": "Ícones múltiplos podem ser custos, efeitos conjuntos ou alternativas. Não executar todos automaticamente."
+    },
+    {
+      "cardId": "H02",
+      "name": "Cães ferais",
+      "rulesText": "Sem efeito especial.",
+      "icons": [],
+      "displayPolicy": "contextual",
+      "rulesAuthority": "rulesText and existing game engine",
+      "note": "Ícones múltiplos podem ser custos, efeitos conjuntos ou alternativas. Não executar todos automaticamente."
+    },
+    {
+      "cardId": "H03",
+      "name": "Saqueador solitário",
+      "rulesText": "Sem efeito especial.",
+      "icons": [],
+      "displayPolicy": "contextual",
+      "rulesAuthority": "rulesText and existing game engine",
+      "note": "Ícones múltiplos podem ser custos, efeitos conjuntos ou alternativas. Não executar todos automaticamente."
+    },
+    {
+      "cardId": "H04",
+      "name": "Vigia armado",
+      "rulesText": "TIRO PREPARADO: +1 no acerto do primeiro ataque que realizar.",
+      "icons": [
+        "acerto_plus1"
+      ],
+      "displayPolicy": "contextual",
+      "rulesAuthority": "rulesText and existing game engine",
+      "note": "Ícones múltiplos podem ser custos, efeitos conjuntos ou alternativas. Não executar todos automaticamente."
+    },
+    {
+      "cardId": "H05",
+      "name": "Bando de saqueadores",
+      "rulesText": "Sem efeito especial.",
+      "icons": [],
+      "displayPolicy": "contextual",
+      "rulesAuthority": "rulesText and existing game engine",
+      "note": "Ícones múltiplos podem ser custos, efeitos conjuntos ou alternativas. Não executar todos automaticamente."
+    },
+    {
+      "cardId": "H06",
+      "name": "Javali enfurecido",
+      "rulesText": "Sem efeito especial.",
+      "icons": [],
+      "displayPolicy": "contextual",
+      "rulesAuthority": "rulesText and existing game engine",
+      "note": "Ícones múltiplos podem ser custos, efeitos conjuntos ou alternativas. Não executar todos automaticamente."
+    },
+    {
+      "cardId": "H07",
+      "name": "Atirador das ruínas",
+      "rulesText": "MIRA TREINADA: +1 nas próprias rolagens de ataque.",
+      "icons": [
+        "acerto_plus1"
+      ],
+      "displayPolicy": "contextual",
+      "rulesAuthority": "rulesText and existing game engine",
+      "note": "Ícones múltiplos podem ser custos, efeitos conjuntos ou alternativas. Não executar todos automaticamente."
+    },
+    {
+      "cardId": "H08",
+      "name": "Emboscadores",
+      "rulesText": "ROTA CERCADA: −1 nos testes de fuga do jogador.",
+      "icons": [
+        "fuga_minus1"
+      ],
+      "displayPolicy": "contextual",
+      "rulesAuthority": "rulesText and existing game engine",
+      "note": "Ícones múltiplos podem ser custos, efeitos conjuntos ou alternativas. Não executar todos automaticamente."
+    },
+    {
+      "cardId": "H09",
+      "name": "Brutamontes blindado",
+      "rulesText": "Sem efeito especial.",
+      "icons": [],
+      "displayPolicy": "contextual",
+      "rulesAuthority": "rulesText and existing game engine",
+      "note": "Ícones múltiplos podem ser custos, efeitos conjuntos ou alternativas. Não executar todos automaticamente."
+    },
+    {
+      "cardId": "H10",
+      "name": "Buggy dos saqueadores",
+      "rulesText": "Sem efeito especial.",
+      "icons": [],
+      "displayPolicy": "contextual",
+      "rulesAuthority": "rulesText and existing game engine",
+      "note": "Ícones múltiplos podem ser custos, efeitos conjuntos ou alternativas. Não executar todos automaticamente."
+    },
+    {
+      "cardId": "H11",
+      "name": "Gangue incendiária",
+      "rulesText": "INCÊNDIO: ao tirar 6 natural e acertar, causa +1 dano.",
+      "icons": [
+        "incendio_plus1"
+      ],
+      "displayPolicy": "contextual",
+      "rulesAuthority": "rulesText and existing game engine",
+      "note": "Ícones múltiplos podem ser custos, efeitos conjuntos ou alternativas. Não executar todos automaticamente."
+    },
+    {
+      "cardId": "H12",
+      "name": "Sentinela da sucata",
+      "rulesText": "CHAPA FRONTAL: reduz em 1 o dano do primeiro ataque que acertá-la em cada combate.",
+      "icons": [
+        "reducao_dano_minus1"
+      ],
+      "displayPolicy": "contextual",
+      "rulesAuthority": "rulesText and existing game engine",
+      "note": "Ícones múltiplos podem ser custos, efeitos conjuntos ou alternativas. Não executar todos automaticamente."
+    }
+  ]
+}

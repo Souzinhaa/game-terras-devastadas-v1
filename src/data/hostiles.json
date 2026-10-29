@@ -1,0 +1,235 @@
+{
+  "schemaVersion": 1,
+  "balanceStatus": "initial_playtest",
+  "hostiles": [
+    {
+      "id": "H01",
+      "name": "Catador agressivo",
+      "tier": "easy",
+      "maxHealth": 3,
+      "defense": 3,
+      "attackDamage": 1,
+      "attacksPerRound": 1,
+      "copies": 2,
+      "effectText": "Sem efeito especial.",
+      "effects": [],
+      "image": "cartas/H01.png",
+      "width": 1024,
+      "height": 1536,
+      "sha256": "d5d69978e834bd5958c95584e8c026ac56b0f68179c0cecf00163da8b75ed833"
+    },
+    {
+      "id": "H02",
+      "name": "Cães ferais",
+      "tier": "easy",
+      "maxHealth": 2,
+      "defense": 4,
+      "attackDamage": 1,
+      "attacksPerRound": 1,
+      "copies": 2,
+      "effectText": "Sem efeito especial.",
+      "effects": [],
+      "image": "cartas/H02.png",
+      "width": 1024,
+      "height": 1536,
+      "sha256": "277a345edb6fdf816693db19c8ce934bb2482680d1c0cc623d4a39466817fb39"
+    },
+    {
+      "id": "H03",
+      "name": "Saqueador solitário",
+      "tier": "easy",
+      "maxHealth": 4,
+      "defense": 3,
+      "attackDamage": 1,
+      "attacksPerRound": 1,
+      "copies": 2,
+      "effectText": "Sem efeito especial.",
+      "effects": [],
+      "image": "cartas/H03.png",
+      "width": 1024,
+      "height": 1536,
+      "sha256": "c3fddb065100b54066f8bc284a4cdb7596616c12eb2f9339608595af2c349b77"
+    },
+    {
+      "id": "H04",
+      "name": "Vigia armado",
+      "tier": "easy",
+      "maxHealth": 3,
+      "defense": 4,
+      "attackDamage": 1,
+      "attacksPerRound": 1,
+      "copies": 2,
+      "effectText": "TIRO PREPARADO: +1 no acerto do primeiro ataque que realizar.",
+      "effects": [
+        {
+          "type": "attack_roll_modifier",
+          "value": 1,
+          "trigger": "before_hostile_attack_roll",
+          "limit": "first_attack_per_combat",
+          "consumeOn": "roll_attempt"
+        }
+      ],
+      "image": "cartas/H04.png",
+      "width": 1024,
+      "height": 1536,
+      "sha256": "71257da5bdf7ae11898d90b02701c6e3bebd7715322e08a6b957a629523a2d3e"
+    },
+    {
+      "id": "H05",
+      "name": "Bando de saqueadores",
+      "tier": "medium",
+      "maxHealth": 5,
+      "defense": 4,
+      "attackDamage": 1,
+      "attacksPerRound": 1,
+      "copies": 2,
+      "effectText": "Sem efeito especial.",
+      "effects": [],
+      "image": "cartas/H05.png",
+      "width": 1024,
+      "height": 1536,
+      "sha256": "6370ced16d9dfd01416663f1b18271d118840d40305b148c63a61ccbcd06ccca"
+    },
+    {
+      "id": "H06",
+      "name": "Javali enfurecido",
+      "tier": "medium",
+      "maxHealth": 6,
+      "defense": 3,
+      "attackDamage": 2,
+      "attacksPerRound": 1,
+      "copies": 2,
+      "effectText": "Sem efeito especial.",
+      "effects": [],
+      "image": "cartas/H06.png",
+      "width": 1024,
+      "height": 1536,
+      "sha256": "0f8bd5a81103e07dc40409e42b53faa324c4f76c2a6dda21adff279cf947e4fb"
+    },
+    {
+      "id": "H07",
+      "name": "Atirador das ruínas",
+      "tier": "medium",
+      "maxHealth": 4,
+      "defense": 5,
+      "attackDamage": 1,
+      "attacksPerRound": 1,
+      "copies": 2,
+      "effectText": "MIRA TREINADA: +1 nas próprias rolagens de ataque.",
+      "effects": [
+        {
+          "type": "attack_roll_modifier",
+          "value": 1,
+          "trigger": "before_hostile_attack_roll"
+        }
+      ],
+      "image": "cartas/H07.png",
+      "width": 1024,
+      "height": 1536,
+      "sha256": "53d808a99974f8ff439dfe9ba5ff0bcaf4723cd633ce29571da1e61adee36a2d"
+    },
+    {
+      "id": "H08",
+      "name": "Emboscadores",
+      "tier": "medium",
+      "maxHealth": 5,
+      "defense": 4,
+      "attackDamage": 1,
+      "attacksPerRound": 1,
+      "copies": 2,
+      "effectText": "ROTA CERCADA: −1 nos testes de fuga do jogador.",
+      "effects": [
+        {
+          "type": "opponent_escape_roll_modifier",
+          "value": -1,
+          "trigger": "before_opponent_escape_roll"
+        }
+      ],
+      "image": "cartas/H08.png",
+      "width": 1024,
+      "height": 1536,
+      "sha256": "13c83cd34b7ec4e8a3c585c9d1c7b83d29265b42624388988b8d3aea1a9ec301"
+    },
+    {
+      "id": "H09",
+      "name": "Brutamontes blindado",
+      "tier": "hard",
+      "maxHealth": 8,
+      "defense": 4,
+      "attackDamage": 2,
+      "attacksPerRound": 1,
+      "copies": 2,
+      "effectText": "Sem efeito especial.",
+      "effects": [],
+      "image": "cartas/H09.png",
+      "width": 1024,
+      "height": 1536,
+      "sha256": "d150044ce63126d42769a2b92fd93d7327c702f82ff0fb13a02b4cfb193b281b"
+    },
+    {
+      "id": "H10",
+      "name": "Buggy dos saqueadores",
+      "tier": "hard",
+      "maxHealth": 6,
+      "defense": 5,
+      "attackDamage": 2,
+      "attacksPerRound": 1,
+      "copies": 2,
+      "effectText": "Sem efeito especial.",
+      "effects": [],
+      "image": "cartas/H10.png",
+      "width": 1024,
+      "height": 1536,
+      "sha256": "43834f24f754c202200f3dcd77f6c72c1b9ec0ec39f16ee438f847fb7c74a82b"
+    },
+    {
+      "id": "H11",
+      "name": "Gangue incendiária",
+      "tier": "hard",
+      "maxHealth": 7,
+      "defense": 4,
+      "attackDamage": 2,
+      "attacksPerRound": 1,
+      "copies": 2,
+      "effectText": "INCÊNDIO: ao tirar 6 natural e acertar, causa +1 dano.",
+      "effects": [
+        {
+          "type": "damage_bonus",
+          "value": 1,
+          "trigger": "hostile_attack_hit",
+          "condition": {
+            "naturalRollEquals": 6
+          }
+        }
+      ],
+      "image": "cartas/H11.png",
+      "width": 1024,
+      "height": 1536,
+      "sha256": "5844b69f949088b654798e5d5d7f46efd7f296ac4197dab74d1c212c35e42b3d"
+    },
+    {
+      "id": "H12",
+      "name": "Sentinela da sucata",
+      "tier": "hard",
+      "maxHealth": 9,
+      "defense": 3,
+      "attackDamage": 2,
+      "attacksPerRound": 1,
+      "copies": 2,
+      "effectText": "CHAPA FRONTAL: reduz em 1 o dano do primeiro ataque que acertá-la em cada combate.",
+      "effects": [
+        {
+          "type": "incoming_damage_reduction",
+          "value": 1,
+          "minimumDamage": 0,
+          "trigger": "first_attack_hit_received_per_combat",
+          "consumeOn": "hit"
+        }
+      ],
+      "image": "cartas/H12.png",
+      "width": 1024,
+      "height": 1536,
+      "sha256": "8f87324dcd0e173cfa8c86c44d78426ea541d4a0b6476a837f0b8e3c733e8015"
+    }
+  ]
+}
