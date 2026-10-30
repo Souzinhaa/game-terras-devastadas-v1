@@ -36,3 +36,41 @@ describe('persistência, cura e migração',()=>{
  it('reimportar edição atual não consome RNG nem cura hostis',()=>{const s=setup(),raw=encodeSave(s);expect(decodeSave(raw).game).toEqual(s);expect(decodeSave(raw).game.seed).toBe(s.seed);});
  it('rejeita vida divergente e duplicação de instância',()=>{const s=setup();s.territories['araras-1'].hostile!.currentHealth--;expect(()=>assertInvariants(s)).toThrow('inconsistente');});
 });
+
+describe('hostile scrap rewards',()=>{
+ it.each(hostiles.map(d=>d.id))('rewards scrap for %s difficulty',id=>{
+  let s=start(setup(id,1));s.rules.attackDamage=20;s=attack(s,6);
+  expect(s.encounter).toBeNull();const minimum={easy:2,medium:3,hard:4}[hostileDefinition(id)!.tier];expect((player(s).stock.scrap+player(s).stock.fuel)).toBeGreaterThanOrEqual(minimum);expect((player(s).stock.scrap+player(s).stock.fuel)).toBeLessThanOrEqual(minimum+1);
+ });
+ it('rewards event enemies too',()=>{
+  let s=setup();const h=makeHostile(s,'medium','event','reward-test');h.currentHealth=1;
+  s.encounter={kind:'combat',actorId:player(s).id,betweenRounds:false,lootResolved:false,eventHostile:h,eventIntegrity:1};s.rules.attackDamage=20;
+  s=attack(s,6);expect(s.encounter).toBeNull();expect((player(s).stock.scrap+player(s).stock.fuel)).toBeGreaterThanOrEqual(3);expect((player(s).stock.scrap+player(s).stock.fuel)).toBeLessThanOrEqual(4);
+ });
+});
+
+describe('variable hostile rewards',()=>{
+ it.each(['H01','H05','H09'])('varies %s rewards without losing determinism',id=>{
+  const rewards=new Set<number>(),minimum={easy:2,medium:3,hard:4}[hostileDefinition(id)!.tier];
+  for(let i=1;i<=40;i++){
+   const s=start(setup(id,1));s.rules.attackDamage=20;s.seed=seedFor(6)+i*1000000;
+   // Guarantee a hit without changing the random reward draw.
+   s.cardState!.pending.push({playerId:player(s).id,effect:'attack',amount:10});
+   const n=transition(s,{type:'attack'});if(n.encounter)continue;
+   expect(transition(s,{type:'attack'})).toEqual(n);rewards.add(player(n).stock.scrap+player(n).stock.fuel);
+  }
+  expect([...rewards].sort()).toEqual([minimum,minimum+1]);
+ });
+});
+
+describe('fuel and scrap combat loot',()=>{
+ it('can award either resource or a mixture, keeps fuel in reserve, and preserves RNG on replay',()=>{
+  const kinds=new Set<string>();
+  for(let i=1;i<=100;i++){
+   const s=start(setup('H01',1));s.rules.attackDamage=20;s.seed=(i*123456789)>>>0;s.cardState!.pending.push({playerId:player(s).id,effect:'attack',amount:10});
+   const n=transition(s,{type:'attack'});if(n.encounter)continue;
+   const p=player(n);kinds.add(p.stock.scrap&&p.stock.fuel?'mixed':p.stock.scrap?'scrap':'fuel');expect(p.vehicle.fuelUnits).toBe(player(s).vehicle.fuelUnits);expect(transition(s,{type:'attack'})).toEqual(n);
+  }
+  expect([...kinds].sort()).toEqual(['fuel','mixed','scrap']);
+ });
+});

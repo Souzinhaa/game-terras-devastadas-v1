@@ -1,9 +1,11 @@
-# Terras Devastadas — regras de referência v0.5
+# Terras Devastadas — regras de referência v0.6
 
 ## 1. Edição e precedência
-Este texto consolida a camada operacional do GDD v0.4 com o rebalanceamento de 29/10/2026. Para novas partidas use rules.md, rules-cards.md, dados/cards.json e dados/rule-config.json deste pacote. Eles substituem os valores contraditórios dos documentos anteriores, das imagens antigas e dos contextos v0.1 de ícones. Não alterar partidas em andamento silenciosamente.
 
-O conjunto é uma edição de teste para o protótipo digital. Números de combate, exploração, reparos e prêmios continuam parâmetros de teste. Os consumos, capacidades, terra e regras centrais preservadas são os já combinados. A resolução de vitória territorial e o setup mudam explicitamente nesta edição.
+A edição v0.6 incorpora [Hatch, progressão e duas vidas](docs/REGRAS_V06.md), que prevalece sobre documentos anteriores. Todos começam de Hatch com duas vidas; melhorar custa 5 sucatas locais e uma ação. Conteúdo do save: 0.6.0.
+Este texto consolida a camada operacional do GDD v0.4 com o rebalanceamento de 29/10/2026. Para novas partidas use rules.md, rules-cards.md, src/data/catalog.json e src/engine/config.ts deste pacote. Eles substituem os valores contraditórios dos documentos anteriores, das imagens antigas e dos contextos v0.1 de ícones. Não alterar partidas em andamento silenciosamente.
+
+O conjunto é uma edição de teste para o protótipo digital. Números de combate, exploração, reparos e prêmios continuam parâmetros de teste. Os consumos e acesso à terra permanecem; capacidades, progressão e vidas seguem as alterações v0.6. A resolução de vitória territorial e o setup mudam explicitamente nesta edição.
 
 ## 2. Objetivo e controle
 Partida competitiva para 2–4 jogadores. Vença ao ser o último jogador não eliminado, ou sustentando cidades completas que somem 4 pontos até o início de seu próximo turno após anúncio.
@@ -33,21 +35,22 @@ No início de seu próximo turno, expire primeiro os efeitos com essa janela, re
 | Santa Gertrudes | 2 | 0,5 |
 | Santa Cruz da Conceição | 2 | 0,5 |
 
-| Veículo | Carga | Consumo por viagem | Tanque máximo | Combustível inicial NOVO | Terra |
+| Veículo | Carga | Consumo por viagem | Tanque máximo | Combustível inicial | Terra |
 |---|---:|---:|---:|---:|---|
-| Hatch | 1 | 1 | 8 | 3 | Não |
-| Sedã | 7 | 2 | 12 | 6 | Não |
-| SUV | 6 | 2 | 12 | 6 | Sim |
-| Caminhonete | 10 | 3 | 15 | 9 | Sim |
+| Hatch | 4 | 1 | 8 | 3 | Não |
+| Moto | 2 | 1 | 10 | 10 na melhoria | Sim |
+| Sedã | 7 | 2 | 12 | — | Não |
+| SUV | 6 | 2 | 12 | — | Sim |
+| Caminhonete | 10 | 3 | 15 | — | Sim |
 
-Consumo fixo e inteiro por ligação. Sem adicional por terreno ou carga. Combustível inicial corresponde a 3 viagens, não metade arredondada de cada tanque. Corridas, saque e cartas possuem custos próprios e podem reduzir essa autonomia. Nenhuma classe recebe acesso à terra por instalar equipamento deste catálogo.
+Consumo fixo e inteiro por ligação. Sem adicional por terreno ou carga. Somente o Hatch é inicial. Melhoria para Moto entrega tanque cheio de 10; as demais melhorias e trocas preservam o combustível. Modelos superiores não recebem kit inicial. O Hatch começa com combustível para 3 viagens. Corridas, saque e cartas possuem custos próprios e podem reduzir essa autonomia. Nenhuma classe recebe acesso à terra por instalar equipamento deste catálogo.
 
 Preservar o grafo atual: SP-330 Americana–Limeira–Cordeirópolis–Araras–Leme–Pirassununga; SP-310 Cordeirópolis–Santa Gertrudes–Rio Claro; SP-191 Conchal–Araras–Rio Claro; SP-147 Limeira–Piracicaba; SP-127 Rio Claro–Piracicaba; SP-304 Americana–Piracicaba; SP-332 Conchal–Artur Nogueira; ligação composta SP-147/SP-332 Limeira–Artur Nogueira; acessos de Santa Cruz da Conceição a Leme e Pirassununga. Rotas rurais alternativas Araras–Rio Claro e Araras–Artur Nogueira continuam ilustrativas, sem denominação oficial inventada. Esta edição não refez pesquisa rodoviária nem altera mapa/nomes.
 
 ## 4. Preparação — REVISADA
-1. Sortear ordem, modelo de veículo e sub-regiões iniciais distintas; cidades diferentes enquanto houver possibilidade. Sorteio deve usar RNG serializado e não favorecer sistematicamente os primeiros.
+1. Todos começam de Hatch com duas vidas. Sortear ordem e sub-regiões iniciais distintas; cidades diferentes enquanto houver possibilidade. Sorteio deve usar RNG serializado e não favorecer sistematicamente os primeiros.
 2. Cada jogador controla uma sub-região inicial com defesa padrão íntegra; não recebe cidade completa de graça. Retire a ameaça dessa sub-região. Depósitos começam vazios.
-3. Carro com Integridade máxima, combustível inicial da tabela, 1 sucata na carga, equipamento fixo do modelo e nenhum adicional instalado ou na reserva.
+3. Carro com Integridade máxima, 3 combustíveis no tanque, 1 sucata na carga, equipamento fixo do modelo e nenhum adicional instalado ou na reserva.
 4. Entregar 1 carta geral aleatória por jogador, em vez de 2. Não criar carta de sobrevivência garantida ou baralho inicial separado.
 5. A compra normal de 1 geral acontece também no primeiro turno próprio. Logo, antes da primeira ação o jogador normalmente tem 2 gerais, e não 3.
 6. Restante do mapa segue distribuição de ameaças existente. Não inventar perfil completo de exploração ou novas penalidades por cidade.
@@ -70,7 +73,7 @@ Recursos: combustível, sucata, munição, pneu, bateria e água. Sem consumo pe
 
 1 unidade transportada ocupa 1 carga, salvo combustível no tanque. Reserva de combustível na carga ocupa espaço. Depósito padrão 10 por sub-região. Acesso a todos os próprios depósitos da cidade atual é livre; não há acesso remoto comum. Ganhos respeitam limites e escolhas de excedente. Conquista transfere estoque existente, sem criar recurso. Descarte elimina recurso do jogo.
 
-Explorar usa ação principal. Para o protótipo, 3 usos por sub-região, compartilhados, sem renovação automática; perfis regionais e composição detalhada continuam pendentes. Não usar esta edição para inventar taxas de achado. Recursos materiais sem ação implementada não ganham uso automático apenas por existir ícone.
+Explorar usa ação principal e gera 2–3 recursos sorteados individualmente, guardados no depósito do setor. Para o protótipo, 3 usos por sub-região, compartilhados, sem renovação automática; perfis regionais e composição detalhada continuam pendentes. Não usar esta edição para inventar taxas de achado. Recursos materiais sem ação implementada não ganham uso automático apenas por existir ícone.
 
 ## 7. Cartas, equipamentos e acúmulo
 Uma geral por jogador por turno do mapa, inclusive turno de outro. Combate/corrida não resetam a cota. Dados só podem ser modificados antes de rolar. Prioridade começa no jogador da vez e segue a ordem. Cartas sem alvo legal não podem ser gastas voluntariamente; evento obrigatório sem alvo segue alternativa ou descarta sem efeito. Uma proibição só cede a exceção explícita.
@@ -98,36 +101,39 @@ Fortificação ataca uma vez por rodada mesmo sem proprietário. Dono operaciona
 
 Fuga usa D6 + agilidade + modificadores, sucesso 5+. Exige rota e combustível para cidade vizinha compatível, sem novo evento nem nova ação. Contra jogador também exige uma carta na mão; vencedor escolhe 1 às cegas após mistura. Sem carta, sem fuga PvP. Erro continua combate sem ataque gratuito adicional. Contra ameaça não há tributo. E09 único elimina a fuga garantida por duplicação; o teste continua obrigatório.
 
-Vencedor PvP rouba só 1 carta por combate, por inutilização OU fuga, antes de eventual descarte de equipamentos da mão. Instalados não podem ser roubados. Gerais/equipamentos não instalados elegíveis; reserva territorial elegível é parâmetro provisório sim. Respeitar limite da carta recebida.
+Fuga PvP concede 1 carta às cegas. Destruição de carro não concede cartas: todas as cartas do derrotado são descartadas pela regra de vidas. Instalados não podem ser roubados. Gerais/equipamentos não instalados elegíveis; reserva territorial elegível é parâmetro provisório sim. Respeitar limite da carta recebida.
 
-Hostis H01–H12 preservam estatísticas e poderes do hostis.json. H04 bônus no primeiro ataque tentado, H07 em todos, H08 reduz fuga adversária, H11 dano +1 no 6 natural que acerta e H12 reduz primeiro acerto recebido. Sem novos poderes ou loot. Recuperar carro não conquista território; a ambiguidade de recompra de ameaça em território já pertencente a jogador permanece pendente, sem gerar defesa neutra extra automaticamente.
+Hostis H01–H12 preservam estatísticas e poderes do hostis.json. H04 bônus no primeiro ataque tentado, H07 em todos, H08 reduz fuga adversária, H11 dano +1 no 6 natural que acerta e H12 reduz primeiro acerto recebido. Poderes preservados. Recompensa de hostil: 2–3 itens no fácil, 3–4 no médio, 4–5 no difícil, cada um sorteando sucata ou combustível para a carga/reserva. Recuperar carro não conquista território; a ambiguidade de recompra de ameaça em território já pertencente a jogador permanece pendente, sem gerar defesa neutra extra automaticamente.
 
 ## 10. Saque
 Ação principal + 1 combustível; escolher depósito alheio local. Atacante D6 contra defesa D6+1; empate defesa. Sucesso leva até 2 recursos, capacidades respeitadas; falha causa 2 danos. Qualquer tentativa ativa alerta compartilhado até início do próximo turno do saqueador. Não colocar cartas no depósito.
 
 Se dono operacional local escolher defesa pessoal, combater somente carros: fortificação não participa. Saqueador vencedor leva até 2 recursos e resolve roubo PvP de 1 carta normalmente; derrota/fuga não leva recursos. Não aplicar dano de falha do teste simples além do combate. T05 reduz saque a no máximo 1 recurso, inclusive defesa pessoal. Saque não muda controle nem descarta melhorias.
 
-## 11. Reparos, recuperação e eliminação
-Zero Integridade inutiliza; não elimina automaticamente. Parâmetros de protótipo: reparo simples uma vez por turno próprio, 1 sucata por 1 Integridade, livre, sem reativar carro zero. Reparo complexo usa Administrar, 2 sucatas por 4 Integridade, podendo reativar; não exige oficina. Territorial usa Administrar, 1 sucata por 2 Integridade, até 2 sucatas por ação; T06 adiciona +1 uma vez à ação de reparo, não por sucata.
+## 11. Progressão, reparos e duas vidas
 
-Emergência: pode explorar uma vez por ação enquanto houver usos locais, inclusive território alheio sem acessar depósito. Esgotados usos e alternativas, conceder um último turno com compra geral; se nenhuma solução executável, eliminar. Plano em etapas só continua com progresso real. São regras operacionais provisórias, sem garantir que G09 unitária salve sozinha SUV/caminhonete.
+Todos começam de Hatch (carga 4), com duas vidas. Melhoria para sedã, SUV, caminhonete ou Moto custa 5 sucatas da carga/depósitos próprios locais e uma ação. Preserva integridade atual, mão, carga, adicionais e vidas restantes; não cura. A Moto recebe 10 combustíveis no tanque na melhoria, os demais modelos preservam combustível. Não permite troca direta entre modelos superiores.
 
-Inutilização descarta equipamentos na mão, mantendo instalados. Eliminado descarta tanque/carga/mãos/adicionais; territórios ficam abandonados com defesa/estoque, exigindo conquista. Eliminação por combustível pode deixar carro operacional vazio recuperável; perda por ameaça gera sucata local, por PvP entrega sucata ao vencedor respeitando carga. Quantidade gerada provisória 3.
+Na primeira destruição, descarte mão, carga, tanque e adicionais; renasça de Hatch íntegro, com 3 combustíveis, sem itens/cartas, na mesma cidade. Preserve territórios e depósitos. Cancele o anúncio territorial. A ação atual termina e o próximo turno próprio inteiro é perdido, sem compra ou ações. Imunidade até encerrar esse turno. Em corrida, o participante não retorna à prova com o carro novo.
 
-Carro recuperado fica na cidade. Assumir carro disponível local usa Administrar; reparar antes se necessário. Antigo vira sucata e adicionais descartam. Transferir recursos/combustível dentro de capacidades; excedente para depósito próprio local ou descarte escolhido. Mão não instalada permanece na troca voluntária. Não gerar kit inicial em veículo encontrado.
+A segunda destruição elimina definitivamente. Abandone setores preservando defesa, melhorias e estoque. Remova bloqueios do eliminado; ignore seus turnos. Último sobrevivente vence imediatamente; eliminação simultânea de todos encerra sem vencedor. Melhorar ou trocar carro nunca renova vidas.
+
+Simples: 1 sucata por 1 integridade, livre, uma vez por turno; complexo: 2 sucatas por 4 integridades e uma ação. Ambos exigem carro de jogador com integridade positiva. Zero consome vida; não existe mais recuperação por exploração ou reparo do carro destruído. Sem eliminação automática por tanque vazio nesta edição.
+
+Carro encontrado continua exigindo reparo prévio em turno separado quando necessário. Assumir um sedã/SUV/caminhonete/Moto encontrado também custa 5 sucatas locais e uma ação. Transfere combustível disponível, preserva carga/mão e descarta adicionais antigos. Não gera sucata pelo carro substituído. Detalhes e conflitos: [regras v0.6](docs/REGRAS_V06.md).
 
 ## 12. Corridas
 Eventos V12–V14 convocam pistas P01/P02/P03. Revelador deve entrar se apto e puder pagar; demais podem entrar de qualquer cidade. Custo da pista não é multiplicado pelo consumo do modelo. Sem combustível não entra e não sofre multa. Pista é tabuleiro neutro separado; ao final retorna à cidade anterior.
 
 Avanço D6 por rodada; marcos geram surpresa uma vez por participante, inclusive avanço por carta. Recuo não renova marco. Modificadores expiram/consomem conforme texto. G21/G22 agora alteram avanço em 1, não em 2; E10 continua +2 uma vez por corrida e as surpresas conservam valores.
 
-Sem desistência voluntária. Zero Integridade por carta retira participante para recuperação, sem eliminar automaticamente jogador. Completar a rodada de chegada; maior progresso vence, empate D6 sem cartas. Só primeiro ganha prêmio. Se todos ficarem inutilizados, encerrar sem prêmio. Com um único apto, não iniciar corrida: devolver inscrição e seguir evento sem prêmio. Rival neutro continua desativado.
+Sem desistência voluntária. Zero Integridade por carta retira participante e aplica a perda de vida: primeiro renascimento ou eliminação na segunda destruição. Completar a rodada de chegada; maior progresso vence, empate D6 sem cartas. Só primeiro ganha prêmio. Se todos ficarem inutilizados, encerrar sem prêmio. Com um único apto, não iniciar corrida: devolver inscrição e seguir evento sem prêmio. Rival neutro continua desativado.
 
 | Pista | Distância | Marcos | Inscrição | Prêmio |
 |---|---:|---|---:|---|
-| P01 Araras–Limeira | 15 | 6/12 | 3 | 3 sucatas + 1 melhoria |
-| P02 Araras–Piracicaba | 21 | 7/14 | 5 | 4 sucatas + 2 melhorias |
-| P03 Rio Claro–Americana | 18 | 6/12 | 4 | 3 sucatas + 2 melhorias |
+| P01 Araras–Limeira | 15 | 6/12 | 1 | 3 sucatas + 1 melhoria |
+| P02 Araras–Piracicaba | 21 | 7/14 | 1 | 4 sucatas + 2 melhorias |
+| P03 Rio Claro–Americana | 18 | 6/12 | 1 | 3 sucatas + 2 melhorias |
 
 Ganhos respeitam capacidades e acesso a depósito próprio da cidade de retorno. Custos/prêmios permanecem valores de teste.
 
@@ -137,6 +143,6 @@ Hatch: Integridade 6, Defesa 4+, agilidade +1; sedã 8/4+/0; SUV 10/3+/0; caminh
 Permanecem abertos: perfis e nomes de sub-regiões; baralho regional completo; quantidades de veículos; condições mecânicas sem especificação; impasse de combate sem dano; regra definitiva de recompra de ameaça em território de adversário. Não restaurar valores antigos incompatíveis. Sistema de condições sem regras deve permanecer desativado.
 
 ## 14. Persistência e interface
-Guardar versões de regras/conteúdo, RNG, limites, fontes, anúncios e janelas. Regra de novos jogos é v0.5; não reabastecer, esvaziar tanque ou remover cartas/equipamentos de save antigo automaticamente. Ver contexto.md para migração.
+Guardar versões de regras/conteúdo, RNG, limites, fontes, anúncios e janelas. Regra de novos jogos é v0.6; não reabastecer, esvaziar tanque ou remover cartas/equipamentos de save antigo automaticamente. Ver contexto.md para migração.
 
 Interface deve mostrar combustível inicial diferente do máximo, ataque adicional compartilhado usado/disponível, ÚNICA, E06 gasto no combate e anúncio territorial com prazo. Marcadores são apresentação; não calcular regra por OCR ou texto da imagem.

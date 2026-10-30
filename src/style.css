@@ -94,7 +94,7 @@ label { display: flex; flex-direction: column; gap: 8px; font-size: 12px; font-w
 .board-panel h2 { font-size: 32px; margin-top: 5px; }
 .map-viewport { overflow: auto; height: min(66vh,720px); min-height: 430px; border-radius: 20px; border: 1px solid #8b9d83; cursor: grab; background: #626f4e; overscroll-behavior: contain; scrollbar-color: #8b9d83 #c5cbb0; scrollbar-width: thin; }
 .map-viewport:active { cursor: grabbing; }
-.map { position: relative; background: linear-gradient(#34412b55,#34412b77),url('../assets/mapa-principal.png') center/100% 100%; }
+.map { position: relative; background: linear-gradient(#34412b55,#34412b77),url('../assets/mapa-expandido-v2.png') center/100% 100%; }
 .map svg { position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none; }
 .map line { stroke: var(--sand); stroke-width: .3; opacity: .35; transition: opacity 350ms var(--ease),stroke-width 350ms var(--ease); }
 .map line.available { stroke: #d4b895; opacity: 1; stroke-width: .55; }

@@ -7,7 +7,7 @@ body:has(.is-playing) { overflow: hidden; }
 .is-playing .board-layout .board-panel { display: block; inset: 0; width: 100%; height: 100dvh; z-index: 0; padding: 0; border: 0; border-radius: 0; overflow: hidden; background: var(--moss); }
 .is-playing .map-viewport { position: absolute; inset: 0; width: 100vw; height: 100dvh; max-height: none; min-height: 0; border: 0; border-radius: 0; scrollbar-width: none; }
 .is-playing .map-viewport::-webkit-scrollbar { display: none; }
-.is-playing .map { background-image: linear-gradient(#34412b22,#34412b44),url('../assets/mapa-principal.png'); }
+.is-playing .map { background-image: linear-gradient(#34412b22,#34412b44),url('../assets/mapa-expandido-v2.png'); }
 .is-playing .board-panel>.panel-heading { position: fixed; z-index: 4; bottom: 21px; left: 20px; padding: 8px; margin: 0; border: 1px solid #a3ac8d; border-radius: 20px; background: #e8dcc7f2; }
 .is-playing .board-panel>.panel-heading>div:first-child { display: none; }
 .is-playing .map-legend { position: fixed; z-index: 3; left: 20px; bottom: 84px; padding: 9px 13px; gap: 12px; background: #e8dcc7ed; border: 1px solid #a3ac8d; border-radius: 16px; }

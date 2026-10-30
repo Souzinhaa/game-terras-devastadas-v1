@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { assertInvariants, capacityIssues, cities, cityTerritories, createGame, emptyStock, load, makeVehicle, model, points, routeReason, routes, transition, travelCost, vehicles, type Game, type ModelId } from './game';
+import { assertInvariants, capacityIssues, cities, cityTerritories, createGame, emptyStock, load, makeVehicle, model, points, routeReason, routes, transition, travelCost, vehicles, type DiceRoll, type Game, type ModelId } from './game';
 import { decodeSave, encodeSave } from '../application/saves';
 const setup = (id: ModelId = 'suv', seed = 42) => {
  let s = createGame(['Ana','Bia'],seed); s = transition(s,{type:'start'});
@@ -17,9 +17,9 @@ function legacy(s: Game, unit: 'whole'|'half'='whole') {
  return envelope;
 }
 describe('conteúdo confirmado v0.4',()=>{
- it('tem quatro modelos com capacidades, tanque, consumo e superfícies exatos',()=>{
+ it('tem cinco modelos com capacidades, tanque, consumo e superfícies exatos',()=>{
   expect(vehicles.map(v=>[v.id,v.capacity,v.tank,v.consumption,v.allowedSurfaces,v.additionalSlots])).toEqual([
-   ['hatch',1,8,1,['paved'],2],['sedan',7,12,2,['paved'],2],['suv',6,12,2,['paved','rural'],2],['pickup',10,15,3,['paved','rural'],2]
+   ['hatch',4,8,1,['paved'],2],['sedan',7,12,2,['paved'],2],['suv',6,12,2,['paved','rural'],2],['pickup',10,15,3,['paved','rural'],2],['moto',2,10,1,['paved','rural'],2]
   ]);
  });
  it('35 setores, 12 cidades, 8 pontos, IDs únicos e duas arestas Araras–Rio Claro',()=>{
@@ -29,12 +29,12 @@ describe('conteúdo confirmado v0.4',()=>{
   expect(routes.filter(r=>[r.from,r.to].includes('araras')&&[r.from,r.to].includes('rio-claro'))).toHaveLength(2);
   const seen=new Set(['araras']); for(let i=0;i<12;i++) for(const r of routes.filter(r=>r.terrain==='paved')) if(seen.has(r.from)||seen.has(r.to)){seen.add(r.from);seen.add(r.to);} expect(seen.size).toBe(12);
  });
- it('novas partidas têm três viagens de combustível, 1 sucata, fixo, 1 geral e zero adicional; sorteio alcança quatro classes',()=>{
+ it('novas partidas têm três viagens de combustível, 1 sucata, fixo, 1 geral e zero adicional; todos começam de hatch',()=>{
   const seen=new Set<string>();
   for(let seed=0;seed<60;seed++) { const s=createGame(['A','B','C','D'],seed); expect(s.started).toBe(false); const starts=new Set<string>();
    for(const p of s.players){seen.add(p.vehicle.modelId);starts.add(p.city);expect(p.vehicle.fuelUnits).toBe(model(p).consumption*3);expect(p.stock).toEqual({...emptyStock(),scrap:1});expect(p.hand).toHaveLength(1);expect(p.hand.every(c=>c.type==='general')).toBe(true);expect(p.vehicle.installed).toEqual([]);expect(p.vehicle.fixedEquipmentId).toBe(model(p).fixedEquipmentId);expect(cityTerritories(s,p.city).filter(t=>t.owner===p.id)).toHaveLength(1);}
    expect(starts.size).toBe(4);assertInvariants(s);
-  }expect(seen).toEqual(new Set(['hatch','sedan','suv','pickup']));
+  }expect(seen).toEqual(new Set(['hatch']));
  });
  it('mesma seed reproduz ordem, IDs e ameaças sem alterar original',()=>{expect(createGame(['A','B'],72)).toEqual(createGame(['A','B'],72));const s=setup();const before=structuredClone(s);transition(s,{type:'move',route:'araras-leme'});expect(s).toEqual(before);});
 });
@@ -48,9 +48,9 @@ describe('viagem, tanque e turno',()=>{
  it.each(['hatch','sedan'] as ModelId[])('%s não pode usar terra',id=>snapshotFailure(setup(id),{type:'move',route:'araras-artur-nogueira-terra'},'somente SUV'));
  it('insuficiência de combustível e rota remota não alteram estado ou RNG',()=>{const s=setup('pickup');active(s).vehicle.fuelUnits=2;snapshotFailure(s,{type:'move',route:'araras-leme'},'insuficiente');snapshotFailure(s,{type:'move',route:'limeira-americana'},'adjacente');});
  it.each(['hatch','sedan','suv','pickup'] as ModelId[])('%s não abastece acima do tanque e combustível não ocupa carga',id=>{const s=setup(id);active(s).stock={...emptyStock(),fuel:1};snapshotFailure(s,{type:'refuel',quantity:1},'tanque');active(s).vehicle.fuelUnits--;const n=transition(s,{type:'refuel',quantity:1});expect(active(n).vehicle.fuelUnits).toBe(model(active(s)).tank);expect(load(active(n))).toBe(0);});
- it('depósito livre em todos os setores próprios locais; segunda unidade no hatch exige escolha',()=>{
-  let s=setup('hatch'); const p=active(s);s.territories['araras-2'].owner=p.id;s.territories['araras-2'].stock.water=1;
-  s=transition(s,{type:'transfer',territoryId:'araras-2',resource:'water',quantity:1,direction:'withdraw'});expect(load(active(s))).toBe(2);expect(capacityIssues(s)).not.toEqual([]);expect(s.actions).toBe(1);expect(active(s).vehicle.fuelUnits).toBe(8);
+ it('depósito livre em todos os setores próprios locais; quinta unidade no hatch exige escolha',()=>{
+  let s=setup('hatch'); const p=active(s);s.territories['araras-2'].owner=p.id;s.territories['araras-2'].stock.water=1;p.stock.scrap=4;
+  s=transition(s,{type:'transfer',territoryId:'araras-2',resource:'water',quantity:1,direction:'withdraw'});expect(load(active(s))).toBe(5);expect(capacityIssues(s)).not.toEqual([]);expect(s.actions).toBe(1);expect(active(s).vehicle.fuelUnits).toBe(8);
   snapshotFailure(s,{type:'end'},'excedentes');s=transition(s,{type:'transfer',territoryId:'araras-1',resource:'scrap',quantity:1,direction:'deposit'});expect(capacityIssues(s)).toEqual([]);expect(s.territories['araras-1'].stock.scrap).toBe(1);
  });
  it('compra geral uma vez no início, não no combate; inventário não consome água por turno',()=>{let s=createGame(['A','B'],4);expect(active(s).hand).toHaveLength(1);s=transition(s,{type:'start'});expect(active(s).hand).toHaveLength(2);snapshotFailure(s,{type:'start'},'já iniciado');const before=active(s).stock.water;s=transition(s,{type:'end'});expect(s.started).toBe(false);expect(s.players.find(p=>p.id===active(createGame(['A','B'],4)).id)!.stock.water).toBe(before);});
@@ -69,20 +69,20 @@ describe('fuga e recuperação',()=>{
  it.each(['suv','pickup'] as ModelId[])('%s foge por terra pagando custo fixo sem novo evento',id=>{const s=encounter(id);active(s).vehicle.installed=['opaque-equipment'];const hand=active(s).hand.length;const n=transition(s,{type:'escape',route:'araras-artur-nogueira-terra',playerId:active(s).id});expect(active(n).city).toBe('artur-nogueira');expect(active(n).vehicle.fuelUnits).toBe(model(active(s)).tank-model(active(s)).consumption);expect(active(n).hand).toHaveLength(hand-1);expect(active(n).vehicle.installed).toEqual(['opaque-equipment']);expect(n.encounter).toBeNull();expect(n.log.join()).not.toContain('Evento:');});
  it('exige carta PvP, combustível, terreno e rota legal antes da rolagem',()=>{const s=encounter('pickup');active(s).hand=[];snapshotFailure(s,{type:'escape',route:'araras-artur-nogueira-terra',playerId:active(s).id},'carta');active(s).hand.push({id:'escape-card',definitionId:'block',type:'general'});active(s).vehicle.fuelUnits=2;snapshotFailure(s,{type:'escape',route:'araras-artur-nogueira-terra',playerId:active(s).id},'insuficiente');const hatch=encounter('hatch');snapshotFailure(hatch,{type:'escape',route:'araras-artur-nogueira-terra',playerId:active(hatch).id},'somente SUV');});
  it('contra ameaça dispensa carta e não cura danos territoriais na retirada',()=>{const s=encounter('suv',false);active(s).hand=[];s.territories['araras-2'].resistance=1;const n=transition(s,{type:'escape',route:'araras-leme',playerId:active(s).id});expect(n.territories['araras-2'].resistance).toBe(1);});
- it('simples não reativa carro zero; complexo recupera sem mudar posição',()=>{const s=setup();active(s).vehicle.integrity=0;active(s).stock.scrap=2;snapshotFailure(s,{type:'repair',complex:false},'não reativa');const n=transition(s,{type:'repair',complex:true});expect(active(n).vehicle.integrity).toBe(4);expect(active(n).city).toBe('araras');expect(n.actions).toBe(0);});
+ it('reparo recupera carro danificado sem mudar posicao, mas nao reativa destruido',()=>{const s=setup();active(s).vehicle.integrity=0;active(s).stock.scrap=2;snapshotFailure(s,{type:'repair',complex:false},'reparo');snapshotFailure(s,{type:'repair',complex:true},'reparo');active(s).vehicle.integrity=1;const n=transition(s,{type:'repair',complex:true});expect(active(n).vehicle.integrity).toBe(5);expect(active(n).city).toBe('araras');expect(n.actions).toBe(0);});
 });
 describe('troca, descoberta e domínio',()=>{
- it('troca local preserva combustível, carga, cartas e fixo novo; excedentes não somem',()=>{
-  const s=setup('pickup'),p=active(s);p.vehicle.fuelUnits=11;p.vehicle.installed=['upgrade'];p.stock.scrap=5;
-  const found=makeVehicle(s,'hatch');found.fuelUnits=1;s.found.push({city:p.city,vehicle:found,repairedOnTurn:null});const n=transition(s,{type:'swap',vehicleId:found.id});
-  expect(active(n).vehicle.fuelUnits).toBe(12);expect(active(n).stock.scrap).toBe(5);expect(active(n).hand).toEqual(p.hand);expect(active(n).vehicle.installed).toEqual([]);expect(active(n).vehicle.fixedEquipmentId).toBe('fixed-hatch');expect(n.localScrap.araras).toBe(3);expect(capacityIssues(n)).toHaveLength(2);snapshotFailure(n,{type:'end'},'excedentes');
+ it('assumir encontrado cobra cinco sucatas locais e conserva combustivel e carga restante',()=>{
+  const s=setup('hatch'),p=active(s);p.vehicle.fuelUnits=7;p.stock.scrap=4;s.territories['araras-1'].stock.scrap=2;
+  const found=makeVehicle(s,'sedan');found.fuelUnits=1;s.found.push({city:p.city,vehicle:found,repairedOnTurn:null});const n=transition(s,{type:'swap',vehicleId:found.id});
+  expect(active(n).vehicle.fuelUnits).toBe(8);expect(active(n).stock.scrap).toBe(0);expect(n.territories['araras-1'].stock.scrap).toBe(1);expect(active(n).hand).toEqual(p.hand);expect(n.actions).toBe(0);expect(n.localScrap.araras).toBe(0);
  });
  it('impede troca remota ou no mesmo turno de reparar encontrado',()=>{const s=setup();const f=makeVehicle(s,'pickup');s.found.push({city:'limeira',vehicle:f,repairedOnTurn:null});snapshotFailure(s,{type:'swap',vehicleId:f.id},'local');s.found[0].city='araras';s.found[0].repairedOnTurn=s.turn;snapshotFailure(s,{type:'swap',vehicleId:f.id},'separado');});
  it('conquista sem loot automático, restaura defesa; exploração é separada',()=>{
   let s=setup('pickup');const id='araras-2';s.territories[id].owner=null;s.territories[id].resistance=1;s.rules.attackDamage=10;s.seed=1000;
   s=transition(s,{type:'conquer',territoryId:id});for(let i=0;s.encounter&&i<100;i++)s=transition(s,{type:'attack'});
   expect(s.territories[id].owner).toBe(active(s).id);expect(s.territories[id].resistance).toBe(s.rules.territoryIntegrity);expect(s.territories[id].stock).toEqual(emptyStock());expect(s.territories[id].explorations).toBe(0);
-  s.actions=1;const n=transition(s,{type:'explore',territoryId:id});expect(n.territories[id].explorations).toBe(1);expect(active(n).stock).toEqual(active(s).stock);expect(Object.values(n.territories[id].stock).reduce((a,b)=>a+b)).toBe(2);
+  s.actions=1;const n=transition(s,{type:'explore',territoryId:id});expect(n.territories[id].explorations).toBe(1);expect(active(n).stock).toEqual(active(s).stock);expect(Object.values(n.territories[id].stock).reduce((a,b)=>a+b)).toBeGreaterThanOrEqual(2);expect(Object.values(n.territories[id].stock).reduce((a,b)=>a+b)).toBeLessThanOrEqual(3);
  });
  it('pontos exigem todos os setores simultâneos',()=>{const s=setup();for(const t of Object.values(s.territories))t.owner=null;const id=active(s).id;s.territories['araras-1'].owner=id;expect(points(s,id)).toBe(0);for(const t of cityTerritories(s,'araras'))t.owner=id;expect(points(s,id)).toBe(.5);s.territories['araras-3'].owner=null;expect(points(s,id)).toBe(0);});
 });
@@ -109,7 +109,81 @@ describe('save/load e migração sem perdas silenciosas',()=>{
 describe('regressões de fronteira',()=>{
  it('bloqueio protege também outro jogador de classe diferente',()=>{const s=setup('pickup');active(s).hand[0].definitionId='block';const other=s.players[1];other.city='artur-nogueira';other.vehicle=makeVehicle(s,'hatch');s.blocks=[{routeId:'conchal-artur-nogueira',by:other.id}];snapshotFailure(s,{type:'playGeneral',cardId:active(s).hand[0].id,route:'artur-nogueira-limeira'},'sem saída');});
  it('falha na fuga não dá ataque extra nem gasta carta ou combustível',()=>{const s=setup();s.players[1].city='araras';s.rules.escapeTarget=100;s.encounter={kind:'combat',actorId:active(s).id,defenderId:s.players[1].id,betweenRounds:true,lootResolved:false};const before=structuredClone(s);const n=transition(s,{type:'escape',route:'araras-leme',playerId:active(s).id});expect(active(n).hand).toEqual(active(before).hand);expect(active(n).vehicle).toEqual(active(before).vehicle);expect(n.encounter?.betweenRounds).toBe(true);expect(n.seed).not.toBe(s.seed);});
- it('excedente territorial conserva tudo até o jogador descartar',()=>{const s=setup();s.territories['araras-1'].stock.scrap=9;s.rules.lootQuantity=2;const n=transition(s,{type:'explore',territoryId:'araras-1'});expect(Object.values(n.territories['araras-1'].stock).reduce((a,b)=>a+b)).toBe(11);expect(capacityIssues(n)).not.toEqual([]);snapshotFailure(n,{type:'end'},'excedentes');});
+ it('excedente territorial conserva tudo até o jogador descartar',()=>{const s=setup();s.territories['araras-1'].stock.scrap=9;s.rules.lootQuantity=2;const n=transition(s,{type:'explore',territoryId:'araras-1'});expect(Object.values(n.territories['araras-1'].stock).reduce((a,b)=>a+b)).toBeGreaterThanOrEqual(11);expect(capacityIssues(n)).not.toEqual([]);snapshotFailure(n,{type:'end'},'excedentes');});
  it('sexta geral exige escolha antes de prosseguir; combate não renova cota',()=>{const s=setup();s.started=false;active(s).usedGeneral=true;for(let i=0;i<3;i++)active(s).hand.push({id:`extra-${i}`,type:'general',definitionId:'block'});const n=transition(s,{type:'start'});expect(active(n).hand).toHaveLength(6);snapshotFailure(n,{type:'end'},'excedentes');const resolved=transition(n,{type:'discardCard',playerId:active(n).id,cardId:active(n).hand[0].id});expect(capacityIssues(resolved)).toEqual([]);active(resolved).usedGeneral=true;resolved.territories['araras-2'].owner=null;const combat=transition(resolved,{type:'conquer',territoryId:'araras-2'});expect(active(combat).usedGeneral).toBe(true);});
  it('comando inválido em runtime é recusado',()=>{const s=setup();snapshotFailure(s,{type:'desconhecido'} as never,'desconhecido');});
+});
+
+describe('damaged vehicle exploration',()=>{
+ it('allows three searches and repair using found scrap',()=>{
+  let s=setup('pickup');active(s).vehicle.integrity=1;active(s).stock=emptyStock();
+  for(let seed=1;seed<1000;seed++){s.seed=seed;const n=transition(s,{type:'explore',territoryId:'araras-1'});if(n.territories['araras-1'].stock.scrap===2){s=n;break;}}
+  expect(s.territories['araras-1'].stock.scrap).toBe(2);expect(s.actions).toBe(0);
+  snapshotFailure(s,{type:'explore',territoryId:'araras-1'});
+  s=transition(s,{type:'transfer',territoryId:'araras-1',resource:'scrap',quantity:2,direction:'withdraw'});
+  s.actions=1;s=transition(s,{type:'repair',complex:true});expect(active(s).vehicle.integrity).toBeGreaterThan(0);expect(active(s).city).toBe('araras');
+  active(s).vehicle.integrity=1;
+  for(let i=0;i<2;i++){s.actions=1;s=transition(s,{type:'explore',territoryId:'araras-1'});}
+  expect(s.territories['araras-1'].explorations).toBe(3);s.actions=1;
+  snapshotFailure(s,{type:'explore',territoryId:'araras-1'});
+  expect(active(s).vehicle.integrity).toBe(1);
+ });
+});
+
+describe('random exploration resources',()=>{
+ it('draws each item separately, preserves totals and repeats from the same seed',()=>{
+  const seen=new Set<string>();let mixed=false;
+  for(let seed=1;seed<=100;seed++){
+   const s=setup('pickup');s.seed=seed;
+   const n=transition(s,{type:'explore',territoryId:'araras-1'}),stock=n.territories['araras-1'].stock;
+   expect(transition(s,{type:'explore',territoryId:'araras-1'})).toEqual(n);
+   const quantity=Object.values(stock).reduce((a,b)=>a+b,0);expect(quantity).toBeGreaterThanOrEqual(s.rules.lootQuantity);expect(quantity).toBeLessThanOrEqual(s.rules.lootQuantity+1);
+   const resources=Object.keys(stock).filter(key=>stock[key as keyof typeof stock]>0);resources.forEach(key=>seen.add(key));mixed ||= resources.length>1;
+  }
+  expect(seen.size).toBe(6);expect(mixed).toBe(true);
+ });
+});
+
+describe('dice presentation capture',()=>{
+ it('captures escape dice without changing the result, RNG or saved state',()=>{
+  const s=setup('pickup');s.encounter={kind:'combat',actorId:active(s).id,betweenRounds:true,lootResolved:false,territoryId:'araras-2'};
+  const rolls:DiceRoll[]=[];const action={type:'escape' as const,route:'araras-leme',playerId:active(s).id};
+  const next=transition(s,action,rolls);expect(next).toEqual(transition(s,action));expect(rolls).toHaveLength(1);expect(rolls[0].label).toContain('Fuga');expect(rolls[0].natural).toBeGreaterThanOrEqual(1);expect(rolls[0].natural).toBeLessThanOrEqual(6);
+ });
+ it('captures race advance and excludes resource draws',()=>{
+  const s=setup('pickup');s.cardState!.race={trackId:'P01',phase:'running',responses:s.players.map(p=>p.id),entrants:s.players.map(p=>({playerId:p.id,progress:0,markers:[],next:0})),cursor:0,finalRound:false};
+  const rolls:DiceRoll[]=[];expect(transition(s,{type:'raceRoll'},rolls)).toEqual(transition(s,{type:'raceRoll'}));expect(rolls).toHaveLength(1);
+  const resourceRolls:DiceRoll[]=[];transition(setup('pickup'),{type:'explore',territoryId:'araras-1'},resourceRolls);expect(resourceRolls).toEqual([]);
+ });
+ it('captures both opposing loot dice',()=>{
+  const s=setup('pickup');const t=s.territories['araras-1'];t.owner=s.players[1].id;t.stock.water=2;
+  const rolls:DiceRoll[]=[];transition(s,{type:'loot',territoryId:t.id,resource:'water'},rolls);expect(rolls).toHaveLength(2);expect(rolls[0].label).toContain('Saque');expect(rolls[1].label).toContain('Defesa');
+ });
+});
+
+describe('variable exploration quantity',()=>{
+ it('varies between two and three items and fits three searches in an empty depot',()=>{
+  const totals=new Set<number>();
+  for(let i=1;i<=40;i++){
+   let s=setup('pickup');s.seed=(i*123456789)>>>0;
+   s=transition(s,{type:'explore',territoryId:'araras-1'});totals.add(Object.values(s.territories['araras-1'].stock).reduce((a,b)=>a+b,0));
+   for(let j=0;j<2;j++){s.actions=1;s=transition(s,{type:'explore',territoryId:'araras-1'});}
+   expect(Object.values(s.territories['araras-1'].stock).reduce((a,b)=>a+b,0)).toBeLessThanOrEqual(9);expect(capacityIssues(s)).toEqual([]);
+  }
+  expect([...totals].sort()).toEqual([2,3]);
+ });
+});
+
+describe('initial seed persistence',()=>{
+ it.each([0,42,4294967295])('keeps seed %s after RNG advances and save reloads',seed=>{
+  const initial=createGame(['Ana','Bia'],seed);expect(initial.initialSeed).toBe(seed);
+  const started=transition(initial,{type:'start'});expect(started.initialSeed).toBe(seed);expect(started.seed).not.toBe(seed);
+  expect(decodeSave(encodeSave(started)).game).toEqual(started);expect(createGame(['Ana','Bia'],seed)).toEqual(initial);
+ });
+ it('accepts older saves without inventing an initial seed',()=>{
+  const s=setup();delete s.initialSeed;const loaded=decodeSave(encodeSave(s)).game;expect(loaded.initialSeed).toBeUndefined();expect(loaded.seed).toBe(s.seed);
+ });
+ it.each([-1,4294967296,1.5,NaN])('rejects invalid initial seed %s',value=>{
+  const s=setup();s.initialSeed=value;expect(()=>assertInvariants(s)).toThrow('Seed inicial');
+ });
 });

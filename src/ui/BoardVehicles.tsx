@@ -1,6 +1,7 @@
 import { type CSSProperties } from 'react';
 import { cities, model, type Game } from '../engine/game';
 import { VehicleArt } from './VehicleArt';
+import { VehicleBlockMarker } from './VehicleBlockMarker';
 import type { Journey } from './Board';
 
 // Separate parking positions in the shared city. Never a rules position.
@@ -10,6 +11,7 @@ export function BoardVehicles({ game, journey, width, height, onInspect }: {
 }) {
   return <div className="board-vehicles" aria-label="Veículos no tabuleiro">
     {game.players.map((player, index) => {
+      if(player.eliminated)return null;
       const city = cities.find(c => c.id === player.city)!;
       const moving = journey?.playerId === player.id;
       const origin = moving ? cities.find(c => c.id === journey.from) : null;
@@ -24,6 +26,7 @@ export function BoardVehicles({ game, journey, width, height, onInspect }: {
         <span className="piece-art"><VehicleArt vehicle={player.vehicle}/></span>
         <span className="piece-number">{index + 1}</span>
         <span className="piece-name">{player.name}</span>
+        <VehicleBlockMarker game={game} player={player}/>
         {index === game.active && <span className="piece-state">{moving ? 'Em viagem' : 'Na vez'}</span>}
         {player.vehicle.integrity === 0 && <span className="piece-state">Inutilizado</span>}
       </button>;

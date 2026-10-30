@@ -10,12 +10,16 @@ export function encodeSave(game: Game): string {
 export function decodeSave(raw: string): LoadResult {
   try {
     const envelope = JSON.parse(raw);
-    if (!envelope || envelope.format !== 'terras-devastadas' || envelope.schemaVersion !== 4) throw Error('Formato sem versão compatível com v0.5.');
+    if (!envelope || envelope.format !== 'terras-devastadas' || envelope.schemaVersion !== 4) throw Error('Formato sem versão compatível com v0.6.');
     if (envelope.fuelUnit !== 'whole') throw Error('Unidade de combustível incompatível.');
     if (!envelope.state || envelope.state.schemaVersion !== envelope.schemaVersion || envelope.state.contentVersion !== envelope.contentVersion) throw Error('Versões do envelope e estado divergem.');
-    if (envelope.contentVersion !== CONTENT_VERSION) throw Error('Partida de edição anterior incompatível com v0.5. Inicie uma nova partida; o original não será convertido.');
+    if (envelope.contentVersion !== CONTENT_VERSION) throw Error('Partida de edição anterior incompatível com v0.6. Inicie uma nova partida; o original não será convertido.');
     const game = structuredClone(envelope.state) as Game;
     const warnings: string[] = [];
+    if(game.rules?.combat&&game.rules.combat.moto===undefined){
+      game.rules.combat.moto=structuredClone(laboratoryRules.combat.moto);
+      warnings.push('Perfil da Moto adicionado; veículos, combustível e vidas da partida foram preservados.');
+    }
     validateRules(game);
     assertInvariants(game);
     return { game, warnings };

@@ -18,7 +18,7 @@ export const catalog = manifest.map(d => ({...d, deck: (d.id[0]==='G'?'general':
  imageUrl:`${import.meta.env.BASE_URL}assets/cards/${d.image}` }));
 export const cardDefinition = (id: string) => catalog.find(d=>d.id===id || (id==='block'&&d.id==='G17') || (id==='unblock'&&d.id==='G18'));
 export const tracks = [
- {id:'P01',name:'Araras–Limeira',distance:15,markers:[6,12],fee:3,scrap:3,improvements:1},
- {id:'P02',name:'Araras–Piracicaba',distance:21,markers:[7,14],fee:5,scrap:4,improvements:2},
- {id:'P03',name:'Rio Claro–Americana',distance:18,markers:[6,12],fee:4,scrap:3,improvements:2}
+ {id:'P01',name:'Araras–Limeira',distance:15,markers:[6,12],fee:1,scrap:3,improvements:1},
+ {id:'P02',name:'Araras–Piracicaba',distance:21,markers:[7,14],fee:1,scrap:4,improvements:2},
+ {id:'P03',name:'Rio Claro–Americana',distance:18,markers:[6,12],fee:1,scrap:3,improvements:2}
 ];

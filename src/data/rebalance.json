@@ -12,14 +12,15 @@
       "hatch": 3,
       "sedan": 6,
       "suv": 6,
-      "pickup": 9
+      "pickup": 9,
+      "moto": 10
     },
     "drawOnFirstOwnTurn": true,
     "extraEquipment": 0
   },
   "vehicles": {
     "hatch": {
-      "cargo": 1,
+      "cargo": 4,
       "tank": 8,
       "consumption": 1,
       "surfaces": [
@@ -63,6 +64,18 @@
       "health": 10,
       "defense": 3,
       "agility": 0
+    },
+    "moto": {
+      "cargo": 2,
+      "tank": 10,
+      "consumption": 1,
+      "surfaces": [
+        "asphalt",
+        "dirt"
+      ],
+      "health": 6,
+      "defense": 4,
+      "agility": 1
     }
   },
   "general": {

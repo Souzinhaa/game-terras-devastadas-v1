@@ -417,3 +417,86 @@ dialog h2 { font-size: 30px; }
 .hostile-profile { display:flex; align-items:center; gap:10px; width:100%; }.hostile-profile .hostile-art { width:72px; flex-shrink:0; margin:0; }.hostile-profile>div { flex:1; min-width:0; }.hostile-profile strong { display:block; font-size:16px; overflow-wrap:anywhere; }.hostile-profile small { display:block; margin:6px 0; }.hostile-profile .hostile-stats { flex-wrap:wrap; gap:6px; }
 .encounter>.primary { position:sticky; bottom:0; z-index:3; box-shadow:0 0 0 8px var(--surface); }
 @media(max-width:700px){.hostile-profile { flex-direction:column; }.hostile-profile .hostile-art { width:64px; }.hostile-profile strong { font-size:15px; }}
+
+.reward-result { text-align:center; max-width:440px; }
+.reward-result p { line-height:1.6; }
+.reward-result h3 { margin-top:24px; }
+.reward-items { display:flex; flex-wrap:wrap; justify-content:center; gap:12px; padding:0; list-style:none; margin:20px 0; }
+.reward-items li { display:grid; justify-items:center; gap:8px; min-width:110px; max-width:100%; padding:18px 12px; border:1px solid var(--muted); background:var(--surface); }
+.reward-items li img { width:64px; height:64px; margin:0!important; }
+.reward-items li strong { font-size:28px; color:var(--accent); }
+.reward-items li span { overflow-wrap:anywhere; }
+.reward-result>.primary { width:100%; margin-top:12px; }
+
+.local-opponents { margin:20px 0; padding:16px; border:1px solid var(--muted); background:var(--surface); }
+.local-opponents article { display:flex; align-items:center; flex-wrap:wrap; gap:12px; padding:12px 0; }
+.local-opponents article>div { flex:1; min-width:120px; }
+.local-opponents small { display:block; margin-top:6px; }
+.local-opponents article button { min-height:44px; }
+
+.attack-result { text-align:center; width:380px; max-width:100%; }
+.attack-result p { line-height:1.6; }
+.attack-die { display:grid; place-items:center; margin:24px auto; width:88px; height:88px; font-size:48px; }
+.attack-die.is-rolling { animation:attack-dice-roll .24s linear infinite; }
+.attack-result>.primary { width:100%; margin-top:16px; }
+@keyframes attack-dice-roll { 0% { transform:rotate(-14deg) scale(.94); } 50% { transform:rotate(14deg) scale(1.06); } 100% { transform:rotate(-14deg) scale(.94); } }
+@media(prefers-reduced-motion:reduce){.attack-die.is-rolling { animation:none; }}
+
+.attack-participants { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:12px; }
+.attack-participants article { position:relative; display:grid; gap:12px; justify-items:center; min-width:0; padding:14px 8px; border:1px solid var(--line); background:var(--surface); }
+.attack-participants article>strong { overflow-wrap:anywhere; max-width:100%; }
+.attack-participants .health-bar { width:100%; }
+.attack-participants .vehicle-marker { width:64px; height:64px; object-fit:contain; }
+.attack-participants .attack-target-hit { animation:attack-hit-flash .65s ease-out; border-color:#e97446; }
+.attack-participants .attack-target-miss>.vehicle-marker { animation:attack-dodge .65s ease-in-out; }
+.attack-impact { position:absolute; top:42px; padding:6px 10px; background:var(--surface); font-weight:700; animation:attack-verdict-in .55s ease-out both; }
+.attack-target-hit .attack-impact,.attack-verdict.is-hit { color:#e97446; }
+.attack-target-miss .attack-impact,.attack-verdict.is-miss { color:var(--muted); }
+.attack-verdict { animation:attack-verdict-in .55s ease-out both; }
+@keyframes attack-hit-flash { 0%,40% { background:#782e20; transform:translateX(-5px); } 20%,60% { transform:translateX(5px); } 100% { transform:translateX(0); } }
+@keyframes attack-dodge { 0%,100% { transform:translateX(0); } 35% { transform:translateX(22px) rotate(12deg); } 65% { transform:translateX(16px) rotate(8deg); } }
+@keyframes attack-verdict-in { from { opacity:0; transform:scale(1.35); } to { opacity:1; transform:scale(1); } }
+@media(prefers-reduced-motion:reduce){.attack-participants .attack-target-hit,.attack-participants .attack-target-miss>.vehicle-marker,.attack-impact,.attack-verdict { animation:none; }}
+
+.race-motion { display:grid; gap:16px; padding:16px 0; }
+.race-lane-label { display:flex; justify-content:space-between; gap:8px; font-size:12px; }
+.race-road { position:relative; height:48px; margin:8px 22px; border-top:1px solid var(--line); border-bottom:1px solid var(--line); background:repeating-linear-gradient(90deg,transparent 0 15px,var(--line) 15px 26px,transparent 26px 40px) center/100% 2px no-repeat; }
+.race-car { position:absolute; top:4px; width:36px; height:40px; transform:translateX(-50%); transition:left .9s cubic-bezier(.22,.7,.28,1); }
+.race-car .vehicle-marker { width:36px; height:40px; object-fit:contain; transform:rotate(90deg); }
+.race-finish { position:absolute; right:-4px; top:0; bottom:0; width:8px; background:repeating-conic-gradient(#eee 0% 25%,#222 0% 50%) 0 0/8px 8px; }
+.is-revealed .race-car { animation:race-acceleration .8s ease-out; }
+.has-finished .race-lane-label { color:var(--accent); animation:attack-verdict-in .5s ease-out; }
+@keyframes race-acceleration { 15%,55% { translate:0 -2px; } 35%,75% { translate:0 2px; } 100% { translate:0 0; } }
+@media(prefers-reduced-motion:reduce){.race-car { transition:none; }.is-revealed .race-car,.has-finished .race-lane-label { animation:none; }}
+
+.match-seed { font-size:11px; color:var(--muted); user-select:text; overflow-wrap:anywhere; }
+.match-seed strong { color:var(--text); font-variant-numeric:tabular-nums; }
+
+.vehicle-block-marker { display:inline-flex; align-items:center; justify-content:center; gap:4px; padding:5px 7px; border:1px solid #eaa65a; border-radius:4px; background:#442918; color:#ffe0b5; font-size:10px; line-height:1.3; font-weight:700; }
+.vehicle-block-marker .icon { width:15px; height:15px; flex-shrink:0; }
+.vehicle-piece>.vehicle-block-marker { position:absolute; top:-36px; left:50%; transform:translateX(-50%); width:max-content; max-width:170px; pointer-events:none; }
+.mini-vehicle-hud>.vehicle-block-marker { flex-shrink:0; }
+
+.final-standings { width:min(920px,calc(100vw - 32px)); max-width:none; max-height:90dvh; padding:28px; overflow:auto; }
+.final-heading { display:flex; justify-content:space-between; gap:20px; align-items:flex-start; }
+.final-heading h2 { font:700 36px var(--display); margin:8px 0; }
+.final-ranking { display:grid; gap:16px; list-style:none; padding:0; margin:24px 0; }
+.final-player { border:1px solid var(--line); background:var(--surface-input); padding:20px; border-radius:10px; }
+.final-player.is-winner { border-color:var(--accent); }
+.final-player-header { display:flex; align-items:center; gap:16px; flex-wrap:wrap; }
+.final-player-header>.vehicle-art { width:80px; height:100px; object-fit:contain; }
+.final-player-header h3 { margin:0; font:700 25px var(--display); overflow-wrap:anywhere; }
+.final-player-header p { margin:8px 0; color:var(--muted); }
+.final-position { font:700 32px var(--display); color:var(--accent); }
+.final-winner { margin-left:auto; color:var(--accent); border:1px solid var(--accent); padding:6px 10px; }
+.final-player-items { display:grid; grid-template-columns:1fr 1fr; gap:24px; margin-top:16px; }
+.final-player-items section { min-width:0; }
+.final-player-items h4 { margin:16px 0 10px; }
+.final-resources { list-style:none; padding:0; display:flex; flex-wrap:wrap; gap:8px; }
+.final-resources li { display:flex; align-items:center; gap:6px; padding:8px; background:var(--surface); border:1px solid var(--line); font-size:12px; }
+.final-resources li strong { color:var(--accent); }
+.final-tank { display:flex; align-items:center; gap:6px; font-size:12px; }
+.final-ranking-rule { color:var(--muted); font-size:11px; line-height:1.6; }
+.final-actions { display:flex; align-items:center; flex-wrap:wrap; gap:10px; padding-top:16px; border-top:1px solid var(--line); }
+.final-actions>span { margin-right:auto; font-size:11px; }
+@media(max-width:600px){.final-standings { padding:18px; }.final-player { padding:14px; }.final-player-items { grid-template-columns:1fr; gap:8px; }.final-player-header { gap:10px; }.final-player-header>.vehicle-art { width:56px; height:76px; }.final-winner { margin-left:0; }.final-actions>button { flex:1; }}

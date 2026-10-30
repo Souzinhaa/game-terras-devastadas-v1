@@ -2,11 +2,13 @@ import { CardArt } from './Cards';
 import { EffectBadge } from './EffectBadge';
 import { equipmentBadge, pendingBadge } from './activeEffects';
 import { cardDefinition } from '../engine/catalog';
-import type { Game } from '../engine/game';
+import { vehicleAttackBlock, type Game } from '../engine/game';
+import { VehicleBlockMarker } from './VehicleBlockMarker';
 export function ActiveRack({game}:{game:Game}){
  const p=game.players[game.active],c=game.cardState,queued=c?.race?.entrants.flatMap(v=>(v.queued?.length?v.queued:v.next?[{amount:v.next,sourceCardId:'',sourceInstanceId:`legacy-race-${v.playerId}`}]:[]).map(e=>({...e,playerId:v.playerId})))??[];
- const pending=c?.pending??[],blocks=game.blocks.filter(b=>b.sourceCardId),count=pending.length+blocks.length+queued.length;
+ const pending=c?.pending??[],blocks=game.blocks.filter(b=>b.sourceCardId),count=pending.length+blocks.length+queued.length+(vehicleAttackBlock(game,p)?1:0);
  return <section className={`active-rack ${!count&&!p.vehicle.installed.length?'is-empty':''}`} aria-label={`Efeitos e equipamentos de ${p.name}`}>
+  <VehicleBlockMarker game={game} player={p}/>
   <div className="rack-group" role="group" aria-label="Efeitos ativos"><strong>Ativos <small>{count}</small></strong><div className="rack-items">
    {!count&&<span className="rack-empty">Nenhum efeito pendente</span>}
    {pending.map((e,i)=>{const d=cardDefinition(e.sourceCardId??''),spec=pendingBadge(game,e);return <div className="rack-item" key={`${e.sourceInstanceId??i}-${e.effect}`}><div className="rack-visual">{d&&<CardArt id={d.id}/>}<EffectBadge {...spec}/></div><small>{spec.value} {['attack','threat'].includes(e.effect)?'acerto':e.effect==='escape'?'fuga':e.effect==='race'?'avanço':e.effect.includes('Damage')?'redução':'dano'}</small></div>;})}

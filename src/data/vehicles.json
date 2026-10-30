@@ -2,7 +2,7 @@
   {
     "id": "hatch",
     "name": "Hatch",
-    "capacity": 1,
+    "capacity": 4,
     "tank": 8,
     "consumption": 1,
     "allowedSurfaces": [
@@ -52,5 +52,19 @@
     "fixedEquipmentId": "fixed-pickup",
     "additionalSlots": 2,
     "art": "caminhonete-cima.png"
+  },
+  {
+    "id": "moto",
+    "name": "Moto",
+    "capacity": 2,
+    "tank": 10,
+    "consumption": 1,
+    "allowedSurfaces": [
+      "paved",
+      "rural"
+    ],
+    "fixedEquipmentId": "fixed-moto",
+    "additionalSlots": 2,
+    "art": "moto-cima.png"
   }
 ]

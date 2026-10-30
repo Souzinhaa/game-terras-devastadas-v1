@@ -17,16 +17,17 @@ No PowerShell, use `npm.cmd` se `npm.ps1` estiver bloqueado. UI: `npx playwright
 
 ## Edição atual
 
-Regras v0.5 / cartas v0.2 / conteúdo do save 0.5.0. Consulte [context.md](context.md), [rules.md](rules.md) e [rules-cards.md](rules-cards.md).
+Regras v0.6 / cartas v0.2 / conteúdo do save 0.6.0. Consulte [context.md](context.md), [rules.md](rules.md) e [rules-cards.md](rules-cards.md).
 
 | Modelo | Carga | Tanque máximo | Consumo | Combustível inicial | Terra |
 |---|---:|---:|---:|---:|---|
-| Hatch | 1 | 8 | 1 | 3 | Não |
-| Sedã | 7 | 12 | 2 | 6 | Não |
-| SUV | 6 | 12 | 2 | 6 | Sim |
-| Caminhonete | 10 | 15 | 3 | 9 | Sim |
+| Hatch | 4 | 8 | 1 | 3 | Não |
+| Moto | 2 | 10 | 1 | 10 na melhoria | Sim |
+| Sedã | 7 | 12 | 2 | — | Não |
+| SUV | 6 | 12 | 2 | — | Sim |
+| Caminhonete | 10 | 15 | 3 | — | Sim |
 
-Inicial: uma sucata, uma geral e equipamento fixo. Comprar uma geral ao iniciar também o primeiro turno. Viajar normalmente preserva a ação principal. G17 consome sucata/ação mas ainda permite viajar. Vitória territorial: anunciar ao encerrar com 4 pontos e sustentar até o próximo início.
+Todos começam de Hatch com duas vidas. Melhore para sedã/SUV/caminhonete/Moto por 5 sucatas locais e uma ação. Primeira destruição: renasce na mesma cidade e perde o próximo turno; segunda: eliminação. Veja [conflitos e regras v0.6](docs/REGRAS_V06.md). Kit inicial: uma sucata, uma geral e equipamento fixo. Comprar uma geral ao iniciar também o primeiro turno. Viajar normalmente preserva a ação principal. G17 consome sucata/ação mas ainda permite viajar. Vitória territorial: anunciar ao encerrar com 4 pontos e sustentar até o próximo início.
 
 Armas adicionais compartilham um ataque por carro/rodada. E04/E06/E09 são únicos; E06 uma vez por combate. Doze cartas e os marcadores foram atualizados. Veja [a implementação do rebalanceamento](docs/REBALANCEAMENTO_V05.md) e [a limpeza de duplicatas](docs/LIMPEZA_V05.md).
 
@@ -34,4 +35,4 @@ Armas adicionais compartilham um ataque por carro/rodada. E04/E06/E09 são únic
 
 Exportar JSON mantém cópia independente. IndexedDB é local ao navegador/origem. Saves de edições anteriores são recusados sem alteração, para não misturar regras e arte; não há migração automática para este rebalanceamento. Nova partida preserva backup interno do save anterior. Para continuar jogo antigo, use a versão correspondente no Git.
 
-Implementados: 12 cidades/35 setores, viagens, cartas, hostis, equipamentos, corrida por marcos, saque simples, controle e anúncios, inventários e persistência. Parciais: defesa pessoal integrada à conquista/saque, alerta de saque, perfis regionais e emergência/eliminação completa. Sem servidor, multiplayer ou bots. Balanceamento continua em teste; não houve partidas humanas medidas.
+Implementados: 12 cidades/35 setores, viagens, cartas, hostis, equipamentos, corrida por marcos, saque simples, controle e anúncios, inventários e persistência. Parciais: defesa pessoal integrada à conquista/saque, alerta de saque, perfis regionais. Sem servidor, multiplayer ou bots. Balanceamento continua em teste; não houve partidas humanas medidas.

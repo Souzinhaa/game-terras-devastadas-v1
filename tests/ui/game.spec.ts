@@ -147,10 +147,13 @@ test('mapa ampliado permite rolar, arrastar e ampliar sem perder a posição da 
   await page.getByRole('button',{name:'Sortear e iniciar'}).click();await page.getByRole('button',{name:'Estou pronto'}).click();
   const viewport=page.locator('.map-viewport');
   const initial=await viewport.evaluate(el=>({x:el.scrollLeft,y:el.scrollTop,width:el.scrollWidth,height:el.scrollHeight,w:el.clientWidth,h:el.clientHeight}));
-  expect(initial.width).toBeGreaterThan(initial.w*1.9);expect(initial.height).toBeGreaterThan(initial.h*1.9);
+  expect(initial.width).toBeGreaterThan(initial.w);expect(initial.height).toBeGreaterThan(initial.h);
+  for(let i=0;i<4;i++)await page.getByRole('button',{name:'Ampliar mapa'}).click();
+  await viewport.evaluate(el=>el.scrollTo({left:(el.scrollWidth-el.clientWidth)/2,top:(el.scrollHeight-el.clientHeight)/2,behavior:'instant'}));
+  const expanded=await viewport.evaluate(el=>({x:el.scrollLeft,y:el.scrollTop}));
   await viewport.hover({position:{x:900,y:400}});await page.mouse.wheel(350,-400);
-  await expect.poll(()=>viewport.evaluate(el=>el.scrollTop)).toBeLessThan(initial.y-100);
-  await expect.poll(()=>viewport.evaluate(el=>el.scrollLeft)).toBeGreaterThan(initial.x+100);
+  await expect.poll(()=>viewport.evaluate(el=>el.scrollTop)).toBeLessThan(expanded.y-100);
+  await expect.poll(()=>viewport.evaluate(el=>el.scrollLeft)).toBeGreaterThan(expanded.x+100);
   const before=await viewport.evaluate(el=>({x:el.scrollLeft,y:el.scrollTop}));
   await page.mouse.move(1000,450);await page.mouse.down();await page.mouse.move(800,550,{steps:5});await page.mouse.up();
   const after=await viewport.evaluate(el=>({x:el.scrollLeft,y:el.scrollTop}));
@@ -164,7 +167,7 @@ test('mapa ampliado permite rolar, arrastar e ampliar sem perder a posição da 
   const backgrounds=await page.locator('.app-header>div,.players-strip,.mini-vehicle-hud,.game-navigation').evaluateAll(nodes=>nodes.map(el=>getComputedStyle(el).backgroundColor));
   expect(backgrounds.every(color=>color.startsWith('rgb('))).toBe(true);
   expect(await page.locator('.vehicle-piece .vehicle-art').first().evaluate(el=>getComputedStyle(el).filter)).toContain('drop-shadow');
-  for(let i=0;i<3;i++)await page.getByRole('button',{name:'Reduzir mapa'}).click();
+  for(let i=0;i<7;i++)await page.getByRole('button',{name:'Reduzir mapa'}).click();
   await expect(page.locator('.zoom-controls output')).toHaveText('50%');
   for(let i=0;i<8;i++)await page.getByRole('button',{name:'Ampliar mapa'}).click();
   await expect(page.locator('.zoom-controls output')).toHaveText('250%');

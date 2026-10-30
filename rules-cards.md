@@ -1,6 +1,6 @@
 # Terras Devastadas — Catálogo completo de cartas v0.2
 
-Edição de teste revisada em 29/10/2026, com seleção de alterações autorizada por Bruno. Compatível com rules.md v0.5 deste pacote. Mantém 74 modelos e 148 instâncias nos quatro grupos, com melhorias territoriais no baralho de equipamentos. Doze frentes foram atualizadas; as demais permanecem válidas. Hostis estão em dados/hostis.json. Nenhuma partida real foi medida nesta revisão.
+Edição de teste revisada em 29/10/2026, com seleção de alterações autorizada por Bruno. Compatível com rules.md v0.6 deste pacote. Mantém 74 modelos e 148 instâncias nos quatro grupos, com melhorias territoriais no baralho de equipamentos. Doze frentes foram atualizadas; as demais permanecem válidas. Hostis estão em dados/hostis.json. Nenhuma partida real foi medida nesta revisão.
 
 Precedência: rules.md + este catálogo + rule-config.json + patches tipados; imagens antigas e contextos v0.1 não prevalecem sobre os textos desta edição.
 
@@ -34,7 +34,7 @@ Equipamentos e territoriais compartilham o mesmo baralho de melhorias, com 36 ca
 - Surpresa de corrida e evento são revelados e resolvidos imediatamente, depois descartados. Não contam como geral jogada. Efeitos pendentes são registrados separadamente do descarte.
 - Toda quantidade de combustível é inteira. Consumo normal continua hatch 1, sedã 2, SUV 2, caminhonete 3; nenhuma carta abaixo aplica adicional passivo por carga ou terreno.
 - Cura respeita Integridade máxima; ganho respeita tanque/carga/depósito. Excedente é escolhido e descartado. Recurso ganho de carta surge no destino descrito, não é doação entre jogadores.
-- Dano pode inutilizar carro. Corrida: Integridade zero causada por carta retira participante para recuperação, sem eliminação automática, conforme rules.md desta edição.
+- Dano pode inutilizar carro. Corrida: Integridade zero causada por carta retira o participante e consome uma vida: renasce uma vez de Hatch e é eliminado na segunda destruição, conforme rules.md desta edição.
 - Efeito sem alvo legal não pode ser jogado voluntariamente. Evento/surpresa obrigatória sem alvo é descartado sem efeito. Se uma condição de texto não se cumprir, usar sua alternativa expressa.
 - Modificador de acerto não afeta regra provisória de 1 natural falhar e 6 natural acertar. Modificadores opostos somam; dano mínimo zero e avanço mínimo zero. Nenhuma carta altera o sorteio de desempate da corrida.
 - Cartas gerais que curam são usadas antes de uma ação, fora de combate/corrida. Podem escolher jogador em qualquer cidade quando indicado. Isso não concede movimento ou ação principal extras.
@@ -169,9 +169,9 @@ Distribuição: 10 passagens tranquilas; 10 achados (V03/V04/V08/V09/V10/V16); 9
 
 | ID | Pista | Distância | Marcos | Inscrição | Prêmio do vencedor |
 |---|---|---:|---|---:|---|
-| P01 | Araras–Limeira | 15 | 6 e 12 | 3 | 3 sucatas + 1 melhoria |
-| P02 | Araras–Piracicaba | 21 | 7 e 14 | 5 | 4 sucatas + 2 melhorias |
-| P03 | Rio Claro–Americana | 18 | 6 e 12 | 4 | 3 sucatas + 2 melhorias |
+| P01 | Araras–Limeira | 15 | 6 e 12 | 1 | 3 sucatas + 1 melhoria |
+| P02 | Araras–Piracicaba | 21 | 7 e 14 | 1 | 4 sucatas + 2 melhorias |
+| P03 | Rio Claro–Americana | 18 | 6 e 12 | 1 | 3 sucatas + 2 melhorias |
 
 Custos respeitam teto confirmado 5; os valores individuais e recompensas são novos. Prêmio entra na carga/mão. Na cidade de retorno, pode usar depósitos próprios antes do descarte. Sem depósito e com hatch, parte da sucata pode ser perdida; melhorias continuam valiosas e não ocupam carga na mão.
 
@@ -185,7 +185,7 @@ Sem desistência voluntária. Completar a rodada de chegada; maior progresso ven
 - A mão geral tem formas de ajudar terceiros sem doação direta. Ameaças só curam por G08; não restaurar vida por fuga ou novo turno.
 - G17/G18 são as únicas cartas deste conjunto que criam/removem bloqueio de estrada; V11 é atraso individual.
 - Saque continua 2 recursos no máximo; T05 reduz esse limite. G19/G20 não alteram duelo de carros.
-- E02 ocupa duas cargas; o hatch pode usá-lo somente se tiver capacidade adicional suficiente e liberar espaço. Equipamento não se instala violando capacidade.
+- E02 ocupa duas cargas; o hatch de carga 4 pode usá-lo liberando espaço para equipamento e recursos. Equipamento não se instala violando capacidade.
 - Mão geral limite 5; equipamento 3; reserva territorial provisória 3. Compras podem exigir descarte imediatamente. Compra G15 não aumenta cota de gerais.
 - Nenhuma carta muda regra de vitória, concessão de defesa padrão na conquista ou descarte na eliminação.
 
@@ -202,18 +202,18 @@ Registrar triggers e fontes por instância. Definição contém duas cópias, ma
 1. Contagem 74 definições e 148 instâncias; geral 48, melhorias 36, corrida 32, eventos 32.
 2. Nenhuma geral altera dado depois da rolagem; limite não renova no combate/corrida.
 3. Cura não supera máximo; ganho não supera tanque/carga sem escolha de descarte.
-4. E02 não cabe em hatch básico; E08 altera capacidade antes da validação de carga extra.
+4. E02 ocupa 2 das 4 cargas do hatch; E08 aumenta sua capacidade para 6.
 5. Duplicatas de não únicas somam; únicas impedem segunda instalação.
 6. T06 permite substituição e descarta antiga; outras cartas não substituem espaços ocupados.
 7. T01 preserva dano existente; conquest descarta todas melhorias antigas.
 8. R01/R02/R14 cruzam marcos em ordem sem repeti-los; efeito não gera novo turno.
-9. Carro inutilizado por surpresa sai da prova e retorna para recuperação.
+9. Carro destruído por surpresa sai da prova; primeira morte renasce, segunda elimina.
 10. G17 respeita última saída por classe; G18 remove uma fonte de bloqueio.
 11. V16 não entrega kit ou combustível nem duplica veículo ativo.
 12. V15 consome ação principal uma única vez; V12–V14 não a consomem por padrão.
 
 ## 10 Pendências para a próxima edição
 
-Validar números em sessões reais; rival neutro permanece desativado e corrida com um participante não inicia. Zero de Integridade retira da corrida sem eliminar jogador. Fechar composição de veículos e exploração regional; hostis H01–H12 já estão definidos em hostis.json. Testar frequência de munição/combustível e impacto da carga 1 do hatch. Aumento de carga E08 pode ser especialmente forte para hatch: medir antes de aumentar suas cópias.
+Validar números em sessões reais; rival neutro permanece desativado e corrida com um participante não inicia. Zero de Integridade consome vida e retira da corrida; segunda destruição elimina. Validar a progressão de Hatch para três modelos e completar exploração regional; hostis H01–H12 já estão definidos em hostis.json. Testar frequência de munição/combustível e impacto da carga 4 do hatch. Aumento de carga E08 pode ser especialmente forte para hatch: medir antes de aumentar suas cópias.
 
 Este catálogo cobre integralmente os quatro grupos pedidos, incluindo territoriais porque compartilham o baralho de equipamento. Não afirma conter todas as ameaças, explorações ou veículos da edição final.
