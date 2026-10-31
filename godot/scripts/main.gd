@@ -45,6 +45,7 @@ var keyboard_height: int = -1
 var drawer_tween: Tween
 var reveal: Control
 var game = Game.new()
+var local_session = preload("res://scripts/network/local_session.gd").new(game)
 var board: Control
 var vehicle_panel: PanelContainer
 var hud: VBoxContainer
@@ -302,6 +303,7 @@ func build_ui() -> void:
 		if not game.state.is_empty() or FileAccess.file_exists(Game.SAVE_PATH): confirm_new_game()
 		else: show_setup())
 	start_screen.continue_requested.connect(continue_saved_game)
+	start_screen.lan_requested.connect(func(): get_tree().change_scene_to_file("res://scenes/lan.tscn"))
 	start_screen.settings_requested.connect(show_settings)
 	start_screen.help_requested.connect(show_help)
 	start_screen.quit_requested.connect(func(): _notification(NOTIFICATION_WM_CLOSE_REQUEST))
@@ -639,7 +641,7 @@ func refresh_occlusions() -> void:
 	if not preview_route.is_empty(): return
 	if not hud_margin.visible: return
 	var layout = hud_margin.get_node("SafeArea/Layout")
-	for path in ["TopBar", "VehicleSummary", "MapTools", "Actions", "HandDock"]:
+	for path in ["TopBar", "TurnSteps", "VehicleSummary", "MapTools", "Actions", "HandDock"]:
 		var item = layout.get_node(path) as Control
 		board.occlusions.append(item.get_global_rect())
 	board.queue_redraw()
@@ -694,6 +696,7 @@ func refresh() -> void:
 	elif int(p.stock.scrap) <= 0: maintenance_hint.text += "\nReparo: requer 1 sucata."
 	turn_label.text = "%s   ·   Turno %d   ·   %s" % [p.name, game.state.turn, "%d ação" % game.state.actions if game.state.started else "Preparação"]
 	turn_label.add_theme_color_override("font_color", Board.COLORS[int(p.id)])
+	hud_margin.get_node("SafeArea/Layout/TurnSteps").update_state(game.state)
 	turn_button.text = "Encerrar turno" if game.state.started else "Iniciar turno"
 	turn_button.disabled = game.state.get("finished", false)
 	if turn_button.disabled: turn_button.text = "Partida encerrada"
@@ -768,7 +771,7 @@ func dispatch(action: String, args: Dictionary = {}) -> void:
 	var old_city: String = game.player().city
 	var explored = game.state.territories.get(args.get("territory", ""), {}) if action == "explore" else {}
 	var stock_before: Dictionary = explored.get("stock", {}).duplicate()
-	var error = game.act(action, args)
+	var error = local_session.submit(action, args)
 	if not game.persistence_error.is_empty(): notifications.notify("Ação aplicada; salvamento pendente. Abra Resolver encontro no menu.", true)
 	refresh()
 	if error.is_empty() and action == "explore":

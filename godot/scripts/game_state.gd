@@ -12,6 +12,7 @@ var campaign = CampaignRules.new()
 var persistence_error: String = ""
 var save_path: String = SAVE_PATH
 var _command_running: bool = false
+var persistence_managed: bool = false # LAN grava estado e recibos em um único envelope.
 var cities: Array = read_data("cities")
 var routes: Array = read_data("routes")
 var vehicles: Array = read_data("vehicles")
@@ -448,7 +449,7 @@ func transfer_resource(action: String, args: Dictionary) -> String:
 	return save_game()
 
 func save_game() -> String:
-	if _command_running: return ""
+	if _command_running or persistence_managed: return ""
 	# Escreve temporário e renomeia para não truncar o último save.
 	var file = FileAccess.open(save_path + ".tmp", FileAccess.WRITE)
 	if file == null: return "Não foi possível salvar a partida."
@@ -460,6 +461,9 @@ func save_game() -> String:
 func load_game() -> String:
 	if not FileAccess.file_exists(save_path): return "Nenhuma partida salva."
 	var loaded = JSON.parse_string(FileAccess.get_file_as_string(save_path))
+	return restore_state(loaded)
+
+func restore_state(loaded: Variant) -> String:
 	if not loaded is Dictionary or loaded.get("schema") != "native-stage1" or loaded.get("version") != 1:
 		return "Save incompatível. O arquivo foi preservado."
 	for key in ["players", "territories", "deck", "discard", "log", "active", "turn", "started", "actions", "moved", "seed"]:

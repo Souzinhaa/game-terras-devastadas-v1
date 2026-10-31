@@ -1,12 +1,16 @@
 # Terras Devastadas — contexto atual para IA / Godot
 
-**Atualização:** 30/10/2026. Este arquivo descreve o runtime nativo, não a totalidade da referência React.
+**Atualização:** 31/10/2026. Este arquivo descreve o runtime nativo, não a totalidade da referência React.
+
+**LAN/TV:** serviço autoritativo, lobby, capacidades por jogador, projeções privadas/públicas, recibos persistidos, reconexão e interface Tabuleiro implementados para testes. Cinco processos Windows validaram quatro jogadores e TV opcional; APKs de debug foram gerados. Android físico/TV real continuam pendentes. Ver [MULTIPLAYER_LAN_IMPLEMENTATION.md](docs/MULTIPLAYER_LAN_IMPLEMENTATION.md) e [protocolo](docs/MULTIPLAYER_LAN_PROTOCOL.md).
+
+**Correção após relato Android:** a revisão `0.2.1-lan-ui` reutiliza `game_hud.tscn` na LAN por `network/player_hud.gd`; prepara salas em `connection_menu.gd`, usa ações paginadas e descoberta por consulta UDP com resposta unicast. Não restaurar a barra lateral de ações do protótipo. Relato de instalação na Philips 50 polegadas ainda sem modelo/sistema/erro; usuário preferiu priorizar layout. Ver [LAN_UI_TOUCH_FIX.md](docs/LAN_UI_TOUCH_FIX.md).
 
 ## 1. Entrada e fontes de verdade
 
 - Abrir `project.godot` no **Godot 4.7 Standard**. Validação efetuada no 4.7.2.
-- Cena principal: `scenes/main.tscn`.
-- Alvo: Android ARM64, paisagem, offline, 2–4 pessoas alternando no mesmo aparelho.
+- Cena de entrada: `scenes/bootstrap.tscn`; celular abre `scenes/main.tscn`, feature `tv_board` abre `scenes/lan.tscn` como tela pública.
+- Alvo: Android ARM64, paisagem, 2–4 jogadores; hot-seat offline preservado e modo LAN em aparelhos próprios. Tabuleiro Android TV opcional em pacote separado ARM64/ARMv7.
 - Renderer: Compatibility. Canvas-base 1440 × 810, `canvas_items` e `expand`.
 - Regras de referência: `../rules.md`, `../rules-cards.md`, `../docs/REGRAS_V06.md`.
 - Implementação de referência: `../src/engine/game.ts`, `cardRules.ts`, `hostiles.ts`, `catalog.ts`, `config.ts`.
@@ -60,6 +64,8 @@ Viagem na UI: seleção de estrada abre prévia com zoom via Tween, rota exata d
 - `scripts/ui_preferences.gd`: preferências persistidas; `ui_audio.gd`: clique procedural em bus UI e vibração opcional Android.
 
 O motor nativo modifica seu Dictionary. `act` restaura snapshot em recusa; `action_reason` simula isoladamente a mesma validação, sem escrita/RNG real. Uma ação aceita com falha de gravação permanece aceita e registra `persistence_error`: `retrySave` repete somente a escrita. Não repetir o comando original para tentar salvar.
+
+LAN usa `scripts/network/`: `SessionAuthority` executa as capacidades geradas por `CommandCatalog`, serializa ações e salva estado/recibos no mesmo envelope. O motor usa `persistence_managed` somente nesse modo. `ViewProjector` publica campos permitidos; UI e mapa clientes não recebem o save completo. `NetworkEndpoint` é Autoload comum com RPCs compatíveis nos dois pacotes. Mão/recursos/decisões são individuais; RNG/baralhos/log interno ficam na autoridade. O fingerprint de regras/protocolo é inserido automaticamente por `addons/lan_export` na exportação. Recursos privados, ator por comando e demais contratos estão no relatório de protocolo. Não substituir jogador local por `game.player()`, que continua significando jogador ativo.
 
 ## 4. Combate e efeitos
 
@@ -130,9 +136,10 @@ Reações seguem a ordem circular a partir do jogador ativo; G07 exige hostil re
 - Preferências: `user://ui-preferences.cfg`.
 - Nova partida preserva cópia em `user://campaign-before-new-game.json`.
 - IndexedDB/JSON React não são importados. Não confundir versão nativa com conteúdo/envelope React.
-- Preset Android ARM64 com vibração para a função opcional; sem necessidade de rede.
+- Preset Android ARM64 com INTERNET para LAN e vibração opcional; modo hot-seat continua sem depender de rede. Preset Android TV usa Gradle, feature `tv_board`, ARM64/ARMv7 e pacote separado.
 - Dados JSON e licenças de fontes precisam entrar no pacote. `docs/`, `tools/` e `tests/` são excluídos.
-- PCK foi gerado/verificado; **não é APK**. Não há validação em celular ou publicação.
+- APKs de debug LAN/Tabuleiro gerados com min SDK 24/alvo 36. Manifest TV inspecionado com launcher leanback, banner e touchscreen opcional. PCK continua não sendo APK. Não há homologação física ou publicação.
+- Save LAN: `user://campaign-lan-v1.json` com backup `.bak`, credenciais locais separadas em `lan-connections.cfg`. Não converte o save hot-seat nem o React. Falha de escrita bloqueia novas mutações LAN até repetir a gravação; retomada usa último estado realmente salvo. TV não é anfitrião nem participante de confirmação de animações.
 
 ## 9. Verificação
 
@@ -158,7 +165,7 @@ Evidências recentes: testes de regras/combate/UI/revelação passaram; moderniz
 1. V16 foi deixado sem uso por decisão do usuário: permanece no catálogo/baralho, mas resolve sem efeito, inclusive com `vehicle_pool` configurado ou carta pendente em save. Não reativar sem nova instrução. A fonte de sucata solta para E11 continua indefinida.
 2. Fechar semântica adicional do alerta de saque, perfis regionais/dificuldade e impasses ainda abertos nas regras.
 3. Ampliar cenários de regressão/playtests do conjunto integrado; três contratos TS/Godot comparados não representam paridade integral de seed/implementação.
-4. Configurar SDK/JDK/templates e gerar APK. A tentativa de exportação no perfil isolado falhou por ausência dessas configurações; nenhum APK foi produzido.
+4. Homologar os APKs LAN e Tabuleiro já gerados; preparar distribuição de release apenas depois. SDK/JDK/templates foram configurados em perfil de build isolado; a TV exige Gradle e JDK compatível. Não reutilizar a falha antiga de exportação como estado atual.
 5. Testar Android físico e medir desempenho/balanceamento com pessoas. Medidas Windows não comprovam FPS/RAM no Android.
 
 Verificação única: `powershell -NoProfile -ExecutionPolicy Bypass -File godot/tools/run_checks.ps1`, na raiz. Perfis e logs separados por suíte em `.tools/campaign-checks/`. Inclui validação de dados/assets, campanha, casos de borda, contratos compartilhados e testes renderizados. `-HeadlessOnly` executa só regras/dados. Replay: `tools/replay_campaign.gd`; comparação: `node godot/tools/compare_contracts.mjs` após suíte nativa e Vitest.
@@ -175,3 +182,7 @@ Reações de combate/fuga: `combat_view.build_reactions` exibe `ReactionCards` n
 - Seleção de cartas e confirmação de descarte exibem as artes. Revelações pendentes continuam obrigatórias antes de abrir a seleção; remoções usam `take_hand_card`.
 - `tests/transfers_smoke.gd` cobre conservação, acesso, capacidade, excedentes em combate, persistência e escolhas visuais. Validação Windows; Android físico ainda pendente.
 - Disponibilidade: `transfer_reason` e `inventory_reason` são consultas sem efeitos, usadas pelo motor e pela UI. Abastecimento/excedente, depósitos, reparo e descarte ficam desativados quando inválidos, com motivo no tooltip. `refresh` atualiza os controles da carga após alterações. Teste cobre falta de excedente/combustível, tanque cheio, turno não iniciado, recuperação, revelação e combate ativo.
+
+Indicador de turno: HUD compartilhado local/LAN com Preparação → Ação → Encerramento, centralizado no topo; destaque atual âmbar e concluídas verdes. Apenas apresentação do estado existente; validado em layout Windows, Android físico pendente.
+
+Android TV: foco inicial em Buscar novamente, navegação vertical circular na conexão, seleção preservada na descoberta, contorno âmbar e Voltar contextual. tv_remote_smoke.gd validou eventos de setas/Enter no Windows; controle físico pendente.

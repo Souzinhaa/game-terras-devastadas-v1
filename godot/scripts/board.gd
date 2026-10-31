@@ -3,7 +3,8 @@ extends Control
 signal city_selected(id: String)
 signal route_selected(id: String)
 var focused_route: bool = false
-var game: WastelandGame
+var game: RefCounted # Motor local ou fachada de apresentação LAN sem estado secreto.
+var fit_width: bool = false
 var map_texture = preload("res://assets/mapa-terreno-alinhado-v3.png")
 var panoramic_texture = preload("res://assets/mapa-margens-sem-rotas-v3.png")
 var backdrop: Sprite2D
@@ -62,6 +63,7 @@ func backdrop_rect() -> Rect2:
 func map_rect() -> Rect2:
 	# O núcleo original conserva proporção e coordenadas; só as margens são novas.
 	var height = maxf(240, size.y - content_insets.x - content_insets.y) * zoom_level
+	if fit_width: height = minf(height, size.x * float(map_texture.get_height()) / map_texture.get_width() * zoom_level)
 	var dimensions = Vector2(height * float(map_texture.get_width()) / map_texture.get_height(), height)
 	var center = Vector2(size.x / 2.0, (size.y + content_insets.x - content_insets.y) / 2.0)
 	return Rect2(center - dimensions / 2.0 + pan, dimensions)

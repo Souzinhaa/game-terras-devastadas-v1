@@ -5,6 +5,7 @@ signal continue_requested
 signal settings_requested
 signal help_requested
 signal quit_requested
+signal lan_requested
 var continue_button: Button
 var new_game_button: Button
 var status_label: Label
@@ -56,7 +57,7 @@ func _ready() -> void:
 	vehicle.custom_minimum_size = Vector2(420, 180)
 	vehicle.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	brand.add_child(vehicle)
-	make_label("Offline · 2–4 jogadores · no mesmo aparelho", brand, 18)
+	make_label("2–4 jogadores · local ou rede LAN", brand, 18)
 	menu = PanelContainer.new()
 	menu.custom_minimum_size.x = 370
 	row.add_child(menu)
@@ -71,6 +72,7 @@ func _ready() -> void:
 	status_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	continue_button = make_button("Continuar partida", actions, func(): continue_requested.emit())
 	new_game_button = make_button("Nova partida", actions, func(): new_game_requested.emit())
+	make_button("Multiplayer LAN", actions, func(): lan_requested.emit())
 	make_button("Configurações", actions, func(): settings_requested.emit())
 	make_button("Como jogar", actions, func(): help_requested.emit())
 	make_button("Sair", actions, func(): quit_requested.emit())

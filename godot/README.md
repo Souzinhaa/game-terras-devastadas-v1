@@ -2,6 +2,16 @@
 
 Para manutenção por IA, começar por [AGENTS.md](AGENTS.md) e [CONTEXT.md](CONTEXT.md). O contexto da raiz descreve a referência React e não significa paridade com o nativo.
 
+## Multiplayer LAN e Android TV
+
+Disponível pelo botão **Multiplayer LAN** na tela inicial: 2–4 jogadores em aparelhos próprios, um celular anfitrião e um aplicativo **Tabuleiro** opcional para Android TV. O anfitrião aprova jogadores/tela pública; cada jogador recebe sua mão e decisões privadas. A TV acompanha mapa, turno, placar e confrontos públicos, inclusive entrando depois do início.
+
+Revisão **0.2.1-lan-ui**: a LAN usa o HUD original do modo local, preparação centralizada, ações em páginas curtas e salas encontradas automaticamente. Detalhes e limites de validação: [correção de layout/toque](docs/LAN_UI_TOUCH_FIX.md).
+
+APKs de debug: `builds/terras-devastadas-lan.apk` e `builds/terras-devastadas-tabuleiro.apk`. O segundo usa pacote próprio e launcher TV. Os dois precisam ser da mesma geração de regras/protocolo. Foram gerados e inspecionados; instalação e homologação em Android físico permanecem pendentes.
+
+Consulte [implementação, uso e testes](docs/MULTIPLAYER_LAN_IMPLEMENTATION.md), [contratos de rede/privacidade](docs/MULTIPLAYER_LAN_PROTOCOL.md) e [plano de migração](docs/MULTIPLAYER_LAN_MIGRATION_PLAN.md). Em Windows/editor, `-- --tv-board` abre a apresentação pública. O modo local e o save hot-seat continuam separados da sessão LAN.
+
 Migração nativa em andamento. A versão React permanece na raiz como referência funcional das regras v0.6. Este projeto ainda não substitui todas as regras do jogo.
 
 A [auditoria e plano](docs/GAMEPLAY_AUDIT_AND_PLAN.md) registram o diagnóstico anterior. A [implementação da campanha](docs/CAMPAIGN_IMPLEMENTATION.md) descreve o que foi entregue, como validar e o que ainda depende de regras/aparelho.
@@ -63,7 +73,7 @@ O visual segue a composição da referência: mapa em tela cheia, painel escuro 
 | Consulta e descarte de cartas | Implementado |
 | Save próprio automático, retomada, pausa Android | Implementado; sem teste em aparelho |
 | Pan, pinça, botões de zoom, painel recolhível e área segura | Implementado; sem teste em aparelho |
-| Preset Android ARM64 / paisagem | Configurado; APK não gerado |
+| Android ARM64 / paisagem e Tabuleiro Android TV | APKs de debug gerados; validação física pendente |
 | Combate com arma fixa, G01–G07, hostis, mortes, fuga e conquista | Implementado; sem teste em Android físico |
 | Gerais, equipamentos, territoriais, eventos e corridas | Implementados em novas partidas; E11 depende de fonte de sucata; V16 temporariamente sem efeito por decisão do usuário |
 | Melhoria de Hatch, reparos complexos, troca de encontrado | Implementados; V16 não gera novas ofertas enquanto desativado |
@@ -91,7 +101,7 @@ O save `user://campaign-native-v1.json` usa schema `native-stage1`. Não importa
 
 ## Android
 
-O projeto abre na horizontal, usa renderização Compatibility e tem controles dimensionados para toque. O alvo inicial é Android ARM64, offline e hot-seat; não há multiplayer por rede.
+O projeto abre na horizontal e usa Compatibility. O modo local é hot-seat offline; o modo LAN usa aparelhos próprios e rede local sem serviço externo. O bootstrap seleciona a UI celular ou Tabuleiro conforme a feature de exportação. A TV tem navegação por controle e não executa ações do jogo. O anfitrião precisa permanecer disponível; não há migração automática nem garantia de hospedagem em segundo plano.
 
 1. Instale os **export templates da mesma versão do editor** em Editor → Manage Export Templates.
 2. Configure OpenJDK 17 e o Android SDK em Editor Settings → Export → Android, seguindo a [documentação oficial](https://docs.godotengine.org/en/stable/tutorials/export/exporting_for_android.html).
@@ -158,3 +168,5 @@ node godot/tools/compare_contracts.mjs
 O runner restaura as variáveis do terminal e usa um perfil isolado por suíte. `-HeadlessOnly` omite os testes visuais. Logs/resultados ficam em `.tools/campaign-checks/`; a matriz de cartas é gerada em `.tools/card-support.json`. O carregador nativo do Vitest evita uma restrição do bundler no ambiente atual. Os testes visuais usam renderer real no Windows.
 
 Saves novos guardam comandos e seed inicial para reprodução com `res://tools/replay_campaign.gd -- <caminho-absoluto-do-save>`. O replay escreve somente `user://replay-validation.json`; usar o mesmo perfil isolado de testes. Falha de escrita após ação aceita exige **Tentar salvar sem repetir ação**, disponível em Resolver encontro no menu.
+
+Indicador de turno: HUD compartilhado local/LAN com Preparação → Ação → Encerramento, centralizado no topo; destaque atual âmbar e concluídas verdes. Apenas apresentação do estado existente; validado em layout Windows, Android físico pendente.

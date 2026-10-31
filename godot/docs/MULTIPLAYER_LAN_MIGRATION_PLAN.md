@@ -3,10 +3,10 @@
 **Projeto:** Terras Devastadas — runtime nativo em `godot/`.  
 **Data:** 31/10/2026.  
 **Base:** Godot 4.7 Standard, GDScript, renderer Compatibility; projeto documentado como validado no editor 4.7.2.  
-**Estado:** planejamento detalhado, sem implementação de rede ou de TV neste trabalho.  
+**Estado:** implementação de software entregue para testes em 31/10/2026; homologação em Android físico/TV pendente.
 **Origem:** pedido do usuário, respostas sobre dispositivos e revisão técnica do plano nesta conversa.
 
-Este documento orienta a evolução do modo local para uma sessão LAN de 2–4 jogadores, cada um em seu Android, acompanhada por um segundo aplicativo opcional para Android TV. As tarefas abaixo são propostas; suas caixas vazias não representam funcionalidades entregues. Criar este arquivo não autoriza iniciar a implementação.
+Este documento orienta a evolução do modo local para uma sessão LAN de 2–4 jogadores, cada um em seu Android, acompanhada por um segundo aplicativo opcional para Android TV. A implementação foi autorizada posteriormente pelo usuário. O [relatório de entrega](MULTIPLAYER_LAN_IMPLEMENTATION.md) distingue código, testes Windows, pacotes gerados e validações físicas ainda abertas. O [protocolo efetivo](MULTIPLAYER_LAN_PROTOCOL.md) registra nomes de mensagens, política de visibilidade e adaptações técnicas ao desenho abaixo. Publicação não está autorizada por esse escopo.
 
 ## 1. Resultado esperado e decisões
 
@@ -21,7 +21,7 @@ Este documento orienta a evolução do modo local para uma sessão LAN de 2–4 
 | Plataforma da segunda tela | Preferencialmente Android TV. |
 | Participação da segunda tela | Somente consulta e apresentação; não executa ações da partida. |
 | Dependência da TV | Opcional; o jogo funciona sem ela. |
-| Escopo deste trabalho | Documentar a migração, sem implementar. |
+| Escopo original do planejamento | Documentar sem implementar; depois ampliado pelo usuário para implementar este plano. |
 
 ### 1.2 Recomendações técnicas que compõem este plano
 
@@ -751,4 +751,20 @@ O primeiro marco demonstrável é: **dois celulares e uma TV conectados; uma via
 - [Android TV: criação e configuração do aplicativo](https://developer.android.com/training/tv/get-started/create).
 
 As referências técnicas podem mudar. Conferir versões de editor, templates, SDK e documentação ao iniciar a implementação.
+
+## 17. Progresso registrado em 31/10/2026
+
+| Fase | Entrega de código | Validação/pendência |
+| --- | --- | --- |
+| 0 | Catálogo explícito, atores por família e projeções por campos permitidos | Contratos efetivos no documento de protocolo; recursos privados por padrão conservador de apresentação. |
+| 1 | ENet, endpoint comum e tela mínima de conexão | Cinco processos reais Windows; execução em Android/TV físicos pendente. |
+| 2 | Sessões local/LAN separadas, identidade individual, ViewStore no endpoint e fachada pública do mapa | Hot-seat preservado; interface LAN própria, com tema compartilhado e prévia de viagem. |
+| 3 | Autoridade, recibos e estado no mesmo envelope; backup e retomada | 62 verificações de sessão; reconexão de peer real no harness. |
+| 4 | Lobby, aprovação, prontidão, início, turnos, viagem, exploração, administração e inventário | Testes de regras e transporte; sem prova de Wi-Fi físico. |
+| 5 | Combate, reações, eventos, corrida, saque, excedentes e vitórias pelo motor existente | 197 verificações em fixtures da campanha LAN; não equivalem a playtest físico completo. |
+| 6 | Pacote público TV, foco/controle, câmera, banner e manifest específicos | Renderização Windows 1920×1080; APK gerado/inspecionado, instalação física pendente. |
+| 7 | Descoberta, entrada por IP, limites de mensagens e recuperação | Conexão/reconexão loopback testadas; broadcast, suspensão Android, hotspot e medições em aparelho pendentes. |
+| 8 | Relatório, contratos, instruções, presets e ferramentas de verificação | Matriz física A01–A20 continua aberta; não declarar homologação ou publicação. |
+
+As checklists históricas de cada fase são critérios para fechar a migração completa, incluindo as evidências físicas. A tabela acima é o estado atual de implementação e substitui a leitura de caixas vazias como ausência de código. Não marcar toda uma fase como homologada somente porque seus arquivos existem.
 
