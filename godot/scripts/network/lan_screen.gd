@@ -5,6 +5,8 @@ const Board = preload("res://scripts/board.gd")
 const Reveal = preload("res://scripts/card_reveal.gd")
 const PlayerHUD = preload("res://scripts/network/player_hud.gd")
 const ConnectionMenu = preload("res://scripts/network/connection_menu.gd")
+const LanLayout = preload("res://scripts/network/lan_layout.gd")
+const CardReader = preload("res://scripts/network/card_reader.gd")
 const RESOURCES = preload("res://scripts/network/command_catalog.gd").RESOURCE_NAMES
 var tv_mode: bool = false
 var endpoint: Node
@@ -27,7 +29,7 @@ var menu: VBoxContainer
 var group_input: OptionButton
 var reveal: Control
 var modal: AcceptDialog
-var card_reader: AcceptDialog
+var card_reader: Control
 var card_art: TextureRect
 var card_text: Label
 var card_action: Button
@@ -49,6 +51,7 @@ var catalog: Array = JSON.parse_string(FileAccess.get_file_as_string("res://data
 var private_locked: bool = false
 var player_hud: Control
 var connection_menu: Control
+var device_profile: Dictionary = {}
 
 func _ready() -> void:
 	endpoint = get_node("/root/NetworkEndpoint")
@@ -123,25 +126,13 @@ func _ready() -> void:
 	modal.title = "Consulta"
 	modal.min_size = Vector2i(640, 220)
 	add_child(modal)
-	card_reader = AcceptDialog.new()
-	card_reader.title = "Carta"
+	card_reader = CardReader.new()
+	card_reader.app = self
+	card_reader.z_index = 85
 	add_child(card_reader)
-	var reader_column: VBoxContainer = VBoxContainer.new()
-	card_reader.add_child(reader_column)
-	var reader_row: HBoxContainer = HBoxContainer.new()
-	reader_column.add_child(reader_row)
-	card_art = TextureRect.new()
-	card_art.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
-	card_art.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
-	card_art.custom_minimum_size = Vector2(260, 390)
-	reader_row.add_child(card_art)
-	card_text = label("", reader_row, 21)
-	card_text.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-	card_text.custom_minimum_size.x = 300
-	card_text.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	card_action = button("Usar / instalar", func():
-		card_reader.hide()
-		if is_instance_valid(player_hud): player_hud.show_card_actions(inspected_card), reader_column)
+	card_art = card_reader.art
+	card_text = card_reader.text
+	card_action = card_reader.action
 	confirm = ConfirmationDialog.new()
 	confirm.title = "Confirmar ação"
 	confirm.min_size = Vector2i(560, 180)
@@ -179,20 +170,36 @@ func fit() -> void:
 	if not is_instance_valid(panel): return
 	panel.custom_minimum_size.x = clampf(size.x * 0.30, 320, 480)
 	panel.custom_maximum_size.x = panel.custom_minimum_size.x
+	fit_preview()
+	if is_instance_valid(reveal):
+		reveal.safe_insets = LanLayout.insets(self, device_profile)
+		reveal.fit()
+
+func fit_preview() -> void:
+	if not is_instance_valid(route_preview): return
+	var safe: Rect2 = LanLayout.safe_rect(self, device_profile)
+	var width: float = minf(780, maxf(240, safe.size.x - 32))
+	var center_x: float = safe.get_center().x - size.x / 2
+	route_preview.offset_left = center_x - width / 2
+	route_preview.offset_right = center_x + width / 2
+	route_preview.offset_bottom = safe.end.y - size.y - 16
+	route_preview.offset_top = route_preview.offset_bottom - 186
 
 func label(value: String, parent: Node, font_size: int = 20) -> Label:
 	var item: Label = Label.new()
 	item.text = value
 	item.add_theme_font_size_override("font_size", font_size)
-	item.autowrap_mode = TextServer.AUTOWRAP_OFF if parent is HBoxContainer else TextServer.AUTOWRAP_WORD_SMART
+	item.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	item.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	parent.add_child(item)
 	return item
 
 func button(caption: String, callback: Callable, parent: Node) -> Button:
 	var item: Button = Button.new()
 	item.text = caption
-	item.custom_minimum_size.y = 52
-	item.autowrap_mode = TextServer.AUTOWRAP_OFF if parent is HBoxContainer else TextServer.AUTOWRAP_WORD_SMART
+	item.custom_minimum_size.y = 64
+	item.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	item.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	item.focus_mode = Control.FOCUS_ALL
 	if tv_mode:
 		var focus_style := StyleBoxFlat.new()
@@ -251,6 +258,7 @@ func render() -> void:
 		return
 	if not endpoint.connected:
 		summary.text = "Dados desatualizados · conexão indisponível" if not endpoint.view.is_empty() else "Conectando / aguardando aprovação"
+		if is_instance_valid(connection_menu) and connection_menu.visible: connection_menu.status.text = summary.text
 		if not endpoint.view.is_empty(): render_content()
 		return
 	var signature: String = JSON.stringify([endpoint.view.get("epoch", ""), endpoint.view.get("revision", -1), endpoint.lobby, endpoint.pending.keys(), endpoint.view.get("save_pending", false), endpoint.pending_command.is_empty()])
@@ -419,9 +427,7 @@ func preview_route(route_id: String) -> void:
 	board.queue_redraw()
 	route_preview.get_node("Content/Destination").text = selected.label
 	route_preview.get_node("Content/Details").text = "Confirme a estrada destacada. A viagem resolve um evento de deslocamento."
-	var width: float = minf(size.x - 48, 780)
-	route_preview.offset_left = -width / 2
-	route_preview.offset_right = width / 2
+	fit_preview()
 	route_preview.show()
 	route_preview.get_node("Content/Actions/Cancel").grab_focus()
 	var points: PackedVector2Array = board.route_points(route_id)
@@ -464,6 +470,8 @@ func present_pending_reveal() -> void:
 	if pending.is_empty(): return
 	for option: Dictionary in endpoint.view.get("options", []):
 		if option.action == "acknowledgeCard":
+			reveal.safe_insets = LanLayout.insets(self, device_profile)
+			reveal.reduced_motion = endpoint.reduced_motion
 			reveal.present(pending, card_definition(pending.card_id), own_name(), size / 2)
 			return
 
@@ -566,11 +574,18 @@ func remote_back() -> void:
 		connection_menu.manual_dialog.hide()
 		connection_menu.search_button.grab_focus()
 		return
-	for window: Window in [confirm, card_reader, modal]:
+	if not preview_option.is_empty():
+		cancel_preview()
+		return
+	if card_reader.visible:
+		card_reader.hide()
+		return
+	for window: Window in [confirm, modal]:
 		if is_instance_valid(window) and window.visible:
 			window.hide()
 			focus_first()
 			return
+	if is_instance_valid(player_hud) and player_hud.handle_back(): return
 	# Inclui a confirmação de saída: Voltar cancela, sem empilhar diálogos.
 	for child: Node in get_children():
 		if child is ConfirmationDialog and child.visible:
@@ -596,7 +611,7 @@ func _unhandled_key_input(event: InputEvent) -> void:
 func _notification(what: int) -> void:
 	if what == NOTIFICATION_APPLICATION_PAUSED:
 		private_locked = true
-		if is_instance_valid(reveal): reveal.hide()
+		if is_instance_valid(reveal): reveal.suspend()
 		if is_instance_valid(modal): modal.hide()
 		if is_instance_valid(card_reader): card_reader.hide()
 		if is_instance_valid(confirm): confirm.hide()
@@ -604,7 +619,7 @@ func _notification(what: int) -> void:
 		if is_instance_valid(actions): render_content()
 	if what == NOTIFICATION_WM_GO_BACK_REQUEST and is_inside_tree():
 		if tv_mode: remote_back()
-		else: leave_screen()
+		else: remote_back()
 
 func leave_screen() -> void:
 	var prompt: ConfirmationDialog = ConfirmationDialog.new()

@@ -8,6 +8,8 @@ Disponível pelo botão **Multiplayer LAN** na tela inicial: 2–4 jogadores em 
 
 Revisão **0.2.1-lan-ui**: a LAN usa o HUD original do modo local, preparação centralizada, ações em páginas curtas e salas encontradas automaticamente. Detalhes e limites de validação: [correção de layout/toque](docs/LAN_UI_TOUCH_FIX.md).
 
+Revisão posterior de layout: conexão/lobby respeitam área segura e teclado, a consulta de cartas mantém ações visíveis, painéis paginados permitem rolagem quando necessário e Voltar fecha primeiro a janela ativa. A compra do início do turno se recupera de pausa durante a virada sem repetir a compra. [Relatório e capturas](docs/LAN_LAYOUT_REVIEW.md). Teste: `godot --path godot --script res://tests/lan_mobile_layout.gd -- --compact`, usando perfil isolado conforme a seção de validação; omitir `--compact` para 1280×720 ou trocar por `--s23` para 2340×1080. Android físico ainda pendente.
+
 APKs de debug: `builds/terras-devastadas-lan.apk` e `builds/terras-devastadas-tabuleiro.apk`. O segundo usa pacote próprio e launcher TV. Os dois precisam ser da mesma geração de regras/protocolo. Foram gerados e inspecionados; instalação e homologação em Android físico permanecem pendentes.
 
 Consulte [implementação, uso e testes](docs/MULTIPLAYER_LAN_IMPLEMENTATION.md), [contratos de rede/privacidade](docs/MULTIPLAYER_LAN_PROTOCOL.md) e [plano de migração](docs/MULTIPLAYER_LAN_MIGRATION_PLAN.md). Em Windows/editor, `-- --tv-board` abre a apresentação pública. O modo local e o save hot-seat continuam separados da sessão LAN.

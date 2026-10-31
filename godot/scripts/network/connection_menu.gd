@@ -1,5 +1,6 @@
 extends Control
-## Preparação em tela própria: campos estáveis, descoberta automática e sem scroll.
+## Preparação limitada à área segura; rolagem de reserva para telas/teclados menores.
+const Layout = preload("res://scripts/network/lan_layout.gd")
 var app: Control
 var panel: PanelContainer
 var rooms: VBoxContainer
@@ -15,7 +16,12 @@ var room_signature: String = ""
 var status: Label
 var lobby_signature: String = ""
 var center: CenterContainer
-var form_columns: HBoxContainer
+var form_columns: BoxContainer
+var content_scroll: ScrollContainer
+var title_label: Label
+var host_column: VBoxContainer
+var join_column: VBoxContainer
+var form_tools: BoxContainer
 var keyboard_height: int = -1
 var search_button: Button
 
@@ -26,6 +32,7 @@ func _ready() -> void:
 	background.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
 	background.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_COVERED
 	background.modulate = Color(0.22, 0.26, 0.21)
+	background.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	add_child(background)
 	background.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 	center = CenterContainer.new()
@@ -35,34 +42,44 @@ func _ready() -> void:
 	panel.set_script(preload("res://scripts/metal_panel.gd"))
 	center.add_child(panel)
 	var margin: MarginContainer = MarginContainer.new()
-	for edge: String in ["left", "right", "top", "bottom"]: margin.add_theme_constant_override("margin_" + edge, 24)
+	for edge: String in ["left", "right", "top", "bottom"]: margin.add_theme_constant_override("margin_" + edge, 12)
 	panel.add_child(margin)
 	var column: VBoxContainer = VBoxContainer.new()
-	column.add_theme_constant_override("separation", 16)
+	column.add_theme_constant_override("separation", 8)
 	margin.add_child(column)
-	app.label("TERRAS DEVASTADAS", column, 40).theme_type_variation = &"Heading"
+	title_label = app.label("TERRAS DEVASTADAS", column, 32)
+	title_label.theme_type_variation = &"Heading"
 	status = app.label("MULTIPLAYER LAN · procurando salas na sua rede…", column, 21)
+	content_scroll = ScrollContainer.new()
+	content_scroll.horizontal_scroll_mode = ScrollContainer.SCROLL_MODE_DISABLED
+	content_scroll.size_flags_vertical = Control.SIZE_EXPAND_FILL
+	content_scroll.custom_minimum_size.y = 80
+	column.add_child(content_scroll)
+	var content: VBoxContainer = VBoxContainer.new()
+	content.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	content_scroll.add_child(content)
 	form = VBoxContainer.new()
 	form.add_theme_constant_override("separation", 14)
-	column.add_child(form)
+	content.add_child(form)
 	var name_row: HBoxContainer = HBoxContainer.new()
 	form.add_child(name_row)
 	app.label("Sua TV" if app.tv_mode else "Seu nome", name_row, 21)
 	player_name = LineEdit.new()
-	player_name.custom_minimum_size = Vector2(320, 54)
+	player_name.custom_minimum_size = Vector2(0, 64)
 	player_name.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	player_name.max_length = 32
 	player_name.placeholder_text = "Como você quer aparecer na sala?"
 	player_name.text = "Tabuleiro" if app.tv_mode else ""
 	name_row.add_child(player_name)
 	player_name.text_submitted.connect(func(_text: String): DisplayServer.virtual_keyboard_hide(); player_name.release_focus())
-	var row: HBoxContainer = HBoxContainer.new()
+	var row: BoxContainer = BoxContainer.new()
 	form_columns = row
 	row.add_theme_constant_override("separation", 28)
 	form.add_child(row)
 	if not app.tv_mode:
 		var host: VBoxContainer = VBoxContainer.new()
-		host.custom_minimum_size.x = 310
+		host_column = host
+		host.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 		host.add_theme_constant_override("separation", 12)
 		row.add_child(host)
 		app.label("CRIAR PARTIDA", host, 27).theme_type_variation = &"Heading"
@@ -71,6 +88,7 @@ func _ready() -> void:
 		host.add_child(count_row)
 		app.label("Jogadores", count_row, 20)
 		player_count = SpinBox.new()
+		player_count.custom_minimum_size = Vector2(120, 64)
 		player_count.min_value = 2
 		player_count.max_value = 4
 		player_count.value = 4
@@ -78,7 +96,7 @@ func _ready() -> void:
 		app.button("Criar sala", func(): request_host(false), host).theme_type_variation = &"Primary"
 		app.button("Retomar partida LAN", func(): request_host(true), host)
 	var join: VBoxContainer = VBoxContainer.new()
-	join.custom_minimum_size.x = 440
+	join_column = join
 	join.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	join.add_theme_constant_override("separation", 12)
 	row.add_child(join)
@@ -87,13 +105,15 @@ func _ready() -> void:
 	rooms.custom_minimum_size.y = 180
 	rooms.add_theme_constant_override("separation", 10)
 	join.add_child(rooms)
-	var tools: HBoxContainer = HBoxContainer.new()
+	var tools: BoxContainer = BoxContainer.new()
+	form_tools = tools
+	tools.add_theme_constant_override("separation", 10)
 	join.add_child(tools)
 	search_button = app.button("Buscar novamente", func(): app.endpoint.start_discovery(); refresh_rooms(true), tools)
-	app.button("Entrar por IP", func(): manual_dialog.popup_centered(Vector2i(600, 240)), tools)
+	app.button("Entrar por IP", show_manual, tools)
 	lobby_content = VBoxContainer.new()
 	lobby_content.add_theme_constant_override("separation", 12)
-	column.add_child(lobby_content)
+	content.add_child(lobby_content)
 	lobby_content.hide()
 	app.button("Voltar", app.leave_screen, column)
 	manual_dialog = ConfirmationDialog.new()
@@ -103,7 +123,7 @@ func _ready() -> void:
 	manual_dialog.add_child(fields)
 	manual_ip = LineEdit.new()
 	manual_ip.placeholder_text = "IP do anfitrião · ex.: 192.168.1.10"
-	manual_ip.custom_minimum_size = Vector2(540, 56)
+	manual_ip.custom_minimum_size = Vector2(0, 64)
 	fields.add_child(manual_ip)
 	manual_port = SpinBox.new()
 	manual_port.min_value = 1024
@@ -126,7 +146,32 @@ func assign_fields() -> void:
 	app.search_list = null
 
 func fit() -> void:
-	if panel: panel.custom_minimum_size.x = minf(1040, maxf(700, size.x - 64))
+	if not is_instance_valid(panel): return
+	var safe: Rect2 = Layout.safe_rect(self, app.device_profile)
+	var pixels: Vector2 = Vector2(app.device_profile.get("pixels", DisplayServer.window_get_size()))
+	var keyboard: float = maxf(0, float(keyboard_height)) * size.y / maxf(1, pixels.y)
+	var bottom: float = minf(safe.end.y, size.y - keyboard)
+	center.offset_left = safe.position.x + 16
+	center.offset_top = safe.position.y + 16
+	center.offset_right = safe.end.x - size.x - 16
+	center.offset_bottom = bottom - size.y - 16
+	var available: Vector2 = Vector2(maxf(280, safe.size.x - 32), maxf(220, bottom - safe.position.y - 32))
+	panel.custom_minimum_size = Vector2(minf(1040, available.x), minf(740, available.y))
+	panel.custom_maximum_size = panel.custom_minimum_size
+	title_label.visible = keyboard <= 0 and available.y >= 360
+	form_columns.vertical = available.x < 900
+	form_tools.vertical = available.x < 600
+	form_columns.visible = keyboard <= 0
+	if is_instance_valid(host_column): host_column.custom_minimum_size.x = 0
+	if is_instance_valid(join_column): join_column.custom_minimum_size.x = 0
+	if is_instance_valid(manual_dialog) and manual_dialog.visible:
+		manual_dialog.min_size = Vector2i(mini(560, int(available.x)), 220)
+		manual_dialog.size = manual_dialog.min_size
+		manual_dialog.position = Vector2i(safe.position + (Vector2(safe.size.x, bottom - safe.position.y) - Vector2(manual_dialog.size)) / 2)
+
+func show_manual() -> void:
+	manual_dialog.popup_centered(Vector2i(560, 240))
+	fit()
 
 func show_connection() -> void:
 	assign_fields()
@@ -134,6 +179,7 @@ func show_connection() -> void:
 	lobby_content.hide()
 	status.text = "Procurando salas na sua rede local…"
 	show()
+	fit()
 	app.endpoint.start_discovery()
 	refresh_rooms(true)
 
@@ -209,6 +255,7 @@ func show_lobby() -> void:
 	form.hide()
 	lobby_content.show()
 	show()
+	fit()
 	var signature: String = JSON.stringify([app.endpoint.lobby, app.endpoint.pending])
 	if signature == lobby_signature: return
 	lobby_signature = signature
@@ -240,6 +287,4 @@ func _process(_delta: float) -> void:
 	var height: int = DisplayServer.virtual_keyboard_get_height()
 	if height == keyboard_height: return
 	keyboard_height = height
-	form_columns.visible = height == 0
-	var pixels: Vector2i = DisplayServer.window_get_size()
-	center.offset_bottom = -float(height) * size.y / maxf(1, pixels.y)
+	fit()

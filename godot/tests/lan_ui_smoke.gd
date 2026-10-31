@@ -90,7 +90,7 @@ func run() -> void:
 		break
 	var own_card: Dictionary = endpoint.view.private.hand[0]
 	screen.player_hud.show_group("Descartar")
-	check(screen.player_hud.sheet.body.get_parent().vertical_scroll_mode == ScrollContainer.SCROLL_MODE_DISABLED, "Action menu uses pages instead of vertical scrolling")
+	check(screen.player_hud.sheet.body.get_parent().vertical_scroll_mode == ScrollContainer.SCROLL_MODE_AUTO, "Action pages retain overflow scrolling on small screens")
 	screen.player_hud.sheet.hide()
 	screen.show_card(own_card.card_id)
 	check(screen.card_art.texture != null and screen.card_reader.visible, "Own card reader shows art and text")

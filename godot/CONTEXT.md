@@ -2,6 +2,8 @@
 
 **Atualização:** 31/10/2026. Este arquivo descreve o runtime nativo, não a totalidade da referência React.
 
+**Revisão de layout LAN / início do turno:** conexão e lobby limitados à área segura, ações com paginação e rolagem de reserva, leitor de cartas responsivo com botões fixos e Voltar contextual. Revelação interrompida restaura a escala e é reapresentada após desbloquear as informações privadas, preservando a compra pendente. HUD compacto separa ferramentas do mapa das ações; notificações ficam atrás das folhas. Ver [LAN_LAYOUT_REVIEW.md](docs/LAN_LAYOUT_REVIEW.md). Capturas e testes são Windows/Godot 4.7.2; o defeito original do print ainda exige confirmação no APK em aparelho.
+
 **LAN/TV:** serviço autoritativo, lobby, capacidades por jogador, projeções privadas/públicas, recibos persistidos, reconexão e interface Tabuleiro implementados para testes. Cinco processos Windows validaram quatro jogadores e TV opcional; APKs de debug foram gerados. Android físico/TV real continuam pendentes. Ver [MULTIPLAYER_LAN_IMPLEMENTATION.md](docs/MULTIPLAYER_LAN_IMPLEMENTATION.md) e [protocolo](docs/MULTIPLAYER_LAN_PROTOCOL.md).
 
 **Correção após relato Android:** a revisão `0.2.1-lan-ui` reutiliza `game_hud.tscn` na LAN por `network/player_hud.gd`; prepara salas em `connection_menu.gd`, usa ações paginadas e descoberta por consulta UDP com resposta unicast. Não restaurar a barra lateral de ações do protótipo. Relato de instalação na Philips 50 polegadas ainda sem modelo/sistema/erro; usuário preferiu priorizar layout. Ver [LAN_UI_TOUCH_FIX.md](docs/LAN_UI_TOUCH_FIX.md).

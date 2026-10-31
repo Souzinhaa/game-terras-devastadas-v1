@@ -2,6 +2,7 @@ extends Control
 ## Reutiliza o HUD aprovado do hot-seat. Só lê a projeção individual da sessão.
 const RESOURCE_NAMES = {"fuel": "Combustível", "scrap": "Sucata", "ammo": "Munição", "tire": "Pneu", "battery": "Bateria", "water": "Água"}
 const STATS = {"hatch": 6, "sedan": 8, "suv": 10, "pickup": 10, "moto": 6}
+const LanLayout = preload("res://scripts/network/lan_layout.gd")
 var app: Control
 var hud: Control
 var layout: Control
@@ -66,10 +67,12 @@ func _ready() -> void:
 	add_child(sheet)
 	sheet.z_index = 20
 	sheet.closed.connect(func(): screen_mode = ""; app.board.clear_selection())
-	sheet.body.get_parent().vertical_scroll_mode = ScrollContainer.SCROLL_MODE_DISABLED
+	# A paginação limita opções, mas nomes longos/texto ampliado ainda podem exceder a altura.
+	sheet.body.get_parent().vertical_scroll_mode = ScrollContainer.SCROLL_MODE_AUTO
+	sheet.body.get_parent().custom_minimum_size.y = 64
 	notifications = preload("res://scenes/ui/notification_stack.tscn").instantiate()
 	add_child(notifications)
-	notifications.z_index = 30
+	notifications.z_index = 10
 	notifications.set_anchors_and_offsets_preset(Control.PRESET_CENTER_TOP)
 	notifications.offset_left = -330
 	notifications.offset_right = 330
@@ -82,10 +85,15 @@ func _ready() -> void:
 	var center: CenterContainer = CenterContainer.new()
 	lock_screen.add_child(center)
 	center.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
-	app.button("Retomar minhas informações", func(): app.private_locked = false; refresh(), center)
+	app.button("Retomar minhas informações", resume_private, center)
 	lock_screen.hide()
 	resized.connect(fit)
 	fit()
+
+func resume_private() -> void:
+	app.private_locked = false
+	refresh()
+	app.present_pending_reveal()
 
 func own_player() -> Dictionary:
 	for p: Dictionary in app.endpoint.view.get("public", {}).get("players", []):
@@ -153,6 +161,20 @@ func refresh() -> void:
 					show_group(option.group)
 					break
 	fit()
+
+func handle_back() -> bool:
+	if app.private_locked or app.reveal.visible: return true
+	if sheet.visible:
+		sheet.dismiss()
+		return true
+	if drawer.visible:
+		drawer.hide()
+		return true
+	if map_only:
+		map_only = false
+		fit()
+		return true
+	return false
 
 func turn_action() -> void:
 	for option: Dictionary in app.endpoint.view.options:
@@ -252,7 +274,7 @@ func combat_summary(encounter: Dictionary, parent: Node) -> void:
 			art.texture = load(path) if ResourceLoader.exists(path) else preload("res://assets/mapa-expandido-v2.png")
 		art.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
 		art.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
-		art.custom_minimum_size = Vector2(180, 115)
+		art.custom_minimum_size = Vector2(100, minf(115, maxf(56, size.y * 0.16)))
 		app.label("Estrutura %d/%d · defesa %d+" % [int(fighter.health), int(fighter.maximum), int(fighter.defense)], column, 18)
 	if not encounter.last.is_empty():
 		var row: HBoxContainer = HBoxContainer.new()
@@ -305,24 +327,47 @@ func locate_self() -> void:
 
 func fit() -> void:
 	if not is_instance_valid(layout): return
-	var width: float = minf(600, maxf(320, size.x - 600))
+	var safe_rect: Rect2 = LanLayout.safe_rect(self, app.device_profile)
+	var width: float = minf(600, maxf(200, safe_rect.size.x - 620))
 	hand.offset_left = -width / 2
 	hand.offset_right = width / 2
-	var pixels: Vector2 = Vector2(DisplayServer.screen_get_size())
-	var safe: Rect2 = Rect2(DisplayServer.get_display_safe_area())
-	var insets: Vector4 = Vector4.ZERO
-	if OS.has_feature("android") and pixels.x > 0 and pixels.y > 0:
-		var scale_factor: Vector2 = size / pixels
-		insets = Vector4(maxf(0, safe.position.x) * scale_factor.x, maxf(0, safe.position.y) * scale_factor.y, maxf(0, pixels.x - safe.end.x) * scale_factor.x, maxf(0, pixels.y - safe.end.y) * scale_factor.y)
+	var insets: Vector4 = LanLayout.insets(self, app.device_profile)
 	var margin: MarginContainer = hud.get_node("SafeArea")
 	for edge: String in ["left", "top", "right", "bottom"]:
 		margin.add_theme_constant_override("margin_" + edge, 16 + roundi(insets[["left", "top", "right", "bottom"].find(edge)]))
 	sheet.safe_insets = insets
 	sheet.fit()
+	# Limitar o painel e não o corpo rolável evita que conteúdo longo expanda a folha.
+	sheet.panel.custom_maximum_size = Vector2(maxf(240, minf(sheet.sheet_width, safe_rect.size.x - 40)), maxf(180, safe_rect.size.y - 40))
+	drawer.custom_minimum_size.x = minf(360, safe_rect.size.x - 32)
+	drawer.offset_right = minf(400, safe_rect.size.x - 32)
+	drawer.offset_bottom = -16
 	layout.get_node("VehicleSummary").visible = not map_only
 	layout.get_node("Actions").visible = not map_only
 	hand.visible = not map_only
-	app.board.content_insets = Vector2(100 + insets.y, 130 + insets.w) if not map_only else Vector2.ZERO
+	var actions: Control = layout.get_node("Actions")
+	var tools: Control = layout.get_node("MapTools")
+	# Crescer para dentro mantém os controles ancorados alcançáveis.
+	actions.grow_horizontal = Control.GROW_DIRECTION_BEGIN
+	tools.grow_horizontal = Control.GROW_DIRECTION_BEGIN
+	var steps: Control = layout.get_node("TurnSteps")
+	var vehicle: Control = layout.get_node("VehicleSummary")
+	var compact: bool = safe_rect.size.y < 560
+	steps.offset_left = -140 if compact else -240
+	steps.offset_right = -steps.offset_left
+	var short_titles: Array[String] = ["Preparação", "Ação", "Fim"]
+	var full_titles: Array[String] = ["Preparação", "Ação", "Encerramento"]
+	for index: int in range(steps.labels.size()):
+		var label: Label = steps.labels[index]
+		label.add_theme_font_size_override("font_size", 16 if compact else 18)
+		label.text = ("✓ " if index < steps.current else "● " if index == steps.current else "○ ") + (short_titles[index] if compact else full_titles[index])
+	tools.columns = 4 if compact else 1
+	tools.offset_left = -280 if compact else -64
+	tools.offset_top = 120 if compact else 86
+	tools.offset_bottom = 184 if compact else 306
+	actions.offset_top = -200 if compact else -220
+	vehicle.get_node("Body/Stats").autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	app.board.content_insets = Vector2(155 + insets.y, 130 + insets.w) if not map_only else Vector2.ZERO
 	app.board.occlusions.clear()
 	for path: String in ["TopBar", "TurnSteps", "VehicleSummary", "Actions", "HandDock", "MapTools"]:
 		var item: Control = layout.get_node(path)

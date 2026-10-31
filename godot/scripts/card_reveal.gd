@@ -22,6 +22,8 @@ var reduced_motion: bool = false
 var tween: Tween
 var destination: Vector2
 var column: VBoxContainer
+var center: CenterContainer
+var safe_insets: Vector4 = Vector4.ZERO
 
 static func back_for(card_id: String) -> Texture2D:
 	return BACKS.get(card_id.left(1), BACKS.G)
@@ -34,7 +36,7 @@ func _ready() -> void:
 	shade.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	add_child(shade)
 	shade.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
-	var center = CenterContainer.new()
+	center = CenterContainer.new()
 	center.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	add_child(center)
 	center.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
@@ -68,6 +70,29 @@ func _ready() -> void:
 	var preferences = ConfigFile.new()
 	if preferences.load("user://ui-preferences.cfg") == OK:
 		reduced_motion = preferences.get_value("accessibility", "reduce_motion", false)
+	resized.connect(fit)
+	fit()
+	hide()
+
+func fit() -> void:
+	if not is_instance_valid(column): return
+	var available: Vector2 = size - Vector2(safe_insets.x + safe_insets.z + 32, safe_insets.y + safe_insets.w + 32)
+	center.offset_left = safe_insets.x + 16
+	center.offset_top = safe_insets.y + 16
+	center.offset_right = -safe_insets.z - 16
+	center.offset_bottom = -safe_insets.w - 16
+	column.custom_minimum_size.x = minf(420, maxf(180, available.x))
+	column.custom_maximum_size.x = column.custom_minimum_size.x
+	flip_button.custom_minimum_size = Vector2(minf(300, column.custom_minimum_size.x), clampf(available.y - 200, 80, 450))
+	recipient.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+
+func suspend() -> void:
+	# Interromper no meio da virada nunca deixa a carta achatada na próxima apresentação.
+	if tween: tween.kill()
+	phase = "idle"
+	art.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+	art.scale = Vector2.ONE
+	art.modulate.a = 1
 	hide()
 
 func make_label(parent: Node, font_size: int) -> Label:
@@ -85,7 +110,7 @@ func present(entry: Dictionary, definition: Dictionary, player_name: String, han
 	front_name = definition.name
 	front_rules = definition.rulesText
 	destination = hand_position
-	flip_button.custom_minimum_size.y = minf(450, get_viewport_rect().size.y - 270)
+	fit()
 	art.texture = back_for(entry.card_id)
 	art.scale = Vector2.ONE
 	art.modulate.a = 1
