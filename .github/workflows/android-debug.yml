@@ -19,9 +19,13 @@ jobs:
       GODOT_ANDROID_KEYSTORE_DEBUG_USER: androiddebugkey
       GODOT_ANDROID_KEYSTORE_DEBUG_PASSWORD: android
     steps:
-      - uses: actions/checkout@v4
-        with:
-          persist-credentials: false
+      - name: Obter projeto Godot do commit
+        shell: bash
+        run: |
+          set -euo pipefail
+          curl --fail --location --retry 3 -o "$RUNNER_TEMP/source.zip" "https://codeload.github.com/$GITHUB_REPOSITORY/zip/$GITHUB_SHA"
+          unzip -q "$RUNNER_TEMP/source.zip" "game-terras-devastadas-v1-$GITHUB_SHA/godot/*" -d "$RUNNER_TEMP/source"
+          cp -a "$RUNNER_TEMP/source/game-terras-devastadas-v1-$GITHUB_SHA/godot" "$GITHUB_WORKSPACE/godot"
       - uses: actions/setup-java@v4
         with:
           distribution: temurin
