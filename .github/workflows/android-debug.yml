@@ -30,6 +30,7 @@ jobs:
         with:
           distribution: temurin
           java-version: '17'
+      - uses: android-actions/setup-android@v3
       - name: Preparar Godot 4.7.2 e template Android
         shell: bash
         run: |
