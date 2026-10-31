@@ -16,7 +16,6 @@ jobs:
     runs-on: ubuntu-24.04
     timeout-minutes: 30
     env:
-      GODOT_ANDROID_KEYSTORE_DEBUG_PATH: ${{ runner.temp }}/debug.keystore
       GODOT_ANDROID_KEYSTORE_DEBUG_USER: androiddebugkey
       GODOT_ANDROID_KEYSTORE_DEBUG_PASSWORD: android
     steps:
@@ -46,6 +45,8 @@ jobs:
         run: |
           set -euo pipefail
           sdkmanager 'platform-tools' 'platforms;android-36' 'build-tools;36.0.0'
+          export GODOT_ANDROID_KEYSTORE_DEBUG_PATH="$RUNNER_TEMP/debug.keystore"
+          echo "GODOT_ANDROID_KEYSTORE_DEBUG_PATH=$GODOT_ANDROID_KEYSTORE_DEBUG_PATH" >> "$GITHUB_ENV"
           keytool -genkeypair -keystore "$GODOT_ANDROID_KEYSTORE_DEBUG_PATH" -storepass android -keypass android -alias androiddebugkey -keyalg RSA -keysize 2048 -validity 10000 -dname 'CN=Android Debug,O=Android,C=US'
           mkdir -p "$HOME/.config/godot"
           cat > "$HOME/.config/godot/editor_settings-4.7.tres" <<EOF
