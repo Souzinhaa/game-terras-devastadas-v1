@@ -1,0 +1,101 @@
+name: Android APK de teste
+
+on:
+  push:
+    branches: [feature/release-0.0.4]
+    paths:
+      - 'godot/**'
+      - '.github/workflows/android-debug.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 30
+    env:
+      GODOT_ANDROID_KEYSTORE_DEBUG_PATH: ${{ runner.temp }}/debug.keystore
+      GODOT_ANDROID_KEYSTORE_DEBUG_USER: androiddebugkey
+      GODOT_ANDROID_KEYSTORE_DEBUG_PASSWORD: android
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+      - name: Preparar Godot 4.7.2 e template Android
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p "$RUNNER_TEMP/godot" "$HOME/.local/share/godot/export_templates/4.7.2.stable"
+          cd "$RUNNER_TEMP/godot"
+          curl --fail --location --retry 3 -o godot.zip https://github.com/godotengine/godot-builds/releases/download/4.7.2-stable/Godot_v4.7.2-stable_linux.x86_64.zip
+          echo 'cadd3204e728a35d3f13adb7fd0d7902636b79f6b95c40c265eb73b6c35329e4  godot.zip' | sha256sum --check
+          unzip -q godot.zip
+          chmod +x Godot_v4.7.2-stable_linux.x86_64
+          echo "$RUNNER_TEMP/godot" >> "$GITHUB_PATH"
+          curl --fail --location --retry 3 -o templates.tpz https://github.com/godotengine/godot-builds/releases/download/4.7.2-stable/Godot_v4.7.2-stable_export_templates.tpz
+          echo 'f298490b8d44d934be425a5a65a51bf15f422428b229a06a6e11d9ffea248011  templates.tpz' | sha256sum --check
+          unzip -q -j templates.tpz 'templates/android_debug.apk' 'templates/version.txt' -d "$HOME/.local/share/godot/export_templates/4.7.2.stable"
+      - name: Preparar SDK e assinatura de teste
+        shell: bash
+        run: |
+          set -euo pipefail
+          sdkmanager 'platform-tools' 'platforms;android-36' 'build-tools;36.0.0'
+          keytool -genkeypair -keystore "$GODOT_ANDROID_KEYSTORE_DEBUG_PATH" -storepass android -keypass android -alias androiddebugkey -keyalg RSA -keysize 2048 -validity 10000 -dname 'CN=Android Debug,O=Android,C=US'
+          mkdir -p "$HOME/.config/godot"
+          cat > "$HOME/.config/godot/editor_settings-4.7.tres" <<EOF
+          [gd_resource type="EditorSettings" format=3]
+          [resource]
+          export/android/java_sdk_path = "$JAVA_HOME"
+          export/android/android_sdk_path = "$ANDROID_HOME"
+          EOF
+      - name: Preparar variante instalável ao lado do jogo atual
+        shell: bash
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+          p = Path('godot/export_presets.cfg')
+          text = p.read_text()
+          phone, tv = text.split('[preset.1]', 1)
+          phone = phone.replace('version/code=3', 'version/code=4')
+          phone = phone.replace('version/name="0.2.1-lan-ui"', 'version/name="0.0.4-teste-lan"')
+          phone = phone.replace('package/unique_name="com.bhsp.terrasdevastadas"', 'package/unique_name="com.bhsp.terrasdevastadas.preview"')
+          phone = phone.replace('package/name="Terras Devastadas"', 'package/name="Terras Devastadas Teste v4"')
+          phone = phone.replace('gradle_build/min_sdk=""', 'gradle_build/min_sdk="24"')
+          phone = phone.replace('gradle_build/target_sdk=""', 'gradle_build/target_sdk="36"')
+          p.write_text(phone + '[preset.1]' + tv)
+          PY
+      - name: Importar e exportar APK ARM64
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p builds
+          Godot_v4.7.2-stable_linux.x86_64 --headless --path godot --editor --import --quit 2>&1 | tee builds/import.log
+          Godot_v4.7.2-stable_linux.x86_64 --headless --path godot --export-debug Android "$GITHUB_WORKSPACE/builds/terras-devastadas-v0.0.4-android-arm64.apk" 2>&1 | tee builds/export.log
+          if grep -E 'SCRIPT ERROR:|Parse Error:|Failed to load script' builds/import.log builds/export.log; then exit 1; fi
+      - name: Verificar assinatura, pacote e permissões
+        shell: bash
+        run: |
+          set -euo pipefail
+          TOOLS="$ANDROID_HOME/build-tools/36.0.0"
+          APK=builds/terras-devastadas-v0.0.4-android-arm64.apk
+          "$TOOLS/apksigner" verify --verbose "$APK" | tee builds/signature.txt
+          "$TOOLS/aapt" dump badging "$APK" | tee builds/package.txt
+          grep "package: name='com.bhsp.terrasdevastadas.preview'" builds/package.txt
+          grep "native-code: 'arm64-v8a'" builds/package.txt
+          grep 'android.permission.INTERNET' builds/package.txt
+          unzip -t "$APK" > builds/zip-check.txt
+          sha256sum "$APK" > builds/SHA256SUMS.txt
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: terras-devastadas-v0.0.4-android-arm64
+          path: builds/
+          if-no-files-found: error
+          retention-days: 14
+
