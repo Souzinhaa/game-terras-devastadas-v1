@@ -1,0 +1,5 @@
+[
+  {"name":"moto_upgrade","expected":{"model":"moto","integrity":3,"fuel":10,"scrap":0,"actions":0,"deaths":0}},
+  {"name":"sedan_repair","expected":{"model":"sedan","integrity":8,"fuel":3,"scrap":0,"actions":1,"deaths":0}},
+  {"name":"all_cities","expected":{"points":8}}
+]

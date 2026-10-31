@@ -1,5 +1,15 @@
 # Terras Devastadas — integração das cartas completas
 
+## Atualização de integração — 30/10/2026
+
+O alvo atual é Godot 4.7/Android; consultar `../../godot/CONTEXT.md`. Os trechos de integração web abaixo são referência histórica do pacote.
+
+No Godot, as frentes ficam em `godot/assets/cards` e as definições em `godot/data/catalog.json`. Preservar proporção 2:3 com TextureRect; nome, timing e regra também são apresentados em texto acessível fora da imagem.
+
+Somente a presença do catálogo/PNG não implementa a carta. O nativo distribui gerais; G01–G07 estão ligados às respectivas janelas de combate/fuga. Equipamentos E01–E12, territoriais T01–T06 e demais efeitos ainda não foram migrados. Toda aquisição usa `WastelandGame.gain_card` e revelação pelo verso.
+
+As regras vigentes vêm de `rules.md` e `rules-cards.md` da raiz; referências antigas a GDD neste pacote não têm precedência.
+
 ## Conteúdo
 74 PNGs individuais de 1024 × 1536 pixels, proporção 2:3, com nome, categoria, ilustração e efeito na própria carta. Pastas: gerais (24), equipamentos (12), territoriais (6), corrida (16), eventos (16). `cartas.json` liga os IDs aos arquivos e inclui textos e quantidade de cópias. São 148 instâncias de jogo reutilizando 74 artes.
 
@@ -9,7 +19,7 @@ Copie estas pastas para `public/assets/cards/` e carregue o manifesto. Resolva o
 Estas são cartas completas, não ilustrações isoladas. PNGs são opacos e têm moldura. Não remover fundo nem recortar a área do efeito. O log e o motor devem usar dados estruturados; nunca OCR nem LLM para interpretar a imagem em tempo de execução.
 
 ## Regras e status
-Use GDD v0.4 para regras confirmadas. Este catálogo continua proposta de balanceamento: produzir imagens não aprova automaticamente seus efeitos. Código deve validar alvos e janelas e aplicar efeitos tipados, não executar rulesText. Um campo copies significa quantas instâncias criar, e não imagens distintas.
+Use as regras vigentes na raiz (`rules.md` e `rules-cards.md`). Produzir imagens não aprova automaticamente seus efeitos. Código deve validar alvos e janelas e aplicar efeitos tipados, não executar rulesText. Um campo copies significa quantas instâncias criar, e não imagens distintas.
 
 Equipamentos e territoriais pertencem ao mesmo baralho de melhorias. Gerais respeitam uma utilização por jogador por turno do mapa; eventos e surpresas são imediatos. Custos e capacidades dos veículos continuam os definidos no GDD. Não modificar consumo base por causa da arte.
 

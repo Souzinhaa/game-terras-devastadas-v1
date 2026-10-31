@@ -1,0 +1,36 @@
+[gd_scene format=3]
+
+[node name="RoutePreview" type="PanelContainer"]
+anchor_left = 0.5
+anchor_right = 0.5
+anchor_top = 1.0
+anchor_bottom = 1.0
+offset_left = -390.0
+offset_right = 390.0
+offset_top = -210.0
+offset_bottom = -24.0
+grow_vertical = 0
+
+[node name="Content" type="VBoxContainer" parent="."]
+theme_override_constants/separation = 8
+
+[node name="Destination" type="Label" parent="Content"]
+theme_type_variation = &"Heading"
+autowrap_mode = 3
+
+[node name="Details" type="Label" parent="Content"]
+autowrap_mode = 3
+
+[node name="Actions" type="HBoxContainer" parent="Content"]
+theme_override_constants/separation = 12
+
+[node name="Cancel" type="Button" parent="Content/Actions"]
+text = "Cancelar"
+size_flags_horizontal = 3
+custom_minimum_size = Vector2(0, 64)
+
+[node name="Confirm" type="Button" parent="Content/Actions"]
+text = "Confirmar viagem"
+theme_type_variation = &"Primary"
+size_flags_horizontal = 3
+custom_minimum_size = Vector2(0, 64)

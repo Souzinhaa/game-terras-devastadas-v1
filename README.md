@@ -1,5 +1,11 @@
 # Terras Devastadas
 
+## Versão Godot / Android
+
+A interface recebeu a modernização descrita no [update_ui.md](update_ui.md): veja [capturas, testes e pendências de validação física](godot/docs/UI_IMPLEMENTATION.md).
+
+A versão nativa está em [`godot/project.godot`](godot/project.godot), para **Godot 4.7 Standard** (validada no 4.7.2). Além de mapa, exploração, combate, duas vidas e save, novas partidas incluem progressão de veículos, equipamentos, territoriais, gerais, saque, bloqueios, eventos, corridas e vitória territorial. Consulte [o guia](godot/README.md) e [o relatório da campanha](godot/docs/CAMPAIGN_IMPLEMENTATION.md) para testes e limites: E11/V16 dependem de conteúdo definido, e Android físico/playtests permanecem pendentes. A versão React abaixo continua como referência; não há paridade integral de seeds ou importação de saves entre motores.
+
 Jogo de tabuleiro digital pós-apocalíptico, hot-seat local para 2–4 jogadores. React + TypeScript + Vite, motor determinístico por seed, persistência IndexedDB.
 
 ## Rodar

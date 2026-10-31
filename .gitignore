@@ -4,3 +4,7 @@ dist/
 .npm-cache/
 test-results/
 playwright-report/
+.tools/
+godot/.godot/
+godot/builds/
+godot/export_credentials.cfg

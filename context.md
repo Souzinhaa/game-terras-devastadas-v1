@@ -1,5 +1,19 @@
 # Terras Devastadas — contexto atual para desenvolvimento
 
+## Estado das duas versões — atualizado em 30/10/2026
+
+O desenvolvimento atual está no **Godot 4.7 Standard**, alvo Android em paisagem, em `godot/project.godot`. Antes de trabalhar no nativo, leia [godot/AGENTS.md](godot/AGENTS.md) e [godot/CONTEXT.md](godot/CONTEXT.md).
+
+**O restante deste arquivo descreve principalmente a referência React/TypeScript. Seus itens “implementados” não significam que foram migrados para Godot.** A referência React permanece disponível para consultar regras e cenários; não foi substituída por uma versão nativa com paridade completa.
+
+No Godot já existem: turnos locais, viagens, exploração, inventário/depósitos, revelação de cartas, combate com arma fixa e G01–G07, hostis, conquista, fuga, duas vidas e vitória por sobrevivência. A UI foi modernizada e a exploração abre um resultado central com ícones e quantidades dos itens novos no depósito.
+
+**No Godot ainda não existem compra/instalação/ativação de equipamentos E01–E12, melhorias T01–T06, demais gerais, corridas, eventos de viagem, upgrades de veículo e vitória territorial.** Os arquivos de catálogo e as artes existem; isso não ativa suas regras. O baralho distribuído atualmente é somente o de gerais.
+
+Os saves também são distintos: React usa IndexedDB/envelope 4; Godot usa `user://campaign-native-v1.json`, schema `native-stage1`, versão 1 com extensões compatíveis. Não intercambiar esses formatos ou prometer paridade de seeds.
+
+Para o visual nativo, valem [update_ui.md](update_ui.md) e [o relatório de implementação](godot/docs/UI_IMPLEMENTATION.md). O registro de reversão de CSS no fim deste arquivo diz respeito apenas à referência React.
+
 ## Fontes de verdade
 - Regras de teste **v0.6**: `rules.md` e `docs/REGRAS_V06.md` (conflitos, decisões e duas vidas).
 - Cartas **v0.2**, 74 modelos/148 cópias: `rules-cards.md`, `src/data/catalog.json` e `src/engine/catalog.ts`.
@@ -9,7 +23,7 @@
 
 Não restaurar tanque cheio, duas gerais iniciais, duplicatas E04/E06/E09, E06 por rodada, G09/G11/G12 +2 ou G21/G22 ±2. Não reimportar os contextos antigos dos pacotes de assets.
 
-## Projeto e arquitetura
+## Projeto e arquitetura da referência React
 Protótipo hot-seat para 2–4 jogadores em React, TypeScript e Vite; motor puro em `src/engine`, conteúdo em `src/data`, IndexedDB em `src/application/saves.ts`. `transition` clona estado, valida/executa e só retorna resultado válido; erros não alteram estado ou RNG do chamador. Não resolver regras na UI nem interpretar texto/arte com LLM.
 
 A seed define a sequência; preserve IDs de instâncias, versões, contadores, escolhas pendentes e fontes no save. Novos campos de apresentação derivam do motor, não constituem segunda fonte de estado.
@@ -32,7 +46,7 @@ A seed define a sequência; preserve IDs de instâncias, versões, contadores, e
 - G09/G11/G12 +1 unidade; G21/G22 ±1 de avanço. Outros efeitos preservados.
 - Anúncio territorial ao encerrar próprio turno com 4 pontos; sustentar até próximo início. Queda abaixo de 4 cancela, retomar não restaura. Confirmar após expirações, antes da compra. Não cobrar imposto/manutenção de cidade.
 
-## Implementação e pendências reais
+## Implementação e pendências da referência React
 Implementados: viagem, inventários/depósitos, reparos e troca paga, progressão de veículo, duas vidas, renascimento/penalidade/eliminação, vitória por sobrevivência, 74 cartas, equipamentos/territoriais, reações antes do dado, 12 hostis, corrida multirrodadas/marcos/inscrição/prêmio, saque simples, anúncios de vitória e persistência.
 
 Parciais: combate de conquista com carro + fortificação simultâneos; defesa pessoal integrada ao saque; alerta compartilhado de saque; exploração regional (sorteio genérico). Recuperação do carro destruído por reparo/exploração e emergência por tanque vazio foram substituídas pelo ciclo de vidas v0.6; não restaurar. Não inventar habilidades fixas, condições mecânicas sem contrato ou uso obrigatório de água/pneu/bateria. Corrida exige pelo menos dois inscritos e devolve taxa se cancelar.
@@ -42,7 +56,7 @@ Runtime canônico em `public/assets/cards`, `hostiles`, `markers` e `resources`;
 
 Marcadores mostram tipo/valor; custos ficam separados de bônus ativos. `round:weapon:<vehicleId>` é o contador compartilhado. E06 usa `combat:<instanceId>`; não renova por alvo, rodada ou save/load. `victoryAnnouncements` e `travelAfterBlock` são serializados.
 
-## Saves
+## Saves da referência React
 Não há motor legado paralelo: saves de conteúdo anterior a 0.6.0 são recusados com original intacto. Não converter, reabastecer ou inventar vidas passadas. Serializar `deaths`, `skipTurns`, `penaltyActive`, `eliminated`, `finished`, `winnerReason` e retiradas da corrida. Ao iniciar outra partida, IndexedDB preserva backup interno do registro anterior. Para continuar uma sessão antiga, usar a versão correspondente no histórico Git; exportar backup antes de atualizar. Schema igual não significa conteúdo compatível.
 
 ## Trabalho local e validação
@@ -51,5 +65,5 @@ Node 24, `npm ci`, `npm test`, `npm run build`, `npm run dev`. No PowerShell `np
 Atualizar motor, JSON, UI, regras e testes juntos. Testar custos atômicos, limites por instância/grupo, cancelamento de anúncio, recusa de legado e round-trip. Não apagar mapas/arte ativa para limpar arquivos de importação. Não adicionar backend, autenticação, bots ou multiplayer sem pedido.
 
 
-## Interface vigente
+## Interface da referência React
 A revisão com navegação lateral e mão em barra inferior foi desfeita a pedido do usuário. Usar o layout anterior definido por style.css/fullscreen.css/theme.css. Mapa antigo assets/mapa-expandido-v2.png, 1448×1086, mundo-base2800; Santa Cruz(83%,13%). Moto, regras v0.6, combate e placar final permanecem.

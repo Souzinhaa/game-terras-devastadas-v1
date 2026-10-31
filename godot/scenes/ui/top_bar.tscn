@@ -1,0 +1,23 @@
+[gd_scene format=3]
+
+[node name="TopBar" type="PanelContainer"]
+custom_minimum_size = Vector2(0, 66)
+
+[node name="Row" type="HBoxContainer" parent="."]
+theme_override_constants/separation = 20
+
+[node name="Brand" type="Label" parent="Row"]
+text = "TERRAS DEVASTADAS"
+theme_type_variation = &"Brand"
+
+[node name="Rule" type="VSeparator" parent="Row"]
+
+[node name="Turn" type="Label" parent="Row"]
+size_flags_horizontal = 3
+text = "Prepare sua partida"
+text_overrun_behavior = 3
+
+[node name="Menu" type="Button" parent="Row"]
+custom_minimum_size = Vector2(170, 48)
+text = "Menu"
+theme_type_variation = &"Quiet"

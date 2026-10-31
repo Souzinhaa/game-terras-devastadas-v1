@@ -124,5 +124,12 @@
     "to": "artur-nogueira",
     "terrain": "rural",
     "label": "Terra ilustrativa · Moto / SUV / Caminhonete"
+  },
+  {
+    "id": "santa-cruz-rio-claro-terra",
+    "from": "santa-cruz",
+    "to": "rio-claro",
+    "terrain": "rural",
+    "label": "Acesso de terra · Santa Cruz / Rio Claro"
   }
 ]

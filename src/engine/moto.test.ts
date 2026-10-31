@@ -27,6 +27,7 @@ describe('posição e ligações de Santa Cruz',()=>{
  it('restaura as coordenadas da imagem antiga preservando acessos e setores',()=>{
   const santa=cities.find(c=>c.id==='santa-cruz')!,leme=cities.find(c=>c.id==='leme')!;
   expect(santa.x).toBe(83);expect(santa.y).toBe(13);expect(santa.x).toBeGreaterThan(leme.x);expect(santa.y).toBeLessThan(leme.y);expect(cities.reduce((sum,c)=>sum+c.regions,0)).toBe(35);
-  expect(routes.filter(r=>r.from===santa.id||r.to===santa.id).map(r=>r.from===santa.id?r.to:r.from).sort()).toEqual(['leme','pirassununga']);
+  expect(routes.filter(r=>r.from===santa.id||r.to===santa.id).map(r=>r.from===santa.id?r.to:r.from).sort()).toEqual(['leme','pirassununga','rio-claro']);
+  expect(routes.find(r=>r.id==='santa-cruz-rio-claro-terra')?.terrain).toBe('rural');
  });
 });

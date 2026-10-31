@@ -1,0 +1,62 @@
+{
+  "sedan": {
+    "frameWidth": 960,
+    "frameHeight": 640,
+    "columns": 6,
+    "rows": 4,
+    "frames": 24,
+    "fps": 20,
+    "durationMs": 1200,
+    "loop": true,
+    "direction": "left",
+    "sheet": "sedan/sedan-spritesheet.png"
+  },
+  "suv": {
+    "frameWidth": 960,
+    "frameHeight": 640,
+    "columns": 6,
+    "rows": 4,
+    "frames": 24,
+    "fps": 20,
+    "durationMs": 1200,
+    "loop": true,
+    "direction": "left",
+    "sheet": "suv/suv-spritesheet.png"
+  },
+  "caminhonete": {
+    "frameWidth": 960,
+    "frameHeight": 640,
+    "columns": 6,
+    "rows": 4,
+    "frames": 24,
+    "fps": 20,
+    "durationMs": 1200,
+    "loop": true,
+    "direction": "left",
+    "sheet": "caminhonete/caminhonete-spritesheet.png"
+  },
+  "hatch": {
+    "frameWidth": 960,
+    "frameHeight": 640,
+    "columns": 6,
+    "rows": 4,
+    "frames": 24,
+    "fps": 20,
+    "durationMs": 1200,
+    "loop": true,
+    "direction": "left",
+    "sheet": "hatch/hatch-spritesheet.png"
+  },
+  "moto": {
+    "frameWidth": 960,
+    "frameHeight": 640,
+    "columns": 6,
+    "rows": 4,
+    "frames": 24,
+    "fps": 20,
+    "durationMs": 1200,
+    "loop": true,
+    "direction": "left",
+    "sheet": "moto/moto-spritesheet.png"
+  }
+}

@@ -1,0 +1,9 @@
+{
+  "image": "mapa-expandido-v2.png",
+  "imageWidth": 1448,
+  "imageHeight": 1086,
+  "worldWidth": 2800,
+  "minZoom": 0.5,
+  "maxZoom": 2.5,
+  "zoomStep": 0.25
+}
