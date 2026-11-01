@@ -12,6 +12,12 @@ func initialize() -> void:
 	var s = game.state
 	if not s.has("combat"): s.combat = {}
 	if not s.has("finished"): s.finished = false
+	if not s.combat.is_empty():
+		for field: String in ["responses", "auto_pass"]:
+			if s.combat.has(field):
+				var normalized: Array = []
+				for player_id: Variant in s.combat[field]: normalized.append(int(player_id))
+				s.combat[field] = normalized
 	for p in s.players:
 		for key in {"deaths": 0, "skip_turns": 0, "penalty": false, "eliminated": false, "used_general": false}:
 			if not p.has(key): p[key] = {"deaths": 0, "skip_turns": 0, "penalty": false, "eliminated": false, "used_general": false}[key]
@@ -22,7 +28,17 @@ func initialize() -> void:
 			# Migração sem consumir RNG, preservando as partidas nativas existentes.
 			var hash_value = 0
 			for character in id: hash_value = (hash_value * 31 + character.unicode_at(0)) & 0xffffffff
-			t.hostile = hostiles[hash_value % 4].id
+			var band: int = 0
+			if game.state.get("rules_profile", "") == "campaign-v07":
+				var neutral: Array = []
+				for key: String in s.territories:
+					if s.territories[key].city == t.city and int(s.territories[key].owner) < 0: neutral.append(key)
+				neutral.sort()
+				var rank: int = neutral.find(id)
+				band = 0 if rank == 0 else 2 if int(game.city(t.city).regions) == 4 and rank == neutral.size() - 1 else 1
+				t.threat_band = band
+				hash_value += int(s.initial_seed)
+			t.hostile = hostiles[band * 4 + hash_value % 4].id
 			t.resistance = definition(t.hostile).maxHealth
 		t.combat_initialized = true
 
@@ -40,7 +56,7 @@ func encounter() -> Dictionary:
 	return game.state.get("combat", {})
 
 func operational(p: Dictionary) -> bool:
-	return not p.eliminated and not p.penalty and int(p.skip_turns) == 0 and int(p.integrity) > 0
+	return not p.eliminated and not p.penalty and not p.get("respawn_protected", false) and int(p.skip_turns) == 0 and int(p.integrity) > 0
 
 func fighter(p: Dictionary) -> Dictionary:
 	return {"name": p.name, "player_id": int(p.id), "model": p.model, "health": int(p.integrity),
@@ -121,6 +137,7 @@ func reaction_player() -> Dictionary:
 	if e.is_empty() or e.phase not in ["cards", "escape_cards"]: return {}
 	for offset in range(game.state.players.size()):
 		var p = game.state.players[(int(game.state.active) + offset) % game.state.players.size()]
+		if int(p.id) in e.get("auto_pass", []): continue
 		if int(p.id) not in e.responses and not eligible_cards(p).is_empty(): return p
 	return {}
 
@@ -270,6 +287,8 @@ func choose_vehicle(accept: bool) -> String:
 func act(action: String, args: Dictionary) -> String:
 	var e = encounter()
 	match action:
+		"combatAutoPass": return set_auto_pass(int(args.get("player_id", -1)), bool(args.get("enabled", true)))
+		"combatFast": return advance_fast()
 		"combatVehicleChoice": return choose_vehicle(bool(args.get("accept", false)))
 		"combatEquipment": return use_equipment(args)
 		"combatEquipmentAttack": return equipment_attack(args)
@@ -388,7 +407,9 @@ func destroy_player(dead: Dictionary) -> void:
 		dead.model = "hatch"
 		dead.integrity = 6
 		dead.fuel = 3
-		dead.skip_turns = 1
+		dead.skip_turns = 0 if game.campaign.modern() else 1
+		dead.respawn_protected = game.campaign.modern()
+		if game.campaign.modern(): game.note(dead.name + " renasceu de Hatch; protegido até iniciar o próximo turno, sem perder a vez.")
 	if int(dead.id) == int(game.player().id):
 		game.state.actions = 0
 		game.state.moved = true
@@ -405,6 +426,58 @@ func destroy_player(dead: Dictionary) -> void:
 	dead.hand_instances = []
 	game.state.announcements.erase(str(int(dead.id)))
 	if dead.eliminated: game.state.blocks = game.state.blocks.filter(func(b): return int(b.by) != int(dead.id))
+
+func set_auto_pass(player_id: int, enabled: bool) -> String:
+	var e: Dictionary = encounter()
+	var p: Dictionary = player_by_id(player_id)
+	if e.is_empty() or e.phase == "finished" or p.is_empty() or not operational(p): return "Preferência indisponível."
+	if not game.pending_reveal(player_id).is_empty(): return "Revele suas cartas antes de passar automaticamente."
+	var players: Array = e.get("auto_pass", []).duplicate()
+	if enabled == (player_id in players): return "Preferência já aplicada."
+	if enabled: players.append(player_id)
+	else: players.erase(player_id)
+	e.auto_pass = players
+	if not enabled and e.phase in ["ready", "escape_ready"]:
+		e.phase = "cards" if e.phase == "ready" else "escape_cards"
+	if e.phase in ["cards", "escape_cards"]: advance_reactions()
+	return ""
+
+func fast_step() -> String:
+	var e: Dictionary = encounter()
+	if e.is_empty() or not game.pending_reveal().is_empty(): return ""
+	if e.phase == "ready":
+		for p: Dictionary in game.state.players:
+			for slot: int in range(p.installed.size()):
+				if game.action_reason("combatEquipment", {"player_id": int(p.id), "slot": slot}).is_empty(): return ""
+		return "combatRoll"
+	if e.phase == "result":
+		var attacker: Dictionary = e.left if int(e.side) == 0 else e.right
+		var p: Dictionary = player_by_id(int(attacker.player_id))
+		if not p.is_empty():
+			for slot: int in range(p.installed.size()):
+				if game.action_reason("combatEquipmentAttack", {"slot": slot}).is_empty(): return ""
+		return "combatContinue"
+	if e.phase in ["between", "escape_result"]:
+		for player_id: int in [int(e.left.player_id), int(e.right.player_id)]:
+			if player_id < 0: continue
+			for route: Dictionary in game.routes:
+				if game.action_reason("combatEscape", {"player_id": player_id, "route": route.id}).is_empty(): return ""
+		return "combatNext"
+	return ""
+
+func advance_fast() -> String:
+	var count: int = 0
+	var rolls: int = 0
+	for step: int in range(24):
+		var action: String = fast_step()
+		if action.is_empty(): break
+		var error: String = act(action, {})
+		if not error.is_empty(): return error
+		count += 1
+		if action == "combatRoll": rolls += 1
+	if count == 0: return "Há uma escolha pendente; use as opções do combate."
+	game.note("Avanço rápido: %d rolagem(ns); interrompido na próxima escolha." % rolls)
+	return ""
 
 func use_equipment(args: Dictionary) -> String:
 	var e = encounter()

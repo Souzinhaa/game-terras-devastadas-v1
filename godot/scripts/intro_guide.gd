@@ -30,7 +30,7 @@ func _ready() -> void:
 	for paragraph in [
 		"Explore setores, reúna recursos e melhore seu veículo para conquistar cidades.",
 		"No seu turno, compre uma carta, viaje se quiser e faça uma ação principal. Depois, passe o aparelho ao próximo jogador.",
-		"Vença como último sobrevivente ou anuncie 4 pontos de cidades completas e mantenha essa pontuação até seu próximo turno. Consulte os pontos no Menu → Placar."
+		"Vença como último sobrevivente ou anuncie 3 pontos de cidades completas e mantenha essa pontuação até seu próximo turno. Consulte os pontos no Menu → Placar."
 	]:
 		var text = Label.new()
 		text.text = paragraph

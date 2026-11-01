@@ -299,6 +299,7 @@ func show_admissions() -> void:
 func show_scoreboard() -> void:
 	screen_mode = "score"
 	var body: VBoxContainer = sheet.reset("PLACAR")
+	app.label("Objetivo: sustentar %d pontos até o próximo turno próprio." % int(app.endpoint.view.public.get("victory_target", 4)), body, 20)
 	for p: Dictionary in app.endpoint.view.public.players:
 		app.label("%s · %s pontos · %d vida(s)%s" % [p.name, str(p.points), maxi(0, 2 - int(p.deaths)), " · anúncio ativo" if p.announced else ""], body, 21)
 	sheet.popup_centered()
@@ -313,6 +314,8 @@ func show_city(id: String) -> void:
 		for p: Dictionary in app.endpoint.view.public.players:
 			if int(p.id) == int(t.owner): owner_name = p.name
 		app.label("Setor %s · %s" % [key.get_slice("-", 1), owner_name], body, 22)
+		if t.has("threat_band"):
+			app.label("Risco: " + ["fácil", "médio", "difícil"][int(t.threat_band)], body, 18)
 	app.button("Viajar / explorar / conquistar", show_groups, body)
 	sheet.popup_centered()
 

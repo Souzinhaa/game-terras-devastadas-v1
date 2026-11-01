@@ -67,14 +67,15 @@ jobs:
         shell: bash
         run: |
           python3 - <<'PY'
+          import re
           from pathlib import Path
           p = Path('godot/export_presets.cfg')
           text = p.read_text()
           phone, tv = text.split('[preset.1]', 1)
-          phone = phone.replace('version/code=3', 'version/code=4')
-          phone = phone.replace('version/name="0.2.1-lan-ui"', 'version/name="0.0.4-teste-lan"')
-          phone = phone.replace('package/unique_name="com.bhsp.terrasdevastadas"', 'package/unique_name="com.bhsp.terrasdevastadas.preview"')
-          phone = phone.replace('package/name="Terras Devastadas"', 'package/name="Terras Devastadas Teste v4"')
+          phone = re.sub(r'^version/code=\d+$', 'version/code=5', phone, flags=re.M)
+          phone = re.sub(r'^version/name="[^"]*"$', 'version/name="0.0.4-regras-0.7"', phone, flags=re.M)
+          phone = phone.replace('package/unique_name="com.bhsp.terrasdevastadas"', 'package/unique_name="com.bhsp.terrasdevastadas.preview.v07"')
+          phone = phone.replace('package/name="Terras Devastadas"', 'package/name="Terras Devastadas Teste 0.7"')
           p.write_text(phone + '[preset.1]' + tv)
           PY
       - name: Importar e exportar APK ARM64
@@ -83,17 +84,21 @@ jobs:
           set -euo pipefail
           mkdir -p builds
           Godot_v4.7.2-stable_linux.x86_64 --headless --path godot --editor --import --quit 2>&1 | tee builds/import.log
-          Godot_v4.7.2-stable_linux.x86_64 --headless --path godot --export-debug Android "$GITHUB_WORKSPACE/builds/terras-devastadas-v0.0.4-android-arm64.apk" 2>&1 | tee builds/export.log
+          for SUITE in balance_smoke lan_session_smoke lan_campaign_smoke; do
+            Godot_v4.7.2-stable_linux.x86_64 --headless --path godot --script "res://tests/$SUITE.gd" 2>&1 | tee "builds/$SUITE.log"
+          done
+          Godot_v4.7.2-stable_linux.x86_64 --headless --path godot --export-debug Android "$GITHUB_WORKSPACE/builds/terras-devastadas-v0.0.4-regras-0.7-android-arm64.apk" 2>&1 | tee builds/export.log
           if grep -E 'SCRIPT ERROR:|Parse Error:|Failed to load script' builds/import.log builds/export.log; then exit 1; fi
       - name: Verificar assinatura, pacote e permissões
         shell: bash
         run: |
           set -euo pipefail
           TOOLS="$ANDROID_HOME/build-tools/36.0.0"
-          APK=builds/terras-devastadas-v0.0.4-android-arm64.apk
+          APK=builds/terras-devastadas-v0.0.4-regras-0.7-android-arm64.apk
           "$TOOLS/apksigner" verify --verbose "$APK" | tee builds/signature.txt
           "$TOOLS/aapt" dump badging "$APK" | tee builds/package.txt
-          grep "package: name='com.bhsp.terrasdevastadas.preview'" builds/package.txt
+          grep "package: name='com.bhsp.terrasdevastadas.preview.v07'" builds/package.txt
+          grep "versionName='0.0.4-regras-0.7'" builds/package.txt
           grep "native-code: 'arm64-v8a'" builds/package.txt
           grep 'android.permission.INTERNET' builds/package.txt
           unzip -t "$APK" > builds/zip-check.txt
@@ -101,8 +106,7 @@ jobs:
       - uses: actions/upload-artifact@v4
         if: always()
         with:
-          name: terras-devastadas-v0.0.4-android-arm64
+          name: terras-devastadas-v0.0.4-regras-0.7-android-arm64
           path: builds/
           if-no-files-found: error
           retention-days: 14
-

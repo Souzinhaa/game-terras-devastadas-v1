@@ -146,7 +146,7 @@ func race_entry(args: Dictionary) -> String:
 	var p = game.combat_rules.player_by_id(int(args.get("player_id", -1)))
 	if p.is_empty() or int(p.id) in race.responses or not game.combat_rules.operational(p): return "Participante indisponível."
 	var join = bool(args.get("join", false))
-	if int(p.id) == int(game.player().id) and int(p.fuel) >= 1 and not join: return "O revelador apto deve participar."
+	if not campaign.modern() and int(p.id) == int(game.player().id) and int(p.fuel) >= 1 and not join: return "O revelador apto deve participar."
 	if join:
 		if int(p.fuel) < 1: return "Inscrição requer 1 combustível."
 		p.fuel -= 1
@@ -382,7 +382,7 @@ func loot_roll() -> String:
 	var s = game.state
 	if s.loot.is_empty() or s.loot.phase != "cards" or not loot_reactor().is_empty(): return "Resolva as reações de saque."
 	var attack = game.roll(6) + 1 + int(s.loot.attack)
-	var defense = game.roll(6) + 2 + int(s.loot.defense)
+	var defense = game.roll(6) + (1 if campaign.modern() else 2) + int(s.loot.defense)
 	s.loot.result = {"attack": attack, "defense": defense}
 	if attack > defense:
 		s.loot.phase = "take"

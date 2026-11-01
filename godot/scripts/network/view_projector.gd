@@ -1,6 +1,6 @@
 extends RefCounted
 ## Listas de campos permitidos. Nunca duplica o estado completo para depois apagar.
-const PLAYER_FIELDS = ["id", "name", "city", "model", "integrity", "deaths", "eliminated", "penalty"]
+const PLAYER_FIELDS = ["id", "name", "city", "model", "integrity", "deaths", "eliminated", "penalty", "respawn_protected"]
 const FIGHTER_FIELDS = ["name", "player_id", "model", "health", "maximum", "defense", "damage", "hostile", "effect"]
 const LAST_FIELDS = ["kind", "natural", "modifier", "total", "defense", "hit", "damage", "side", "extra"]
 
@@ -16,6 +16,8 @@ func build(authority: RefCounted, player_id: int) -> Dictionary:
 	if g.state.is_empty(): return view
 	var s: Dictionary = g.state
 	var public: Dictionary = fields(s, ["turn", "active", "started", "actions", "moved", "finished", "winner", "winner_reason"])
+	public.victory_target = g.campaign.victory_target()
+	public.rules_version = str(s.get("rules_version", "0.6"))
 	public.players = []
 	for p: Dictionary in s.players:
 		var item: Dictionary = fields(p, PLAYER_FIELDS)
@@ -27,6 +29,7 @@ func build(authority: RefCounted, player_id: int) -> Dictionary:
 	for id: String in s.territories:
 		var t: Dictionary = s.territories[id]
 		var item: Dictionary = fields(t, ["city", "owner", "explorations"])
+		if t.has("hostile") and t.has("threat_band") and int(t.owner) < 0: item.threat_band = int(t.threat_band)
 		item.installed = installed(t)
 		if int(t.owner) >= 0 or t.get("hostile_revealed", false): item.resistance = int(t.resistance)
 		if t.get("hostile_revealed", false): item.hostile = str(t.get("hostile", ""))
@@ -51,6 +54,7 @@ func build(authority: RefCounted, player_id: int) -> Dictionary:
 	var p: Dictionary = g.combat_rules.player_by_id(player_id)
 	if not p.is_empty():
 		var own: Dictionary = fields(p, ["id", "fuel", "used_general", "skip_turns"])
+		own.combat_auto_pass = player_id in s.combat.get("auto_pass", [])
 		own.stock = fields(p.stock, g.RESOURCES)
 		own.capacity = g.campaign.capacity(p)
 		own.cargo = g.campaign.extra_cargo(p)

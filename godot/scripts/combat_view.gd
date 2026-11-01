@@ -68,6 +68,8 @@ func button(content: String, command: String, args: Dictionary, parent: Node) ->
 	var item = Button.new()
 	item.text = content
 	item.custom_minimum_size.y = 64
+	item.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	item.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	item.pressed.connect(func():
 		if not busy: action_requested.emit(command, args))
 	parent.add_child(item)
@@ -121,6 +123,11 @@ func sync() -> void:
 		call_deferred("animate_result", e.last.duplicate(true))
 		return
 	if not e.last.is_empty(): feedback.text = result_text(e.last)
+	if game.action_reason("combatFast").is_empty():
+		button("Avançar até a próxima decisão", "combatFast", {}, controls)
+	for player_id: int in e.get("auto_pass", []):
+		var owner: Dictionary = game.combat_rules.player_by_id(player_id)
+		button(owner.name + " · voltar a reagir", "combatAutoPass", {"player_id": player_id, "enabled": false}, controls)
 	match e.phase:
 		"defend":
 			var p = game.combat_rules.player_by_id(int(e.owner))
@@ -252,7 +259,7 @@ func build_reactions() -> void:
 		text("Toque para ampliar antes de confirmar. Uma geral por turno.", picker_content, 18).horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 		text("Ataque: %s · alvo: %s" % [attacker.name, target.name], picker_content, 18).horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 		var eligible = game.combat_rules.eligible_cards(p)
-		var card_height = clampf(get_viewport_rect().size.y - 300, 180, 440)
+		var card_height = clampf(get_viewport_rect().size.y - 368, 120, 440)
 		var card_width = card_height * 0.7
 		var per_page = maxi(1, int((get_viewport_rect().size.x - 96) / (card_width + 16)))
 		var pages = maxi(1, ceili(float(eligible.size()) / per_page))
@@ -325,6 +332,7 @@ func build_reactions() -> void:
 		actions.add_child(minimize)
 		minimize.pressed.connect(minimize_cards)
 		button("Não usar carta neste dado", "combatCard", {"index": -1}, actions)
+		button("Passar nas próximas rolagens deste combate", "combatAutoPass", {"player_id": int(p.id), "enabled": true}, picker_content)
 		if not picker_minimized:
 			card_picker.show()
 			minimize.grab_focus()

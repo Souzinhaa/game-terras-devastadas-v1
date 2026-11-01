@@ -18,7 +18,8 @@ func command(caption: String, action: String, args: Dictionary, parent: Node, re
 		app.dispatch(action, args)
 		if reopen and app.game.state.choice.is_empty() and app.game.state.race.is_empty() and app.game.state.combat.is_empty(): administration(), parent)
 	var reason = app.game.action_reason(action, args)
-	control.clip_text = true
+	control.clip_text = false
+	control.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	control.disabled = not reason.is_empty()
 	control.tooltip_text = caption + ("\n" + reason if not reason.is_empty() else "")
 	if not reason.is_empty(): line(reason, parent)
@@ -42,11 +43,15 @@ func administration() -> void:
 	command("Comprar melhoria · 3 sucatas · livre 1/turno", "buyImprovement", {}, body, true)
 	command("Reparo complexo · 2 sucatas · 1 ação · até +4 vida", "repairComplex", {}, body, true)
 	command("Tanque → carga · 1 combustível", "unloadFuel", {}, body, true)
+	if g.campaign.modern():
+		line("Troca livre: 1 água, pneu ou bateria da carga por 1 sucata; uma vez por turno.", body)
+		for resource: String in ["water", "tire", "battery"]:
+			command("Trocar 1 " + preload("res://scripts/exploration_result.gd").NAMES[resource] + " por 1 sucata", "salvageSupply", {"resource": resource}, body, true)
 	if p.model == "hatch":
 		line("Melhorar: 5 sucatas próprias locais e uma ação. Preserva vida e vidas restantes.", body)
 		for v in g.vehicles:
 			if v.id == "hatch": continue
-			command("%s · carga %d · tanque %d · consumo %d%s" % [v.name, v.capacity, v.tank, v.consumption, " · Moto recebe 10 combustíveis" if v.id == "moto" else ""], "upgradeVehicle", {"model": v.id}, body, true)
+			command("%s · carga %d · tanque %d · consumo %d%s" % [v.name, v.capacity, v.tank, v.consumption, " · Moto recebe 10 combustíveis" if v.id == "moto" and not g.campaign.modern() else " · preserva combustível"], "upgradeVehicle", {"model": v.id}, body, true)
 	line("Equipamentos instalados: %d/2" % p.installed.size(), body)
 	for i in range(p.installed.size()):
 		var d = app.card_definition(p.installed[i].definition_id)
@@ -80,7 +85,7 @@ func administration() -> void:
 func scoreboard() -> void:
 	var g = app.game
 	var body = app.dialog_content("PLACAR / VITÓRIA")
-	line("Vença como último sobrevivente ou anuncie 4 pontos ao fim de seu turno e sustente até o próximo início. Cidades completas: 1 ponto com quatro setores; demais 0,5.", body)
+	line("Vença como último sobrevivente ou anuncie %d pontos ao fim de seu turno e sustente até o próximo início. Cidades completas: 1 ponto com quatro setores; demais 0,5." % g.campaign.victory_target(), body)
 	for p in g.state.players:
 		line("%s · %s pontos · %d vida(s)%s%s" % [p.name, str(g.campaign.points(int(p.id))), maxi(0, 2 - int(p.deaths)), " · eliminado" if p.eliminated else "", " · anúncio ativo até seu próximo turno" if g.state.announcements.has(str(int(p.id))) else ""], body)
 		for c in g.cities:

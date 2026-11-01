@@ -13,7 +13,8 @@ func command(g, action: String, args: Dictionary = {}) -> void:
 
 func fresh(count: int = 2):
 	var g = Game.new()
-	g.new_game(["A", "B", "C", "D"].slice(0, count), 42)
+	# Regressão da edição antiga; balance_smoke cobre partidas novas v0.7.
+	g.new_game(["A", "B", "C", "D"].slice(0, count), 42, "campaign-v06")
 	g.state.pending_reveals.clear()
 	g.state.started = true
 	for p in g.state.players:

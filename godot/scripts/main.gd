@@ -494,7 +494,7 @@ func apply_preferences() -> void:
 func show_help() -> void:
 	var content = dialog_content("COMO JOGAR")
 	for entry in [
-		"Objetivo: último sobrevivente ou quatro pontos de cidades completas anunciados ao fim do turno e sustentados até seu próximo início.",
+		"Objetivo: último sobrevivente ou %d pontos de cidades completas anunciados ao fim do turno e sustentados até seu próximo início." % (3 if game.state.is_empty() else game.campaign.victory_target()),
 		"1. Inicie o turno e toque na carta para revelar a compra.",
 		"2. Toque em uma cidade conectada. Confira o destino e o custo antes de confirmar a viagem.",
 		"3. Na sua cidade, explore um setor seu ou conquiste outro. Cada uma dessas escolhas usa a ação principal.",
@@ -503,7 +503,7 @@ func show_help() -> void:
 		"6. No combate, decida as cartas antes de rolar. Defesa é o limiar do dado; a barra mostra a vida.",
 		"7. Encerre o turno e entregue o dispositivo. As cartas só aparecem após o próximo jogador confirmar.",
 		"8. Viagens resolvem eventos. Corridas têm inscrição de um combustível e exigem dois participantes. Um ataque adicional por carro/rodada gasta munição mesmo ao errar.",
-		"9. Primeira destruição: renasce de Hatch e perde o próximo turno. Segunda: eliminação. Melhorar não cura nem renova vidas."
+		"9. Primeira destruição: renasce de Hatch. " + ("Retoma no próximo turno, protegido até iniciá-lo." if game.state.is_empty() or game.campaign.modern() else "Perde o próximo turno nesta partida antiga.") + " Segunda: eliminação. Melhorar não cura nem renova vidas."
 	]: label(entry, content).autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	button("Voltar ao menu inicial" if start_screen.visible else "Entendi · voltar ao jogo", popup.dismiss, content).theme_type_variation = &"Primary"
 
@@ -1017,12 +1017,25 @@ func append_sectors(body: VBoxContainer, city_id: String) -> void:
 				campaign_panel.command("Saquear depósito · 1 ação + 1 combustível", "loot", {"territory": id}, sector_body)
 			var explanation = label(reason if not reason.is_empty() else "Enfrente a ameaça ou a defesa territorial. Cartas são consultadas antes de cada ataque.", sector_body, 17)
 			explanation.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+			if t.has("hostile") and t.has("threat_band") and int(t.owner) < 0:
+				label("Risco: " + ["fácil", "médio", "difícil"][int(t.threat_band)], sector_body, 17)
 			continue
 		label("Explorações %d / 3 · recursos ficam no depósito" % t.explorations, sector_body, 17)
 		var reason = exploration_reason(t)
 		var explore = button("Explorar setor · 1 ação", func():
 			dispatch("explore", {"territory": id})
 			show_sectors(city_id), sector_body)
+		if game.campaign.modern():
+			explore.text = "Explorar · garantir 1 sucata · 1 ação"
+			explore.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+			explore.clip_text = false
+			var fuel_explore: Button = button("Explorar · garantir 1 combustível · 1 ação", func():
+				dispatch("explore", {"territory": id, "supply": "fuel"})
+				show_sectors(city_id), sector_body)
+			fuel_explore.disabled = not reason.is_empty()
+			fuel_explore.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+			fuel_explore.clip_text = false
+			label("Uma unidade escolhida e 1–2 recursos sorteados, todos no depósito.", sector_body, 17)
 		explore.name = "Explore_" + id
 		explore.disabled = not reason.is_empty()
 		if not reason.is_empty(): label(reason, sector_body, 17).autowrap_mode = TextServer.AUTOWRAP_WORD_SMART

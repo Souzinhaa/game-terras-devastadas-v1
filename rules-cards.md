@@ -1,5 +1,7 @@
 # Terras Devastadas — Catálogo completo de cartas v0.2
 
+**Godot v0.7:** E11 e V16 ficam fora dos baralhos de novas partidas, com suas identidades preservadas no registro. Cartas e saves v0.6 não são removidos. Ver [contrato nativo v0.7](godot/docs/REBALANCEAMENTO_V07.md).
+
 Edição de teste revisada em 29/10/2026, com seleção de alterações autorizada por Bruno. Compatível com rules.md v0.6 deste pacote. Mantém 74 modelos e 148 instâncias nos quatro grupos, com melhorias territoriais no baralho de equipamentos. Doze frentes foram atualizadas; as demais permanecem válidas. Hostis estão em dados/hostis.json. Nenhuma partida real foi medida nesta revisão.
 
 Precedência: rules.md + este catálogo + rule-config.json + patches tipados; imagens antigas e contextos v0.1 não prevalecem sobre os textos desta edição.

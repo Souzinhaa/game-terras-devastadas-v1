@@ -1,5 +1,7 @@
 # Terras Devastadas — regras de referência v0.6
 
+**Godot nativo:** novas partidas usam as [regras v0.7](godot/docs/REBALANCEAMENTO_V07.md). O texto v0.6 abaixo continua sendo a referência React e a edição preservada nos saves antigos; não presumir paridade entre runtimes.
+
 ## 1. Edição e precedência
 
 A edição v0.6 incorpora [Hatch, progressão e duas vidas](docs/REGRAS_V06.md), que prevalece sobre documentos anteriores. Todos começam de Hatch com duas vidas; melhorar custa 5 sucatas locais e uma ação. Conteúdo do save: 0.6.0.

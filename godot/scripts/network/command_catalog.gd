@@ -44,6 +44,9 @@ func build(engine: RefCounted, player_id: int) -> Array[Dictionary]:
 	if not active: return result
 	for entry: Array in [["Iniciar turno", "start"], ["Encerrar turno", "end"], ["Reparar veículo · 1 sucata", "repair"], ["Reparo complexo · 2 sucatas / ação", "repairComplex"], ["Comprar melhoria · 3 sucatas", "buyImprovement"], ["Abastecer 1 da carga", "refuel"], ["Abastecer excedente", "refuelExcess"], ["Tanque → carga", "unloadFuel"], ["Recolher sucata local", "collectScrap"]]:
 		offer(entry[0], entry[1], {}, "Turno" if entry[1] in ["start", "end"] else "Veículo")
+	if game.campaign.modern():
+		for resource: String in ["water", "tire", "battery"]:
+			offer("Trocar 1 " + RESOURCE_NAMES[resource] + " por 1 sucata · livre 1/turno", "salvageSupply", {"resource": resource}, "Veículo")
 	for route: Dictionary in game.routes:
 		if p.city in [route.from, route.to]:
 			var destination: String = route.to if route.from == p.city else route.from
@@ -55,7 +58,10 @@ func build(engine: RefCounted, player_id: int) -> Array[Dictionary]:
 		var t: Dictionary = s.territories[id]
 		var caption: String = game.city(t.city).name + " · setor " + id.get_slice("-", 1)
 		if t.city == p.city:
-			offer("Explorar " + caption, "explore", {"territory": id}, "Setores", true)
+			if game.campaign.modern():
+				for supply: String in ["scrap", "fuel"]:
+					offer("Explorar · garantir " + RESOURCE_NAMES[supply] + " · " + caption, "explore", {"territory": id, "supply": supply}, "Setores", true)
+			else: offer("Explorar " + caption, "explore", {"territory": id}, "Setores", true)
 			offer("Conquistar " + caption, "conquer", {"territory": id}, "Encontros", true)
 			offer("Saquear " + caption, "loot", {"territory": id}, "Encontros", true)
 		if int(t.owner) != actor: continue
@@ -136,6 +142,8 @@ func choice_options(choice: Dictionary) -> void:
 
 func combat_options(p: Dictionary, active: bool) -> void:
 	var e: Dictionary = game.state.combat
+	var auto_pass: bool = actor in e.get("auto_pass", [])
+	offer("Voltar a reagir neste combate" if auto_pass else "Passar nas próximas rolagens deste combate", "combatAutoPass", {"player_id": actor, "enabled": not auto_pass}, "Preferências de reação")
 	if int(e.get("owner", -1)) == actor and e.phase == "defend":
 		for defend: bool in [true, false]: offer("Defender com veículo" if defend else "Usar fortificação", "combatDefend", {"defend": defend}, "Combate", true)
 	var reactor: Dictionary = game.combat_rules.reaction_player()
@@ -153,6 +161,7 @@ func combat_options(p: Dictionary, active: bool) -> void:
 	if int(e.get("reward_owner", game.player().id)) == actor:
 		for accept: bool in [true, false]: offer("Recuperar veículo · 2 sucatas" if accept else "Recusar veículo", "combatVehicleChoice", {"accept": accept}, "Combate", true)
 	if active:
+		offer("Avançar até a próxima decisão", "combatFast", {}, "Combate")
 		for entry: Array in [["Rolar ataque", "combatRoll"], ["Próximo ataque", "combatContinue"], ["Iniciar próxima rodada", "combatNext"], ["Concluir combate / enfrentar fortificação", "combatClose"]]: offer(entry[0], entry[1], {}, "Combate", true)
 
 func race_options(p: Dictionary) -> void:

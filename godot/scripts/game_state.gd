@@ -46,7 +46,8 @@ func vehicle() -> Dictionary:
 func note(message: String) -> void:
 	state.log.append("T%d · %s" % [state.turn, message])
 
-func new_game(names: Array, seed_value: int) -> String:
+func new_game(names: Array, seed_value: int, profile: String = "campaign-v07") -> String:
+	if profile not in ["campaign-v06", "campaign-v07"]: return "Edição de regras inválida."
 	if names.size() < 2 or names.size() > 4: return "Informe de 2 a 4 jogadores."
 	for entry in names:
 		if str(entry).strip_edges().is_empty(): return "Preencha os nomes."
@@ -83,10 +84,10 @@ func new_game(names: Array, seed_value: int) -> String:
 	state.initial_seed = seed_value
 	state.initial_names = names.duplicate()
 	state.command_log = []
-	state.rules_profile = "campaign-v06"
+	state.rules_profile = profile
 	combat_rules.initialize()
 	campaign.initialize(true)
-	note("Partida nativa v0.6 iniciada. Duas vidas; vitória por sobrevivência ou cidades completas.")
+	note("Partida nativa v" + str(state.rules_version) + " iniciada. Duas vidas; vitória por sobrevivência ou cidades completas.")
 	return ""
 
 func draw_card(p: Dictionary) -> void:
@@ -309,7 +310,7 @@ func _act(action: String, args: Dictionary = {}) -> String:
 			state.moved = true
 			state.travel_after_block = false
 			note(p.name + " viajou para " + city(p.city).name + ".")
-			if state.get("rules_profile", "stage1") == "campaign-v06": campaign.travel_event()
+			if campaign.is_campaign(): campaign.travel_event()
 		"end":
 			campaign.announce()
 			p.penalty = false
@@ -325,9 +326,15 @@ func _act(action: String, args: Dictionary = {}) -> String:
 			var t: Dictionary = state.territories.get(args.get("territory", ""), {})
 			if t.is_empty() or t.city != p.city or int(t.owner) != int(p.id): return "Escolha um setor próprio na cidade atual."
 			if int(t.explorations) >= 3: return "Este setor já foi explorado três vezes."
+			var supply: String = str(args.get("supply", "scrap"))
+			if campaign.modern() and supply not in ["fuel", "scrap"]: return "Escolha combustível ou sucata."
 			t.explorations += 1
 			state.actions -= 1
-			for i in range(2 + roll(2)): t.stock[RESOURCES[roll(6)]] += 1
+			var quantity: int = 2 + roll(2)
+			if campaign.modern():
+				t.stock[supply] += 1
+				quantity -= 1
+			for i in range(quantity): t.stock[RESOURCES[roll(6)]] += 1
 			note("Exploração concluída. Recursos disponíveis no depósito do setor.")
 		"repair":
 			if int(p.integrity) >= combat_rules.STATS[p.model][0] or int(p.stock.scrap) < 1 or int(p.repairs) >= 1: return "Reparo indisponível: confira estrutura, sucata e limite por turno."

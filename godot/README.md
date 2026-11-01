@@ -1,5 +1,7 @@
 # Terras Devastadas — Godot / Android
 
+**Novas partidas: regras 0.7.** Exploração com uma unidade escolhida, troca livre de suprimentos por sucata uma vez por turno, recuperação sem perder a próxima vez, vitória territorial em três pontos, veículos ajustados e corridas voluntárias. O combate oferece avanço até a próxima decisão e passagem opcional de reações. Saves antigos mantêm as regras 0.6. [Regras, compatibilidade e validação](docs/REBALANCEAMENTO_V07.md).
+
 Para manutenção por IA, começar por [AGENTS.md](AGENTS.md) e [CONTEXT.md](CONTEXT.md). O contexto da raiz descreve a referência React e não significa paridade com o nativo.
 
 ## Multiplayer LAN e Android TV

@@ -69,6 +69,7 @@ func run() -> void:
 	await capture("lobby-mobile")
 	check(endpoint.authority.start_match(42).is_empty(), "Start fixture")
 	endpoint.authority.game.state.pending_reveals.clear()
+	for p: Dictionary in endpoint.authority.game.state.players: p.stock.water = 1
 	endpoint.authority.options_cache.clear()
 	endpoint.publish()
 	await settle()
@@ -119,6 +120,19 @@ func run() -> void:
 	await settle()
 	check(hud.sheet.body.get_parent().vertical_scroll_mode == ScrollContainer.SCROLL_MODE_AUTO, "Paginated actions retain overflow fallback")
 	hud.sheet.hide()
+	hud.show_group("Setores")
+	await settle()
+	check(find_caption(hud.sheet.body, "garantir sucata") != null and find_caption(hud.sheet.body, "garantir combustível") != null, "LAN offers both exploration choices")
+	inside(hud.sheet.panel, safe, "New exploration choices stay safe")
+	for control: Node in hud.sheet.body.find_children("*", "Button", true, false):
+		check(control.get_global_rect().end.x <= hud.sheet.panel.get_global_rect().end.x, "Exploration button cannot widen sheet")
+	await capture("balance-exploration-mobile")
+	hud.show_group("Veículo")
+	await settle()
+	check(find_caption(hud.sheet.body, "Trocar 1 água") != null, "Supply exchange visible in LAN")
+	inside(hud.sheet.close_button, safe, "New resource action retains close button")
+	await capture("balance-actions-mobile")
+	hud.sheet.hide()
 	screen.show_card("G01")
 	screen.card_text.text += "\nTexto longo para verificar rolagem independente.".repeat(60)
 	await settle()
@@ -142,3 +156,10 @@ func run() -> void:
 	await settle()
 	print("LAN mobile layout: %d checks, %d failures" % [checks, failures])
 	quit(1 if failures else 0)
+
+func find_caption(node: Node, caption: String) -> Button:
+	if node is Button and caption in node.text: return node
+	for child: Node in node.get_children():
+		var found: Button = find_caption(child, caption)
+		if found != null: return found
+	return null

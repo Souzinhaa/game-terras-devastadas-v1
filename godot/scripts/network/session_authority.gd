@@ -119,6 +119,8 @@ func event_for(choice: Dictionary, player_id: int, before: Dictionary) -> Dictio
 	elif choice.action in ["combatRoll", "combatEscapeRoll"]:
 		var last: Dictionary = game.state.combat.get("last", {})
 		event.message = "Dado %s · total %s · dano %s" % [str(last.get("natural", "—")), str(last.get("total", "—")), str(last.get("damage", 0))]
+	elif choice.action == "combatFast":
+		event.message = "Combate avançou até a próxima decisão. Confira o resultado."
 	return event
 
 func persist() -> String:

@@ -2,6 +2,8 @@
 
 Escopo: projeto nativo em `godot/`. Atualizado em 30/10/2026.
 
+Novas partidas usam `campaign-v07`; consultar `docs/REBALANCEAMENTO_V07.md`. Saves `campaign-v06` preservam seus números e baralhos. Testes de regressão v0.6 usam perfil explícito; `tests/balance_smoke.gd` verifica as regras novas e a compatibilidade.
+
 ## Ordem de leitura
 
 1. `CONTEXT.md`: estado real e limites da migração.

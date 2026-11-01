@@ -6,7 +6,16 @@ var game:
 	set(value): _game = weakref(value)
 const WorldRules = preload("res://scripts/world_rules.gd")
 var world = WorldRules.new()
-const COMMANDS = ["upgradeVehicle", "repairComplex", "repairTerritory", "buyImprovement", "install", "removeUpgrade", "playGeneral", "cardChoice", "raceEntry", "raceRoll", "racePass", "raceGeneral", "raceEquipment", "loot", "lootDefend", "lootCard", "lootRoll", "lootTake", "swap", "repairFound", "collectScrap", "winch"]
+const COMMANDS = ["upgradeVehicle", "repairComplex", "repairTerritory", "buyImprovement", "install", "removeUpgrade", "playGeneral", "cardChoice", "raceEntry", "raceRoll", "racePass", "raceGeneral", "raceEquipment", "loot", "lootDefend", "lootCard", "lootRoll", "lootTake", "swap", "repairFound", "collectScrap", "winch", "salvageSupply"]
+
+func modern() -> bool:
+	return game.state.get("rules_profile", "stage1") == "campaign-v07"
+
+func is_campaign() -> bool:
+	return game.state.get("rules_profile", "stage1") in ["campaign-v06", "campaign-v07"]
+
+func victory_target() -> int:
+	return 3 if modern() else 4
 
 func initialize(new: bool) -> void:
 	world.campaign = self
@@ -14,14 +23,17 @@ func initialize(new: bool) -> void:
 	for key in {"next_instance": 1, "improvements": [], "events": [], "surprises": [], "improvement_discard": [], "event_discard": [], "surprise_discard": [], "announcements": {}, "blocks": [], "choice": {}, "race": {}, "loot": {}, "found": [], "local_scrap": {}, "travel_after_block": false, "city_guard": []}:
 		if not s.has(key): s[key] = {"next_instance": 1, "improvements": [], "events": [], "surprises": [], "improvement_discard": [], "event_discard": [], "surprise_discard": [], "announcements": {}, "blocks": [], "choice": {}, "race": {}, "loot": {}, "found": [], "local_scrap": {}, "travel_after_block": false, "city_guard": []}[key]
 	if new:
-		s.rules_version = "0.6"
-		s.content_version = "0.6.0"
+		s.rules_version = "0.7" if modern() else "0.6"
+		s.content_version = "0.7.0" if modern() else "0.6.0"
 		for d in game.catalog:
+			if modern() and d.id in ["E11", "V16"]: continue
 			var deck = {"E": "improvements", "T": "improvements", "V": "events", "R": "surprises"}.get(d.id.left(1), "")
 			if not deck.is_empty():
 				for i in range(int(d.copies)): s[deck].append(d.id)
 		for deck in ["improvements", "events", "surprises"]: shuffle(s[deck])
 	for p in s.players:
+		if not p.has("salvaged_turn"): p.salvaged_turn = -1
+		if not p.has("respawn_protected"): p.respawn_protected = false
 		if not p.has("installed"): p.installed = []
 		if not p.has("hand_instances"): p.hand_instances = []
 		while p.hand_instances.size() < p.hand.size(): p.hand_instances.append(instance(p.hand[p.hand_instances.size()]))
@@ -44,6 +56,7 @@ func initialize(new: bool) -> void:
 			for item in s.get("card_registry", {}).values():
 				if item.definition_id == d.id: allocated += 1
 			var deck = {"G": "general", "E": "improvements", "T": "improvements", "V": "events", "R": "surprises"}[d.id.left(1)]
+			if modern() and d.id in ["E11", "V16"]: deck = "unavailable"
 			for i in range(maxi(0, int(d.copies) - allocated)): mark_instance(instance(d.id), deck)
 
 func instance(id: String) -> Dictionary:
@@ -107,7 +120,8 @@ func defense_max(t: Dictionary) -> int:
 	return 4 + count(t, "T01") * 2
 
 func vehicle_defense(p: Dictionary) -> int:
-	return mini(6, int(game.combat_rules.STATS[p.model][1]) + count(p, "E04"))
+	var base: int = 4 if modern() and p.model in ["suv", "pickup"] else int(game.combat_rules.STATS[p.model][1])
+	return mini(6, base + count(p, "E04"))
 
 func hand_excess(p: Dictionary) -> bool:
 	for group in {"G": 5, "E": 3, "T": 3}:
@@ -193,18 +207,19 @@ func complete_city(id: int, city: String) -> bool:
 func cancel_announcements() -> void:
 	for id in game.state.get("announcements", {}).keys():
 		var p = game.combat_rules.player_by_id(int(id))
-		if p.is_empty() or not game.combat_rules.operational(p) or points(int(id)) < 4:
+		if p.is_empty() or not game.combat_rules.operational(p) or points(int(id)) < victory_target():
 			game.state.announcements.erase(id)
 
 func announce() -> void:
 	var p = game.player()
-	if game.state.get("rules_profile", "stage1") != "campaign-v06": return
-	if game.combat_rules.operational(p) and points(int(p.id)) >= 4 and not game.state.announcements.has(str(int(p.id))):
+	if not is_campaign(): return
+	if game.combat_rules.operational(p) and points(int(p.id)) >= victory_target() and not game.state.announcements.has(str(int(p.id))):
 		game.state.announcements[str(int(p.id))] = int(game.state.turn)
-		game.note(p.name + " anunciou vitória territorial: sustentar 4 pontos até seu próximo turno.")
+		game.note(p.name + " anunciou vitória territorial: sustentar %d pontos até seu próximo turno." % victory_target())
 
 func start_turn() -> void:
 	var p = game.player()
+	p.respawn_protected = false
 	game.state.blocks = game.state.blocks.filter(func(b): return int(b.by) != int(p.id))
 	game.state.travel_after_block = false
 	game.state.city_guard.clear()
@@ -213,16 +228,16 @@ func start_turn() -> void:
 
 func confirm_victory() -> bool:
 	var p = game.player()
-	if game.state.announcements.has(str(int(p.id))) and points(int(p.id)) >= 4:
+	if game.state.announcements.has(str(int(p.id))) and points(int(p.id)) >= victory_target():
 		game.state.finished = true
 		game.state.winner = int(p.id)
 		game.state.winner_reason = "territory"
-		game.note(p.name + " venceu sustentando quatro pontos territoriais.")
+		game.note(p.name + " venceu sustentando " + ("três" if modern() else "quatro") + " pontos territoriais.")
 		return true
 	return false
 
 func city_reduction(p: Dictionary, damage: int, in_city: String = "") -> int:
-	if damage <= 0 or game.state.get("rules_profile", "stage1") != "campaign-v06": return 0
+	if damage <= 0 or not is_campaign(): return 0
 	var city_id = p.city if in_city.is_empty() else in_city
 	var key = "%d:%s" % [p.id, city_id]
 	if not complete_city(int(p.id), city_id) or key in game.state.city_guard: return 0
@@ -272,6 +287,14 @@ func act(action: String, args: Dictionary) -> String:
 	if not s.choice.is_empty() or not s.race.is_empty() or not s.loot.is_empty(): return "Resolva o encontro ou escolha pendente."
 	if not game.combat_rules.operational(p): return "Jogador indisponível."
 	match action:
+		"salvageSupply":
+			var resource: String = str(args.get("resource", ""))
+			if not modern() or resource not in ["water", "tire", "battery"]: return "Suprimento não aproveitável nesta edição."
+			if not s.started or int(p.salvaged_turn) == int(s.turn) or int(p.stock[resource]) < 1: return "Troca livre: um suprimento na carga, uma vez por turno próprio."
+			p.stock[resource] -= 1
+			p.stock.scrap += 1
+			p.salvaged_turn = int(s.turn)
+			game.note(p.name + " trocou um suprimento por 1 sucata.")
 		"upgradeVehicle":
 			var id = str(args.get("model", ""))
 			if p.model != "hatch" or id not in ["sedan", "suv", "pickup", "moto"]: return "Melhore um Hatch para outro modelo."
@@ -279,7 +302,7 @@ func act(action: String, args: Dictionary) -> String:
 			pay_scrap(p, 5)
 			s.actions -= 1
 			p.model = id
-			if id == "moto": p.fuel = 10
+			if id == "moto" and not modern(): p.fuel = 10
 			game.note(p.name + " melhorou o veículo sem curar nem renovar vidas.")
 		"repairComplex":
 			if int(s.actions) < 1 or int(p.stock.scrap) < 2 or int(p.integrity) >= game.combat_rules.STATS[p.model][0]: return "Reparo complexo: uma ação, 2 sucatas e veículo danificado."
@@ -418,7 +441,9 @@ func travel_event() -> void:
 	world.travel_event()
 
 func validate(s: Dictionary) -> String:
-	if s.get("rules_profile", "stage1") not in ["stage1", "campaign-v06"] or s.get("content_version", "0.6.0") != "0.6.0": return "Edição de regras incompatível; arquivo preservado."
+	var profile: String = str(s.get("rules_profile", "stage1"))
+	if profile not in ["stage1", "campaign-v06", "campaign-v07"]: return "Edição de regras incompatível; arquivo preservado."
+	if s.get("content_version", "0.6.0") != ("0.7.0" if profile == "campaign-v07" else "0.6.0"): return "Conteúdo incompatível; arquivo preservado."
 	if not s.get("territories") is Dictionary or not s.get("deck") is Array or not s.get("discard") is Array or not s.get("log") is Array: return "Estrutura inválida no save."
 	for key in ["active", "seed", "turn", "actions"]:
 		if not number(s.get(key, -1)): return "Contador inválido no save."
@@ -449,6 +474,8 @@ func validate(s: Dictionary) -> String:
 			if p.has(key) and not number(p[key]): return "Vidas/penalidade inválidas."
 		for key in ["eliminated", "penalty", "used_general"]:
 			if p.has(key) and not p[key] is bool: return "Disponibilidade inválida."
+		if p.has("respawn_protected") and not p.respawn_protected is bool: return "Proteção de recuperação inválida."
+		if p.has("salvaged_turn") and ((not number(p.salvaged_turn) and p.salvaged_turn != -1) or float(p.salvaged_turn) > float(s.turn)): return "Limite de troca inválido."
 		if p.has("installed"):
 			var invalid = validate_instances(p.installed, instance_ids, "E")
 			if not invalid.is_empty(): return invalid
@@ -467,6 +494,7 @@ func validate(s: Dictionary) -> String:
 		for key in ["resistance", "explorations"]:
 			if t.has(key) and not number(t[key]): return "Atributo territorial inválido."
 		if t.has("hostile") and game.combat_rules.definition(str(t.hostile)).is_empty(): return "Hostil desconhecido."
+		if t.has("threat_band") and (not number(t.threat_band) or int(t.threat_band) > 2): return "Faixa de ameaça inválida."
 		if t.has("installed"):
 			var invalid = validate_instances(t.installed, instance_ids, "T")
 			if not invalid.is_empty(): return invalid
@@ -481,6 +509,17 @@ func validate(s: Dictionary) -> String:
 	var e = s.get("combat", {})
 	if not e.is_empty() and (not e.has_all(["left", "right", "phase", "side", "round", "territory"]) or e.phase not in ["defend", "cards", "ready", "result", "between", "escape_cards", "escape_ready", "escape_result", "finished"]): return "Fase de combate inválida."
 	if not e.is_empty():
+		var response_ids: Array = []
+		if not e.get("responses", []) is Array: return "Respostas de combate inválidas."
+		for id: Variant in e.get("responses", []):
+			if not number(id) or int(id) not in ids or int(id) in response_ids: return "Resposta de combate inválida."
+			response_ids.append(int(id))
+		if e.has("auto_pass"):
+			if not e.auto_pass is Array: return "Preferências de reação inválidas."
+			var auto_ids: Array = []
+			for id: Variant in e.auto_pass:
+				if not number(id) or int(id) not in ids or int(id) in auto_ids: return "Preferência de outro jogador."
+				auto_ids.append(int(id))
 		if e.has("reward_owner") and int(e.reward_owner) not in ids: return "Vencedor da recompensa inválido."
 		if e.has("vehicle_choice"):
 			if not e.has("reward_owner"): return "Escolha de veículo sem vencedor."

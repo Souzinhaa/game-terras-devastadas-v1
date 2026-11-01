@@ -9,7 +9,7 @@ func check(ok: bool, message: String) -> void:
 
 func fresh() -> WastelandGame:
 	var g = Game.new()
-	g.new_game(["A", "B"], 42)
+	g.new_game(["A", "B"], 42, "campaign-v06")
 	g.state.pending_reveals.clear()
 	g.state.started = true
 	for p in g.state.players:
