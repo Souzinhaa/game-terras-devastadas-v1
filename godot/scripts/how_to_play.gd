@@ -1,0 +1,25 @@
+extends RefCounted
+## Ajuda compartilhada local/LAN. Somente texto; não acessa estado privado ou RNG.
+
+static func paragraphs(modern: bool, lan: bool = false) -> Array[String]:
+	var entries: Array[String] = [
+		"Edição desta partida: " + ("regras 0.7." if modern else "regras anteriores, preservadas no save."),
+		"Objetivo: último sobrevivente ou %d pontos de cidades completas, anunciados ao encerrar e sustentados até seu próximo início. Cidade de quatro setores vale 1 ponto; demais cidades completas valem 0,5." % (3 if modern else 4),
+		"1. Inicie o turno, toque para revelar a carta comprada e recolha. Há compra também na primeira vez. Resolva cartas e excedentes antes de continuar.",
+		"2. Se quiser, viaje uma vez antes da ação principal, por rota adjacente aberta, com piso e combustível compatíveis. Confira destino e custo antes de confirmar; resolva o evento da chegada.",
+		"3. Faça uma ação principal: explorar setor próprio, conquistar, duelar, saquear ou administrar uma operação que custe ação. Viajar normalmente preserva a ação, mas um evento pode consumi-la.",
+		("4. Explorar gera 2–3 itens no depósito do setor, incluindo uma unidade escolhida de sucata ou combustível. Até três explorações por setor." if modern else "4. Explorar gera 2–3 recursos sorteados no depósito, até três vezes por setor. Nesta partida antiga não há unidade escolhida."),
+		"5. Depósito não é carga, e combustível na carga não é tanque. Use transferências/abastecimento e respeite os limites. Na LAN, veja os grupos Veículo e Depósitos; no local, abra Carga ou Setores.",
+		"6. Reparo simples: 1 sucata da carga por 1 integridade, livre uma vez por turno. Complexo: 2 sucatas da carga por até 4 integridades e uma ação. Comprar melhoria custa 3 sucatas na carga, uma compra por turno; instalar depende de espaço e regras.",
+		"7. Melhorar Hatch custa 5 sucatas próprias locais e uma ação; não cura nem renova vidas. " + ("Todos os modelos preservam combustível, inclusive Moto. Moto tem dano 2/equipamentos sem peso; SUV e Caminhonete usam Defesa 4+." if modern else "Nesta edição, melhorar para Moto entrega 10 combustíveis; SUV e Caminhonete usam Defesa 3+."),
+		"8. Antes do dado, decida cartas e equipamentos. Uma geral por pessoa por turno do mapa, inclusive fora da própria vez. Defesa é o limiar do ataque: 1 natural erra, 6 natural acerta. Um adicional por carro/rodada paga munição mesmo ao errar.",
+		"9. Avançar até a próxima decisão para diante de reações, equipamento opcional, fuga ou resultado. Passar nas próximas rolagens é preferência individual deste combate; Voltar a reagir retoma antes do dado. Passar não gasta carta.",
+		"10. Saque custa uma ação e 1 combustível. " + ("D6 contra D6; empate da defesa." if modern else "D6 contra D6+1; empate da defesa.") + " Sucesso leva até 2 recursos (T05 limita a 1); falha causa 2 danos. Defesa pessoal substitui o teste por combate de carros.",
+		"11. Corrida custa 1 combustível e exige dois inscritos; sem eles, devolve inscrição e não dá prêmio. " + ("Todos podem recusar a inscrição, inclusive o revelador." if modern else "Nesta edição, o revelador apto e com combustível deve entrar.") + " Depois de entrar não há desistência voluntária.",
+		"12. Primeira destruição: renasce de Hatch íntegro com 3 combustíveis, perde itens/cartas restantes e preserva territórios. " + ("Protegido até iniciar sua próxima vez, sem perdê-la." if modern else "Nesta edição, perde o próximo turno próprio.") + " Segunda destruição elimina. Melhorar/trocar não devolve vidas.",
+		("13. Encerre o turno; cada pessoa mantém seu celular. Responda quando aparecer uma decisão sua, mesmo fora de sua vez. Mesma rede/build; o anfitrião deve manter o app aberto. Não há migração automática de anfitrião." if lan else "13. Encerre o turno e entregue o dispositivo. O próximo jogador confirma sua identidade antes de ver cartas. Na LAN, cada pessoa mantém o próprio aparelho."),
+		"Consulte Menu → Placar para pontos, vidas e anúncio. Use páginas/rolagem para opções longas. Voltar fecha leitura ou prévia sem usar carta nem pagar viagem. Revelação interrompida pela pausa continua pendente."
+	]
+	if modern:
+		entries.insert(7, "Suprimentos: uma vez por turno próprio, fora de encontros, troque uma água, pneu ou bateria da carga por uma sucata, sem ação principal. E11/V16 não entram nos novos baralhos; retomar save antigo não troca suas regras.")
+	return entries

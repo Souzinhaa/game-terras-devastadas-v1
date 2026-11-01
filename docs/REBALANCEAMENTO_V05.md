@@ -1,3 +1,5 @@
+> Registro de referência React/edições anteriores. Valores, status e pendências descrevem a etapa deste documento. Para o Android atual, consulte [contexto](../context.md), [regras Godot 0.7](../rules.md) e [Como jogar](COMO_JOGAR.md). Não presumir paridade entre motores.
+
 # Implementação do rebalanceamento v0.5
 
 Aplicado sobre a branch feature/implementacao-inicial a partir do commit b0197fa. Fontes atuais: rules.md, rules-cards.md, context.md, src/data/rebalance.json e o catálogo tipado do motor. A decisão sobre cada sugestão está em DIAGNOSTICO_REBALANCEAMENTO.md.

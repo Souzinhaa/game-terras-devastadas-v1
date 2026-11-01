@@ -1,3 +1,5 @@
+> Registro de referência React/edições anteriores. Valores, status e pendências descrevem a etapa deste documento. Para o Android atual, consulte [contexto](../context.md), [regras Godot 0.7](../rules.md) e [Como jogar](COMO_JOGAR.md). Não presumir paridade entre motores.
+
 # Atualização para GDD v0.4
 
 Fonte: leitura integral das seções 1–19 de `GDD_Terras_Devastadas_Codex_v04.md`. O DOCX v0.1 e o registro anterior foram preservados como histórico, mas não definem mais os valores ativos. Nenhum asset ou GDD do usuário foi substituído.

@@ -1,5 +1,5 @@
 extends RefCounted
-## Regras de campanha v0.6. Estado serializável; sem dependência visual.
+## Campanhas 0.6/0.7 por perfil persistido. Estado serializável; sem dependência visual.
 var _game: WeakRef
 var game:
 	get: return _game.get_ref()

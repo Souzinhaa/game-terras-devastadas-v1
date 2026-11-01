@@ -22,6 +22,8 @@ func command(caption: String, action: String, args: Dictionary, parent: Node, re
 	control.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	control.disabled = not reason.is_empty()
 	control.tooltip_text = caption + ("\n" + reason if not reason.is_empty() else "")
+	var hint: String = preload("res://scripts/ui_feedback.gd").hint(action)
+	if not hint.is_empty(): control.tooltip_text += "\n" + hint
 	if not reason.is_empty(): line(reason, parent)
 	return control
 

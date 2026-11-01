@@ -1,3 +1,5 @@
+> Registro de referência React/edições anteriores. Valores, status e pendências descrevem a etapa deste documento. Para o Android atual, consulte [contexto](../context.md), [regras Godot 0.7](../rules.md) e [Como jogar](COMO_JOGAR.md). Não presumir paridade entre motores.
+
 # Diagnóstico e decisões — rebalanceamento v0.2
 
 Data: 29/10/2026. Revisão editorial e de regras; números ajustados para teste, sem alegação de equilíbrio comprovado. A autorização para selecionar alterações foi dada por Bruno nesta solicitação.
@@ -47,3 +49,4 @@ Não há prova de que toda abertura dominante foi eliminada. Este pacote corrige
 
 ## Deltas visuais
 Somente G09, G11, G12, G17, G21, G22, E01, E02, E03, E04, E06 e E09 recebem novas frentes. Seus IDs e duas cópias por modelo não mudam. Os demais 62 modelos do catálogo e 12 hostis preservam as frentes antigas. Os novos ícones numéricos necessários e o manifest atualizado também acompanham o pacote. Consumíveis não mudam.
+

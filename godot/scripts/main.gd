@@ -36,6 +36,7 @@ var discard_resource_button: Button
 var repair_button: Button
 var maintenance_hint: Label
 var ui_audio: AudioStreamPlayer
+var board_feedback: Control
 var last_cargo: Dictionary = {}
 var cargo_tweens: Dictionary = {}
 var device_ui_scale: float = 1.0
@@ -78,6 +79,14 @@ func _ready() -> void:
 	ui_audio.haptics = preferences.haptics
 	get_tree().node_added.connect(bind_button_sound)
 	build_ui()
+	board_feedback = preload("res://scripts/board_feedback.gd").new()
+	board_feedback.board = board
+	board_feedback.z_index = 1
+	add_child(board_feedback)
+	var feedback: Node = preload("res://scripts/ui_feedback.gd").new()
+	feedback.root_control = self
+	feedback.reduced = func() -> bool: return preferences.reduced_motion
+	add_child(feedback)
 	if game.load_game().is_empty():
 		refresh()
 	show_start_screen(false)
@@ -487,24 +496,18 @@ func apply_preferences() -> void:
 	for node in get_tree().get_nodes_in_group("ui_scalable_label"):
 		if is_ancestor_of(node): node.add_theme_font_size_override("font_size", roundi(float(node.get_meta("base_font_size")) * font_scale()))
 	combat_view.reduce_motion = preferences.reduced_motion
+	if is_instance_valid(board_feedback):
+		board_feedback.reduced = preferences.reduced_motion
+		if preferences.reduced_motion: board_feedback.reset_effects()
 	reveal.recipient.add_theme_font_size_override("font_size", roundi(22 * font_scale()))
 	reveal.hint.add_theme_font_size_override("font_size", roundi(19 * font_scale()))
 	refresh()
 
 func show_help() -> void:
 	var content = dialog_content("COMO JOGAR")
-	for entry in [
-		"Objetivo: último sobrevivente ou %d pontos de cidades completas anunciados ao fim do turno e sustentados até seu próximo início." % (3 if game.state.is_empty() else game.campaign.victory_target()),
-		"1. Inicie o turno e toque na carta para revelar a compra.",
-		"2. Toque em uma cidade conectada. Confira o destino e o custo antes de confirmar a viagem.",
-		"3. Na sua cidade, explore um setor seu ou conquiste outro. Cada uma dessas escolhas usa a ação principal.",
-		"4. Explorar deixa recursos no depósito. Retire os itens para a carga, respeitando a capacidade.",
-		"5. Abra Carga para abastecer e reparar. Menu → Administrar compra/instala melhorias, executa reparo complexo e melhora o Hatch por cinco sucatas locais e uma ação.",
-		"6. No combate, decida as cartas antes de rolar. Defesa é o limiar do dado; a barra mostra a vida.",
-		"7. Encerre o turno e entregue o dispositivo. As cartas só aparecem após o próximo jogador confirmar.",
-		"8. Viagens resolvem eventos. Corridas têm inscrição de um combustível e exigem dois participantes. Um ataque adicional por carro/rodada gasta munição mesmo ao errar.",
-		"9. Primeira destruição: renasce de Hatch. " + ("Retoma no próximo turno, protegido até iniciá-lo." if game.state.is_empty() or game.campaign.modern() else "Perde o próximo turno nesta partida antiga.") + " Segunda: eliminação. Melhorar não cura nem renova vidas."
-	]: label(entry, content).autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	var modern: bool = game.state.is_empty() or game.campaign.modern()
+	for entry: String in preload("res://scripts/how_to_play.gd").paragraphs(modern):
+		label(entry, content).autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	button("Voltar ao menu inicial" if start_screen.visible else "Entendi · voltar ao jogo", popup.dismiss, content).theme_type_variation = &"Primary"
 
 func confirm_new_game() -> void:
@@ -780,6 +783,9 @@ func dispatch(action: String, args: Dictionary = {}) -> void:
 			var gained = int(explored.stock[resource]) - int(stock_before.get(resource, 0))
 			if gained > 0: found[resource] = gained
 		if not found.is_empty(): call_deferred("present_exploration", found, str(explored.city), str(args.territory))
+	if error.is_empty():
+		board_feedback.reduced = preferences.reduced_motion
+		board_feedback.observe(game.state, str(game.state.get("initial_seed", "")) + str(game.state.get("initial_names", [])), game.state.get("command_log", []).size())
 	if error.is_empty() and action not in ["acknowledgeCard"] and not action.begins_with("combat") and action not in ["conquer", "duel"]:
 		var recent = str(game.state.log.back())
 		notifications.notify(recent)

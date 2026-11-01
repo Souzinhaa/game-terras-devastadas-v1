@@ -50,6 +50,8 @@ var discovery_signature: String = ""
 var catalog: Array = JSON.parse_string(FileAccess.get_file_as_string("res://data/catalog.json"))
 var private_locked: bool = false
 var player_hud: Control
+var tv_dashboard: Control
+var board_feedback: Control
 var connection_menu: Control
 var device_profile: Dictionary = {}
 
@@ -156,6 +158,14 @@ func _ready() -> void:
 	resized.connect(fit)
 	endpoint.start_discovery()
 	build_connection_menu()
+	board_feedback = preload("res://scripts/board_feedback.gd").new()
+	board_feedback.board = board
+	board_feedback.z_index = 1
+	add_child(board_feedback)
+	var feedback: Node = preload("res://scripts/ui_feedback.gd").new()
+	feedback.root_control = self
+	feedback.reduced = func() -> bool: return endpoint.reduced_motion
+	add_child(feedback)
 	fit()
 	schedule_render()
 
@@ -239,6 +249,20 @@ func ensure_player_hud() -> void:
 		add_child(player_hud)
 	player_hud.show()
 
+func ensure_tv_dashboard() -> void:
+	body.get_parent().hide()
+	if not is_instance_valid(tv_dashboard):
+		board.reparent(self, false)
+		move_child(board, 0)
+		board.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+		board.fit_width = false
+		tv_dashboard = preload("res://scripts/network/tv_dashboard.gd").new()
+		tv_dashboard.app = self
+		tv_dashboard.z_index = 2
+		add_child(tv_dashboard)
+		call_deferred("focus_first")
+	tv_dashboard.show()
+
 func create_host(resume: bool, from_backup: bool = false) -> void:
 	var error: String = endpoint.host(name_input.text if not name_input.text.strip_edges().is_empty() else "Anfitrião", int(count_input.value), resume, int(port_input.value), from_backup)
 	if not error.is_empty(): show_feedback(error)
@@ -254,9 +278,13 @@ func render() -> void:
 		board_view.state = {}
 		board.hide()
 		if is_instance_valid(player_hud): player_hud.hide()
+		if is_instance_valid(tv_dashboard): tv_dashboard.hide()
+		if is_instance_valid(board_feedback): board_feedback.reset_effects()
 		if not connection_menu.visible or not is_instance_valid(name_input): build_connection_menu()
 		return
 	if not endpoint.connected:
+		last_signature = ""
+		if is_instance_valid(board_feedback): board_feedback.reset_effects()
 		summary.text = "Dados desatualizados · conexão indisponível" if not endpoint.view.is_empty() else "Conectando / aguardando aprovação"
 		if is_instance_valid(connection_menu) and connection_menu.visible: connection_menu.status.text = summary.text
 		if not endpoint.view.is_empty(): render_content()
@@ -268,6 +296,7 @@ func render() -> void:
 	search_list = null
 	if not endpoint.lobby.get("started", false):
 		board.hide()
+		if is_instance_valid(tv_dashboard): tv_dashboard.hide()
 		connection_menu.show_lobby()
 		return
 	connection_menu.hide()
@@ -278,20 +307,16 @@ func render() -> void:
 		if option.action == "move": board_view.allowed_routes.append(str(option.route))
 	if not preview_option.is_empty() and preview_revision != int(endpoint.view.revision): cancel_preview()
 	board.queue_redraw()
+	board_feedback.reduced = endpoint.reduced_motion
+	var public_notices: Array[Dictionary] = board_feedback.observe(endpoint.view.public, str(endpoint.view.match_id) + ":" + str(endpoint.view.epoch), int(endpoint.view.revision))
 	if not tv_mode:
 		ensure_player_hud()
 		player_hud.refresh()
 		present_pending_reveal()
 		return
-	body.get_parent().show()
-	var active: Dictionary = board_view.player()
-	summary.text = "%s · turno %d · %s%s" % [active.name, int(board_view.state.turn), "ação disponível" if int(board_view.state.actions) > 0 else "ação utilizada", " · SALVAMENTO PENDENTE" if endpoint.view.save_pending else ""]
-	if board_view.state.get("finished", false): summary.text = "Partida encerrada · " + str(board_view.state.get("winner_reason", ""))
-	if endpoint.local_player_id >= 0: summary.text += " · você: " + own_name()
-	if not endpoint.pending_command.is_empty(): summary.text += " · enviando ação…"
-	if not endpoint.connected: summary.text += " · DESCONECTADO"
-	render_content()
-	present_pending_reveal()
+	ensure_tv_dashboard()
+	tv_dashboard.sync(endpoint.view)
+	if not public_notices.is_empty(): tv_dashboard.announce(str(public_notices.back().text))
 
 func render_lobby() -> void:
 	clear(actions)
@@ -318,6 +343,10 @@ func render_lobby() -> void:
 
 func render_content() -> void:
 	if endpoint.view.get("public", {}).is_empty(): return
+	if tv_mode and endpoint.lobby.get("started", false):
+		ensure_tv_dashboard()
+		tv_dashboard.sync(endpoint.view)
+		return
 	if not tv_mode and endpoint.lobby.get("started", false):
 		ensure_player_hud()
 		player_hud.refresh()
@@ -537,9 +566,15 @@ func show_city(id: String) -> void:
 
 func present_event(event: Dictionary) -> void:
 	var text: String = str(event.get("message", ""))
+	var captions: Dictionary = {"salvageSupply": "reaproveitou suprimentos", "buyImprovement": "comprou uma melhoria", "install": "instalou uma melhoria", "playGeneral": "jogou uma carta"}
+	if captions.has(str(event.get("type", ""))):
+		for p: Dictionary in endpoint.view.get("public", {}).get("players", []):
+			if int(p.id) == int(event.get("actor", -1)): text = str(p.name) + " " + str(captions[event.type]) + "."
 	if event.has("delta"):
 		for resource: String in event.delta: text += " · +%d %s" % [int(event.delta[resource]), RESOURCES[resource]]
 	show_feedback(text)
+	if tv_mode and is_instance_valid(tv_dashboard) and tv_dashboard.visible:
+		if str(event.get("message", "")) != "Partida atualizada.": tv_dashboard.announce(text)
 	if event.type == "move" and not endpoint.reduced_motion and board.visible: board.animate_travel(event.from, event.to, event.route)
 
 func show_feedback(message: String) -> void:
@@ -553,6 +588,9 @@ func focus_first() -> void:
 	# Não roubar foco de menus superiores a cada snapshot.
 	var current: Control = get_viewport().gui_get_focus_owner()
 	if current and not current.is_queued_for_deletion() and current.is_visible_in_tree(): return
+	if tv_mode and is_instance_valid(tv_dashboard) and tv_dashboard.visible:
+		tv_dashboard.focus_default()
+		return
 	for control: Node in actions.get_children():
 		if control is Button and not control.disabled: control.grab_focus(); return
 	for control: Node in toolbar.get_children():

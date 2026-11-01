@@ -1,5 +1,7 @@
 # Migração para multiplayer LAN e tabuleiro Android TV
 
+> Registro histórico de uma etapa anterior. Números, ausências e pendências abaixo descrevem aquela revisão, anterior às regras 0.7 e/ou à LAN atual. Para desenvolvimento Android, usar [CONTEXT.md](../CONTEXT.md), [regras atuais](../../rules.md), [Como jogar](../../docs/COMO_JOGAR.md) e [rebalanceamento 0.7](REBALANCEAMENTO_V07.md). A CI Android e a implementação LAN posteriores estão documentadas nesses pontos de entrada.
+
 **Projeto:** Terras Devastadas — runtime nativo em `godot/`.  
 **Data:** 31/10/2026.  
 **Base:** Godot 4.7 Standard, GDScript, renderer Compatibility; projeto documentado como validado no editor 4.7.2.  

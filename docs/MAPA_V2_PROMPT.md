@@ -1,3 +1,5 @@
+> Registro de referência React/edições anteriores. Valores, status e pendências descrevem a etapa deste documento. Para o Android atual, consulte [contexto](../context.md), [regras Godot 0.7](../rules.md) e [Como jogar](COMO_JOGAR.md). Não presumir paridade entre motores.
+
 # Fundo de mapa v2
 
 Gerado com a ferramenta integrada `imagegen`, modo de geração, sem editar os assets anteriores. Arquivo usado pelo projeto: `assets/mapa-expandido-v2.png`.

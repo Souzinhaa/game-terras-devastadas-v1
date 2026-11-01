@@ -1,44 +1,44 @@
-# Terras Devastadas
+# Terras Devastadas — Godot / Android
 
-## Versão Godot / Android
+Jogo de tabuleiro digital pós-apocalíptico para 2–4 pessoas, com exploração, conquista, combate e duas vidas. O desenvolvimento ativo está em [godot/project.godot](godot/project.godot), usando Godot 4.7 Standard, validado no 4.7.2, com foco em Android na horizontal.
 
-A interface recebeu a modernização descrita no [update_ui.md](update_ui.md): veja [capturas, testes e pendências de validação física](godot/docs/UI_IMPLEMENTATION.md).
+## Começar a jogar
 
-A versão nativa está em [`godot/project.godot`](godot/project.godot), para **Godot 4.7 Standard** (validada no 4.7.2). Além de mapa, exploração, combate, duas vidas e save, novas partidas incluem progressão de veículos, equipamentos, territoriais, gerais, saque, bloqueios, eventos, corridas e vitória territorial. Consulte [o guia](godot/README.md) e [o relatório da campanha](godot/docs/CAMPAIGN_IMPLEMENTATION.md) para testes e limites: E11/V16 dependem de conteúdo definido, e Android físico/playtests permanecem pendentes. A versão React abaixo continua como referência; não há paridade integral de seeds ou importação de saves entre motores.
+- [Como jogar no Android, em LAN ou no mesmo aparelho](docs/COMO_JOGAR.md).
+- [Regras completas da edição 0.7](rules.md).
+- [Cartas, baralhos ativos e exceções](rules-cards.md).
+- [Guia técnico Godot, testes e exportação](godot/README.md).
 
-Jogo de tabuleiro digital pós-apocalíptico, hot-seat local para 2–4 jogadores. React + TypeScript + Vite, motor determinístico por seed, persistência IndexedDB.
+No modo LAN, todos usam a mesma edição do APK e a mesma rede local. Um celular cria a sala e os demais entram; cada pessoa consulta suas próprias cartas. O anfitrião deve manter o aplicativo aberto. No modo local, o aparelho passa entre os jogadores com identificação antes das informações privadas. O Tabuleiro/TV é opcional e mostra somente informações públicas.
 
-## Rodar
-
-Node.js 24 e npm:
-
-```sh
-npm ci
-npm run dev
-npm test
-npm run build
-```
-
-No PowerShell, use `npm.cmd` se `npm.ps1` estiver bloqueado. UI: `npx playwright install chromium` e `npm run test:ui` (ou configure Chrome no Playwright).
+A interface tem retorno visual nos botões e destaques de ações no mapa. Na TV, as etapas do turno e o placar compacto ficam visíveis; controle remoto abre detalhes públicos. A animação de compra foi preservada. Veja [capturas e validação da interface/TV](godot/docs/UI_INTERACTION_TV.md).
 
 ## Edição atual
 
-Regras v0.6 / cartas v0.2 / conteúdo do save 0.6.0. Consulte [context.md](context.md), [rules.md](rules.md) e [rules-cards.md](rules-cards.md).
+Branch: **feature/release-0.0.4**. APK de teste: **0.0.4-ui-tv**. Novas partidas: regras **0.7**, conteúdo **0.7.0**, perfil **campaign-v07**. O número da build e a versão das regras identificam coisas diferentes.
 
-| Modelo | Carga | Tanque máximo | Consumo | Combustível inicial | Terra |
-|---|---:|---:|---:|---:|---|
-| Hatch | 4 | 8 | 1 | 3 | Não |
-| Moto | 2 | 10 | 1 | 10 na melhoria | Sim |
-| Sedã | 7 | 12 | 2 | — | Não |
-| SUV | 6 | 12 | 2 | — | Sim |
-| Caminhonete | 10 | 15 | 3 | — | Sim |
+- Vitória territorial: anunciar **3 pontos** ao encerrar e manter até o próximo início próprio; último sobrevivente vence imediatamente.
+- Exploração: **2–3 recursos no depósito**, incluindo uma unidade escolhida de sucata ou combustível.
+- Água, pneu ou bateria da carga podem virar uma sucata, uma vez por turno próprio, sem ação principal.
+- Melhorar o Hatch custa cinco sucatas próprias locais e uma ação; todos os modelos preservam combustível e integridade atual. Moto mantém dano 2, consumo 1 e equipamentos sem peso; SUV/Caminhonete têm Defesa 4+.
+- Primeira destruição: Hatch íntegro, três combustíveis, proteção até iniciar o próximo turno próprio, sem perder essa vez. Segunda destruição elimina.
+- Saque simples: D6 contra D6, empate da defesa. Inscrição em corrida é opcional inclusive para quem revelou o evento.
+- Combate oferece avanço até a próxima decisão e preferência individual de passar nas próximas reações.
+- E11 e V16 ficam fora dos baralhos de partidas novas; o catálogo e o registro mantêm suas identidades.
 
-Todos começam de Hatch com duas vidas. Melhore para sedã/SUV/caminhonete/Moto por 5 sucatas locais e uma ação. Primeira destruição: renasce na mesma cidade e perde o próximo turno; segunda: eliminação. Veja [conflitos e regras v0.6](docs/REGRAS_V06.md). Kit inicial: uma sucata, uma geral e equipamento fixo. Comprar uma geral ao iniciar também o primeiro turno. Viajar normalmente preserva a ação principal. G17 consome sucata/ação mas ainda permite viajar. Vitória territorial: anunciar ao encerrar com 4 pontos e sustentar até o próximo início.
+Saves nativos **campaign-v06** continuam com as regras anteriores. Carregar uma partida não a converte para 0.7; comece outra para usar as mudanças. Formatos React e Godot são distintos.
 
-Armas adicionais compartilham um ataque por carro/rodada. E04/E06/E09 são únicos; E06 uma vez por combate. Doze cartas e os marcadores foram atualizados. Veja [a implementação do rebalanceamento](docs/REBALANCEAMENTO_V05.md) e [a limpeza de duplicatas](docs/LIMPEZA_V05.md).
+## APK e validação
 
-## Saves e limitações
+O [workflow Android](https://github.com/Souzinhaa/game-terras-devastadas-v1/actions/workflows/android-debug.yml) gera APK ARM64 de teste e verifica assinatura, pacote e permissão de rede. Nos artefatos de uma execução concluída, baixe o ZIP e extraia o APK. O app **Terras Devastadas Teste 0.7**, pacote `com.bhsp.terrasdevastadas.preview.v07`, instala separado do APK anterior.
 
-Exportar JSON mantém cópia independente. IndexedDB é local ao navegador/origem. Saves de edições anteriores são recusados sem alteração, para não misturar regras e arte; não há migração automática para este rebalanceamento. Nova partida preserva backup interno do save anterior. Para continuar jogo antigo, use a versão correspondente no Git.
+O mesmo workflow prepara o APK **Tabuleiro Teste 0.7**, pacote `com.bhsp.terrasdevastadas.tabuleiro.preview.v07`, para TV. Use o arquivo com `tabuleiro` no nome nesse aparelho; a variante de celular é outro APK. A chave debug muda por execução: se já instalou uma variante de teste com assinatura anterior, preservar seus dados antes de reinstalar. A distribuição assinada definitiva é um processo separado.
 
-Implementados: 12 cidades/35 setores, viagens, cartas, hostis, equipamentos, corrida por marcos, saque simples, controle e anúncios, inventários e persistência. Parciais: defesa pessoal integrada à conquista/saque, alerta de saque, perfis regionais. Sem servidor, multiplayer ou bots. Balanceamento continua em teste; não houve partidas humanas medidas.
+A execução [41257585924](https://github.com/Souzinhaa/game-terras-devastadas-v1/actions/runs/41257585924) validou 180 verificações de regras, 63 de sessão LAN e 201 de campanha LAN, e exportou o APK assinado. Layouts foram verificados no Windows em 892×445, 1280×720 e 2340×1080, com recorte simulado. Isso não comprova toque, rede, desempenho ou balanceamento em Android físico; playtests com pessoas permanecem pendentes.
+
+## Desenvolvimento e contexto
+
+Comece por [AGENTS.md](AGENTS.md), [context.md](context.md) e [godot/CONTEXT.md](godot/CONTEXT.md). Os textos atuais descrevem o runtime nativo. Relatórios antigos estão identificados como registros históricos; não devem reintroduzir regras substituídas.
+
+A referência React/TypeScript permanece em `src/`, com regras 0.6 e persistência IndexedDB. Ela não recebeu as mudanças nativas 0.7, não tem paridade integral de seed e não importa saves Godot. Contexto preservado: [referência React v0.6](docs/historico/CONTEXTO_REACT_V06.md). Para executar essa referência: Node.js 24, `npm ci`, `npm run dev`, `npm test` e `npm run build`; no PowerShell, use `npm.cmd` quando necessário.
+

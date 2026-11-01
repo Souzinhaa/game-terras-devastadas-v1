@@ -1,5 +1,7 @@
 # Recebimento PvP e atributos da Moto
 
+Estas regras nativas de recebimento/dano/carga permanecem na edição 0.7. Upgrade da Moto preserva combustível e a primeira destruição não perde a próxima vez própria. Contrato completo e diferenças de saves: [rules.md](../../rules.md). O restante registra a entrega de 30/10/2026.
+
 30/10/2026. Implementação nativa conforme decisões do usuário nesta sessão.
 
 - Vitória contra carro recebe todos os recursos da carga e o combustível do tanque do derrotado, mais uma carta aleatória da mão, antes da regra de vidas descartar o restante. Instalados do derrotado são descartados, nunca transferidos. Carta passa por `gain_card`/`transfer_card`, com instância e revelação privada preservadas.

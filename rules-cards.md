@@ -1,12 +1,12 @@
-# Terras Devastadas — Catálogo completo de cartas v0.2
+# Terras Devastadas — catálogo de cartas / regras Godot 0.7
 
-**Godot v0.7:** E11 e V16 ficam fora dos baralhos de novas partidas, com suas identidades preservadas no registro. Cartas e saves v0.6 não são removidos. Ver [contrato nativo v0.7](godot/docs/REBALANCEAMENTO_V07.md).
+Contrato das novas partidas Godot/Android, atualizado em 31/10/2026. Consultar [regras completas](rules.md), [Como jogar](docs/COMO_JOGAR.md) e [compatibilidade 0.7](godot/docs/REBALANCEAMENTO_V07.md). React e saves nativos `campaign-v06` preservam suas respectivas edições; não inferir paridade integral.
 
-Edição de teste revisada em 29/10/2026, com seleção de alterações autorizada por Bruno. Compatível com rules.md v0.6 deste pacote. Mantém 74 modelos e 148 instâncias nos quatro grupos, com melhorias territoriais no baralho de equipamentos. Doze frentes foram atualizadas; as demais permanecem válidas. Hostis estão em dados/hostis.json. Nenhuma partida real foi medida nesta revisão.
+O catálogo mantém **74 definições e 148 identidades registradas**. Na preparação 0.7, **72 definições/144 cópias** estão disponíveis nos baralhos; E11 e V16 têm duas cópias cada, registradas como indisponíveis. Não são compradas/reveladas em partidas novas. Cópias de saves antigos não são apagadas. Hostis são conteúdo separado em `godot/data/hostiles.json`. Não houve balanceamento empírico com pessoas.
 
-Precedência: rules.md + este catálogo + rule-config.json + patches tipados; imagens antigas e contextos v0.1 não prevalecem sobre os textos desta edição.
+Precedência nativa: `rules.md`, este catálogo, `godot/data/catalog.json` e execução em `campaign_rules.gd`/`combat_rules.gd`/`world_rules.gd`. Regras não são interpretadas da arte. Divergências devem ser registradas; não alterar o motor React ou o perfil de saves por inferência.
 
-### Regras transversais novas
+### Regras transversais
 - Todos os equipamentos de arma compartilham 1 ataque adicional por carro e rodada. A arma fixa não entra nesse limite. Erro também gasta o limite e a munição.
 - E04, E06 e E09 agora são ÚNICOS. E06 pode ativar uma vez por combate, não por rodada.
 - G17 exige turno próprio, 1 sucata e ação principal disponível; não acumula bloqueios em rota fechada. G18 permanece a resposta por carta.
@@ -15,26 +15,26 @@ Precedência: rules.md + este catálogo + rule-config.json + patches tipados; im
 
 ## 1 Composição
 
-| Baralho | Modelos diferentes | Cópias por modelo | Total |
+| Baralho ativo no setup 0.7 | Modelos disponíveis | Cópias por modelo | Total disponível |
 |---|---:|---:|---:|
 | Geral | 24 | 2 | 48 |
-| Melhorias — equipamentos | 12 | 2 | 24 |
+| Melhorias — equipamentos | 11 (E11 indisponível) | 2 | 22 |
 | Melhorias — territoriais | 6 | 2 | 12 |
 | Surpresas de corrida | 16 | 2 | 32 |
-| Eventos de deslocamento | 16 | Conforme tabela | 32 |
-| **Total** | **74** | — | **148** |
+| Eventos de deslocamento | 15 (V16 indisponível) | Conforme tabela | 30 |
+| **Total disponível** | **72** | — | **144** |
 
-Equipamentos e territoriais compartilham o mesmo baralho de melhorias, com 36 cartas. Não criar compra separada por tipo. Pistas são fichas de prova, não cartas de surpresa. Há 48 gerais para sustentar compras iniciais e por turno; reciclar descarte quando necessário.
+Equipamentos e territoriais compartilham o mesmo baralho de melhorias, com **34 cartas disponíveis** na edição 0.7. Registro integral: 24 gerais, 12 equipamentos, seis territoriais, 16 surpresas e 16 eventos: 74 definições/148 identidades incluindo as quatro indisponíveis. Saves 0.6 mantêm melhorias 36/eventos 32. Não criar compra separada por tipo. Pistas são fichas, não cartas de surpresa. Gerais reciclam descarte quando necessário.
 
 ## 2 Convenções universais
 
 - Geral vai à mão. Limite de uso: 1 por jogador em cada turno do mapa, inclusive adversário. Combate e corrida não renovam esse limite.
 - Cartas que modificam dados entram antes da rolagem. Ordem de oportunidade: jogador da vez, depois ordem dos turnos. Não existe reação retroativa ao resultado.
 - Melhoria vai à reserva correspondente; instalada permanece no espaço ativo. Cada equipamento ocupa 1 dos 2 espaços adicionais; cada territorial ocupa 1 dos 2 espaços do território. Nenhuma carta ocupa carga na mão.
-- Todo equipamento abaixo é compatível com os quatro veículos. Carga extra aparece explicitamente. Se exceder a capacidade, escolher descartar recursos ou cancelar instalação; não permitir carga ilegal.
+- Equipamentos são compatíveis com os cinco modelos. Carga extra aparece explicitamente; instalados na Moto não ocupam carga. Liberar espaço antes de instalar; não permitir carga ilegal.
 - Duplicatas somam, exceto carta marcada ÚNICA: uma por carro ou território. Benefícios idênticos com frequência própria são controlados por instância, salvo o limite compartilhado de arma adicional por carro e rodada.
 - Surpresa de corrida e evento são revelados e resolvidos imediatamente, depois descartados. Não contam como geral jogada. Efeitos pendentes são registrados separadamente do descarte.
-- Toda quantidade de combustível é inteira. Consumo normal continua hatch 1, sedã 2, SUV 2, caminhonete 3; nenhuma carta abaixo aplica adicional passivo por carga ou terreno.
+- Toda quantidade de combustível é inteira. Consumo normal: Hatch/Moto 1, Sedã/SUV 2 e Caminhonete 3; nenhuma carta abaixo aplica adicional passivo por carga ou terreno.
 - Cura respeita Integridade máxima; ganho respeita tanque/carga/depósito. Excedente é escolhido e descartado. Recurso ganho de carta surge no destino descrito, não é doação entre jogadores.
 - Dano pode inutilizar carro. Corrida: Integridade zero causada por carta retira o participante e consome uma vida: renasce uma vez de Hatch e é eliminado na segunda destruição, conforme rules.md desta edição.
 - Efeito sem alvo legal não pode ser jogado voluntariamente. Evento/surpresa obrigatória sem alvo é descartado sem efeito. Se uma condição de texto não se cumprir, usar sua alternativa expressa.
@@ -91,14 +91,14 @@ Dois exemplares por modelo. Instalar é livre no próprio turno fora de combate/
 | E08 | Bagageiro reforçado | 0 | ÚNICA. Capacidade de carga +2. Remover exige ajustar excedente imediatamente. |
 | E09 | Kit de extração | 0 | ÚNICA. 1 espaço. +1 ao teste de fuga. Não remove o custo de combustível nem o pagamento de carta na fuga entre jogadores. |
 | E10 | Suspensão de corrida | 0 | ÚNICA. Uma vez por corrida, some +2 ao seu avanço. Declare antes de sua rolagem. Não concede acesso à terra. |
-| E11 | Guincho manual | 0 | Uma vez por turno próprio, ao recolher sucata local, transfira até 1 dela diretamente para depósito próprio da cidade. Restante segue regra de carga. |
+| E11 | Guincho manual — indisponível no setup 0.7 | 0 | Texto legado: uma vez por turno próprio, ao recolher sucata local, transfira até 1 dela diretamente para depósito próprio da cidade. Fonte de sucata solta indefinida; não gerar recursos novos e preservar instâncias antigas. |
 | E12 | Escudo descartável | 0 | Antes de um ataque contra seu carro, pode descartar este equipamento para reduzir em 2 o dano desse ataque. Decisão antes do dado. |
 
 Toda redução indicada antes do dado pode resultar em benefício gasto mesmo se o ataque falhar. Frequência por combate não renova entre rodadas; não renova por simples mudança de alvo. Munição exige carga: o hatch precisa abrir espaço para carregá-la. Não criar munição infinita por instalação.
 
 ## 5 Melhorias territoriais — 6 modelos, 12 cartas
 
-Dois exemplares por modelo; mesmo baralho dos equipamentos. Usam os dois espaços territoriais. Presencialmente instalar é livre; remotamente consome a ação Administrar. A reserva de três territoriais continua proposta do GDD.
+Dois exemplares por modelo; mesmo baralho dos equipamentos. Usam os dois espaços territoriais. Presencialmente instalar é livre; remotamente consome a ação principal. A reserva de três territoriais é o limite implementado no nativo.
 
 | ID | Nome | Efeito instalado |
 |---|---|---|
@@ -159,15 +159,15 @@ Revelar após pagar uma viagem legal e antes da ação na chegada. Para este cat
 | V13 | Corrida Araras–Piracicaba | 1 | Convoque a pista P02 e proceda como V12. |
 | V14 | Corrida Rio Claro–Americana | 1 | Convoque a pista P03 e proceda como V12. |
 | V15 | Emboscada de saqueadores | 2 | Enfrente uma ameaça leve de evento. Esta batalha substitui sua ação principal. Não concede território; descarte a ameaça ao encerrar, mesmo se fugiu. |
-| V16 | Veículo abandonado | 2 | Revele 1 veículo disponível e deixe-o na cidade de destino, com tanque vazio e Integridade máxima, sem adicionais. Pode assumir usando sua ação Administrar na chegada. |
+| V16 | Veículo abandonado — indisponível no setup 0.7 | 2 registradas, 0 disponíveis | Conteúdo desativado. Não gera novas ofertas, mesmo em save com vehicle_pool. A descrição de veículo abandonado é histórica; não reativar automaticamente. |
 
 V15: a regra de dano persistente vale para ameaças territoriais; inimigo de evento é encontro temporário sem casa, descartado no encerramento. Se houver fuga, sair da cidade e pagar custo normal, sem carta de tributo porque é ameaça. Se faltar saída, continuar combate; impasse sem dano segue pendência do GDD.
 
-V16: veículo revelado não recebe kit inicial. Não devolver cartas de veículos ativos ao sorteio. Se não houver modelo disponível, descartar evento sem efeito. Definição de quantas cópias de veículos existem pertence ao baralho de veículos, não a este catálogo. A oferta fica pública e pode ser assumida por outro jogador primeiro.
+V16 continua no catálogo/registro para compatibilidade, mas fora do baralho 0.7. Em saves antigos, resolver a carta não cria oferta: seu efeito permanece desativado por decisão do usuário. Ofertas que já existiam no save são preservadas e seguem seus custos; isso não autoriza gerar novas.
 
-Distribuição: 10 passagens tranquilas; 10 achados (V03/V04/V08/V09/V10/V16); 9 riscos/atrasos (V05/V06/V07/V11/V15); 3 corridas. Assim, 3 de 32 eventos convocam corrida antes de reciclar. A probabilidade efetiva muda conforme cartas saem do baralho.
+Distribuição disponível 0.7: dez passagens tranquilas, oito achados (V03/V04/V08/V09/V10), nove riscos/atrasos (V05/V06/V07/V11/V15) e três corridas: **30 eventos**, dos quais três convocam corrida antes de reciclar. O registro mantém também duas cópias indisponíveis de V16. A probabilidade efetiva muda conforme cartas saem do baralho.
 
-## 8 Fichas de pista propostas
+## 8 Fichas de pista implementadas
 
 | ID | Pista | Distância | Marcos | Inscrição | Prêmio do vencedor |
 |---|---|---:|---|---:|---|
@@ -177,7 +177,7 @@ Distribuição: 10 passagens tranquilas; 10 achados (V03/V04/V08/V09/V10/V16); 9
 
 Custos respeitam teto confirmado 5; os valores individuais e recompensas são novos. Prêmio entra na carga/mão. Na cidade de retorno, pode usar depósitos próprios antes do descarte. Sem depósito e com hatch, parte da sucata pode ser perdida; melhorias continuam valiosas e não ocupam carga na mão.
 
-Sem desistência voluntária. Completar a rodada de chegada; maior progresso vence, empate por D6 sem cartas. Com um único inscrito apto, cancelar a convocação, devolver inscrição e seguir o turno sem prêmio. Rival neutro desativado nesta edição.
+Inscrição voluntária para todos, inclusive o revelador na edição 0.7. Depois de inscrito, não há desistência voluntária. Completar a rodada de chegada; maior progresso vence, empate por D6 sem cartas. Com menos de dois inscritos aptos, cancelar, devolver inscrição e seguir o turno sem prêmio. Rival neutro desativado.
 
 
 ## 9 Guardas de balanceamento e implementação
@@ -191,9 +191,9 @@ Sem desistência voluntária. Completar a rodada de chegada; maior progresso ven
 - Mão geral limite 5; equipamento 3; reserva territorial provisória 3. Compras podem exigir descarte imediatamente. Compra G15 não aumenta cota de gerais.
 - Nenhuma carta muda regra de vitória, concessão de defesa padrão na conquista ou descarte na eliminação.
 
-### Estrutura de dados recomendada
+### Estrutura de dados e execução
 
-Cada definição precisa de `id`, `name`, `deck`, `type`, `copies`, `timing`, `targetSelector`, `cost`, `effects`, `duration`, `restrictions`, `rulesText` e `status: proposed`. Equipamento inclui `slots`, `extraCargo`, `unique` e efeitos acionáveis/passivos. Não interpretar texto natural com LLM durante a partida.
+As definições estão em `godot/data/catalog.json`; IDs, cópias, texto e metadados não devem ser confundidos com efeito habilitado. Equipamentos incluem espaços, carga extra e unicidade. O motor executa comandos explícitos; `status`, presença no JSON ou arte não habilitam uma carta. Não interpretar texto natural com LLM durante a partida.
 
 Efeitos tipados mínimos: modifyRoll, modifyDamage, restoreIntegrity, gainResource, loseResource, drawCard, inspectDeckTop, blockRoad, removeBlock, modifyStat, grantAttack, moveRaceProgress, queueRaceModifier, startRace, spawnVehicle, startEventCombat e consumeMainAction.
 
@@ -201,7 +201,7 @@ Registrar triggers e fontes por instância. Definição contém duas cópias, ma
 
 ### Testes de aceitação
 
-1. Contagem 74 definições e 148 instâncias; geral 48, melhorias 36, corrida 32, eventos 32.
+1. Registro de 74 definições/148 identidades; setup 0.7 com gerais 48, melhorias 34, corrida 32 e eventos 30; E11/V16 com quatro identidades indisponíveis. Save 0.6 preserva composição anterior.
 2. Nenhuma geral altera dado depois da rolagem; limite não renova no combate/corrida.
 3. Cura não supera máximo; ganho não supera tanque/carga sem escolha de descarte.
 4. E02 ocupa 2 das 4 cargas do hatch; E08 aumenta sua capacidade para 6.
@@ -211,7 +211,7 @@ Registrar triggers e fontes por instância. Definição contém duas cópias, ma
 8. R01/R02/R14 cruzam marcos em ordem sem repeti-los; efeito não gera novo turno.
 9. Carro destruído por surpresa sai da prova; primeira morte renasce, segunda elimina.
 10. G17 respeita última saída por classe; G18 remove uma fonte de bloqueio.
-11. V16 não entrega kit ou combustível nem duplica veículo ativo.
+11. V16 não entra no baralho novo e não gera oferta em save antigo; E11 não cria fonte automática de sucata solta.
 12. V15 consome ação principal uma única vez; V12–V14 não a consomem por padrão.
 
 ## 10 Pendências para a próxima edição

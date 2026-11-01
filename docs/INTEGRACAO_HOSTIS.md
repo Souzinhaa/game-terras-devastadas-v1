@@ -1,3 +1,5 @@
+> Registro de referência React/edições anteriores. Valores, status e pendências descrevem a etapa deste documento. Para o Android atual, consulte [contexto](../context.md), [regras Godot 0.7](../rules.md) e [Como jogar](COMO_JOGAR.md). Não presumir paridade entre motores.
+
 # Integração dos hostis — conteúdo 0.4.2
 
 Base: `src/data/hostiles.json`, `rules.md` e `context.md`. O pacote é conteúdo inicial de playtest aceito pelo usuário; não altera ficha, consumo, carga ou tanque dos quatro veículos.

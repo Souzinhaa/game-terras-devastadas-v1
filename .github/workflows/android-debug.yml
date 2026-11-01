@@ -47,12 +47,12 @@ jobs:
           echo "$RUNNER_TEMP/godot" >> "$GITHUB_PATH"
           curl --fail --location --retry 3 -o templates.tpz https://github.com/godotengine/godot-builds/releases/download/4.7.2-stable/Godot_v4.7.2-stable_export_templates.tpz
           echo 'f298490b8d44d934be425a5a65a51bf15f422428b229a06a6e11d9ffea248011  templates.tpz' | sha256sum --check
-          unzip -q -j templates.tpz 'templates/android_debug.apk' 'templates/version.txt' -d "$HOME/.local/share/godot/export_templates/4.7.2.stable"
+          unzip -q -j templates.tpz 'templates/android_debug.apk' 'templates/android_source.zip' 'templates/version.txt' -d "$HOME/.local/share/godot/export_templates/4.7.2.stable"
       - name: Preparar SDK e assinatura de teste
         shell: bash
         run: |
           set -euo pipefail
-          sdkmanager 'platform-tools' 'platforms;android-36' 'build-tools;36.0.0'
+          sdkmanager 'platform-tools' 'platforms;android-36' 'build-tools;36.0.0' 'build-tools;36.1.0' 'ndk;29.0.14206865'
           export GODOT_ANDROID_KEYSTORE_DEBUG_PATH="$RUNNER_TEMP/debug.keystore"
           echo "GODOT_ANDROID_KEYSTORE_DEBUG_PATH=$GODOT_ANDROID_KEYSTORE_DEBUG_PATH" >> "$GITHUB_ENV"
           keytool -genkeypair -keystore "$GODOT_ANDROID_KEYSTORE_DEBUG_PATH" -storepass android -keypass android -alias androiddebugkey -keyalg RSA -keysize 2048 -validity 10000 -dname 'CN=Android Debug,O=Android,C=US'
@@ -72,12 +72,19 @@ jobs:
           p = Path('godot/export_presets.cfg')
           text = p.read_text()
           phone, tv = text.split('[preset.1]', 1)
-          phone = re.sub(r'^version/code=\d+$', 'version/code=5', phone, flags=re.M)
-          phone = re.sub(r'^version/name="[^"]*"$', 'version/name="0.0.4-regras-0.7"', phone, flags=re.M)
+          phone = re.sub(r'^version/code=\d+$', 'version/code=6', phone, flags=re.M)
+          phone = re.sub(r'^version/name="[^"]*"$', 'version/name="0.0.4-ui-tv"', phone, flags=re.M)
           phone = phone.replace('package/unique_name="com.bhsp.terrasdevastadas"', 'package/unique_name="com.bhsp.terrasdevastadas.preview.v07"')
           phone = phone.replace('package/name="Terras Devastadas"', 'package/name="Terras Devastadas Teste 0.7"')
+          tv = tv.replace('package/unique_name="com.bhsp.terrasdevastadas.tabuleiro"', 'package/unique_name="com.bhsp.terrasdevastadas.tabuleiro.preview.v07"')
+          tv = tv.replace('package/name="Terras Devastadas Tabuleiro"', 'package/name="Terras Devastadas Tabuleiro Teste 0.7"')
+          tv = tv.replace('gradle_build/gradle_build_directory="res://android"', 'gradle_build/gradle_build_directory="res://android/build"')
           p.write_text(phone + '[preset.1]' + tv)
           PY
+          mkdir -p godot/android/build
+          unzip -q "$HOME/.local/share/godot/export_templates/4.7.2.stable/android_source.zip" -d godot/android/build
+          cp "$HOME/.local/share/godot/export_templates/4.7.2.stable/version.txt" godot/android/.build_version
+          chmod +x godot/android/build/gradlew
       - name: Importar e exportar APK ARM64
         shell: bash
         run: |
@@ -87,26 +94,36 @@ jobs:
           for SUITE in balance_smoke lan_session_smoke lan_campaign_smoke; do
             Godot_v4.7.2-stable_linux.x86_64 --headless --path godot --script "res://tests/$SUITE.gd" 2>&1 | tee "builds/$SUITE.log"
           done
-          Godot_v4.7.2-stable_linux.x86_64 --headless --path godot --export-debug Android "$GITHUB_WORKSPACE/builds/terras-devastadas-v0.0.4-regras-0.7-android-arm64.apk" 2>&1 | tee builds/export.log
-          if grep -E 'SCRIPT ERROR:|Parse Error:|Failed to load script' builds/import.log builds/export.log; then exit 1; fi
+          Godot_v4.7.2-stable_linux.x86_64 --headless --path godot --export-debug Android "$GITHUB_WORKSPACE/builds/terras-devastadas-v0.0.4-ui-tv-android-arm64.apk" 2>&1 | tee builds/export.log
+          Godot_v4.7.2-stable_linux.x86_64 --headless --path godot --export-debug 'Android TV' "$GITHUB_WORKSPACE/builds/terras-devastadas-v0.0.4-ui-tv-tabuleiro-android.apk" 2>&1 | tee builds/export-tv.log
+          if grep -E 'SCRIPT ERROR:|Parse Error:|Failed to load script' builds/import.log builds/export.log builds/export-tv.log; then exit 1; fi
       - name: Verificar assinatura, pacote e permissões
         shell: bash
         run: |
           set -euo pipefail
           TOOLS="$ANDROID_HOME/build-tools/36.0.0"
-          APK=builds/terras-devastadas-v0.0.4-regras-0.7-android-arm64.apk
+          APK=builds/terras-devastadas-v0.0.4-ui-tv-android-arm64.apk
           "$TOOLS/apksigner" verify --verbose "$APK" | tee builds/signature.txt
           "$TOOLS/aapt" dump badging "$APK" | tee builds/package.txt
           grep "package: name='com.bhsp.terrasdevastadas.preview.v07'" builds/package.txt
-          grep "versionName='0.0.4-regras-0.7'" builds/package.txt
+          grep "versionName='0.0.4-ui-tv'" builds/package.txt
           grep "native-code: 'arm64-v8a'" builds/package.txt
           grep 'android.permission.INTERNET' builds/package.txt
           unzip -t "$APK" > builds/zip-check.txt
           sha256sum "$APK" > builds/SHA256SUMS.txt
+          TV_APK=builds/terras-devastadas-v0.0.4-ui-tv-tabuleiro-android.apk
+          "$TOOLS/apksigner" verify --verbose "$TV_APK" | tee builds/signature-tv.txt
+          "$TOOLS/aapt" dump badging "$TV_APK" | tee builds/package-tv.txt
+          grep "package: name='com.bhsp.terrasdevastadas.tabuleiro.preview.v07'" builds/package-tv.txt
+          grep 'leanback-launchable-activity:' builds/package-tv.txt
+          grep "native-code:.*arm64-v8a" builds/package-tv.txt
+          grep 'android.permission.INTERNET' builds/package-tv.txt
+          unzip -t "$TV_APK" > builds/zip-check-tv.txt
+          sha256sum "$TV_APK" >> builds/SHA256SUMS.txt
       - uses: actions/upload-artifact@v4
         if: always()
         with:
-          name: terras-devastadas-v0.0.4-regras-0.7-android-arm64
+          name: terras-devastadas-v0.0.4-ui-tv-android-celular-e-tabuleiro
           path: builds/
           if-no-files-found: error
           retention-days: 14

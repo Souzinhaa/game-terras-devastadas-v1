@@ -1,5 +1,7 @@
 # Implementação da campanha v0.6
 
+> Registro histórico de uma etapa anterior. Números, ausências e pendências abaixo descrevem aquela revisão, anterior às regras 0.7 e/ou à LAN atual. Para desenvolvimento Android, usar [CONTEXT.md](../CONTEXT.md), [regras atuais](../../rules.md), [Como jogar](../../docs/COMO_JOGAR.md) e [rebalanceamento 0.7](REBALANCEAMENTO_V07.md). A CI Android e a implementação LAN posteriores estão documentadas nesses pontos de entrada.
+
 Data: 30/10/2026. Implementação posterior à [auditoria e plano](GAMEPLAY_AUDIT_AND_PLAN.md). Runtime: Godot 4.7.2 Standard, Compatibility. Alvo permanece Android em paisagem e hot-seat local.
 
 ## Entrega e limites

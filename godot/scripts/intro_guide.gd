@@ -28,7 +28,7 @@ func _ready() -> void:
 	heading.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	content.add_child(heading)
 	for paragraph in [
-		"Explore setores, reúna recursos e melhore seu veículo para conquistar cidades.",
+		"Explore seus setores escolhendo sucata ou combustível, reúna recursos e melhore seu veículo para conquistar cidades.",
 		"No seu turno, compre uma carta, viaje se quiser e faça uma ação principal. Depois, passe o aparelho ao próximo jogador.",
 		"Vença como último sobrevivente ou anuncie 3 pontos de cidades completas e mantenha essa pontuação até seu próximo turno. Consulte os pontos no Menu → Placar."
 	]:

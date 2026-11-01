@@ -16,6 +16,7 @@ var active_group: String = ""
 var card_filter: String = ""
 var page_index: int = 0
 var menu_signature: String = ""
+var previous_resources: Dictionary = {}
 var map_only: bool = false
 var lock_screen: ColorRect
 
@@ -127,6 +128,10 @@ func refresh() -> void:
 	for key: String in RESOURCE_NAMES:
 		count += int(own.stock.get(key, 0))
 		resources[key].text = str(int(own.stock.get(key, 0)))
+		var amount: int = int(own.stock.get(key, 0))
+		if previous_resources.has(key) and int(previous_resources[key]) != amount:
+			preload("res://scripts/ui_feedback.gd").flash(resources[key], Color("a7c789") if amount > int(previous_resources[key]) else Color("ffc477"), app.endpoint.reduced_motion)
+		previous_resources[key] = amount
 	body.get_node("Cargo").text = "Carga %d/%d · abrir" % [int(own.get("cargo", count)), int(own.capacity)]
 	var cards: Array = []
 	var concealed: Array = []
@@ -186,8 +191,17 @@ func show_menu() -> void:
 	app.button("Minhas ações", show_groups, body)
 	app.button("Administrar / instalar", func(): show_group("Instalar"), body)
 	app.button("Placar", show_scoreboard, body)
+	app.button("Como jogar", show_help, body)
 	app.button("Sair da sala", app.leave_screen, body)
 	if app.endpoint.mode == "host" and app.endpoint.view.save_pending: app.button("Tentar salvar", app.endpoint.retry_save, body)
+	sheet.popup_centered()
+
+func show_help() -> void:
+	screen_mode = "help"
+	var body: VBoxContainer = sheet.reset("COMO JOGAR · LAN")
+	var modern: bool = str(app.endpoint.view.public.get("rules_version", "0.6")) == "0.7"
+	for entry: String in preload("res://scripts/how_to_play.gd").paragraphs(modern, true):
+		app.label(entry, body)
 	sheet.popup_centered()
 
 func show_groups() -> void:
@@ -201,7 +215,13 @@ func show_groups() -> void:
 	grid.add_theme_constant_override("h_separation", 10)
 	grid.add_theme_constant_override("v_separation", 10)
 	body.add_child(grid)
-	for group: String in groups: app.button(group, func(): show_group(group), grid).size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	for group: String in groups:
+		var control: Button = app.button(group, func(): show_group(group), grid)
+		control.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+		if group in ["Viajar", "Setores", "Depósitos", "Veículo"]:
+			control.icon = preload("res://assets/ui/icons/map.svg") if group in ["Viajar", "Setores"] else preload("res://assets/ui/icons/cargo.svg")
+			control.expand_icon = true
+			control.add_theme_constant_override("icon_max_width", 26)
 	if groups.is_empty(): app.label("Aguarde seu turno ou uma decisão sua.", body)
 	sheet.popup_centered()
 
@@ -236,6 +256,9 @@ func render_group() -> void:
 		combat_summary(encounter, body)
 	for option: Dictionary in choices.slice(page_index * page_size, (page_index + 1) * page_size):
 		var control: Button = app.button(option.label, func(): sheet.hide(); app.select_option(option), body)
+		control.tooltip_text = preload("res://scripts/ui_feedback.gd").hint(str(option.action))
+		if option.action in ["start", "end", "combatRoll", "combatFast", "combatEscapeRoll"]: control.theme_type_variation = &"Primary"
+		elif option.action in ["duel", "loot"]: control.theme_type_variation = &"Danger"
 		control.disabled = not app.endpoint.connected or not app.endpoint.pending_command.is_empty()
 		for card: Dictionary in app.endpoint.view.private.hand:
 			if card.hidden: continue

@@ -1,3 +1,5 @@
+> Registro de referência React/edições anteriores. Valores, status e pendências descrevem a etapa deste documento. Para o Android atual, consulte [contexto](../context.md), [regras Godot 0.7](../rules.md) e [Como jogar](COMO_JOGAR.md). Não presumir paridade entre motores.
+
 # Regras v0.6 — Hatch, progressão e duas vidas
 
 Estas regras substituem o início com modelo sorteado e a recuperação de carro destruído das versões anteriores. A mudança de regras exige uma nova partida: conteúdo 0.6.0, envelope schema 4. Não converter saves anteriores nem inventar vidas restantes para eles.
@@ -52,3 +54,4 @@ O sistema é coerente com o objetivo de dar uma segunda chance e tornar sucata u
 
 ## Complemento da Moto
 Moto usa `assets/moto-cima.png`, carga 2, consumo 1, tanque 10, terra permitida, integridade máxima 6, defesa 4+, agilidade +1. Melhorar o Hatch para Moto custa 5 sucatas locais e uma ação e entrega tanque cheio com 10. Vida atual e contador de vidas são preservados. Moto encontrada continua sem kit; ao assumi-la, transfere combustível disponível sem completar tanque. Todos continuam começando e renascendo de Hatch.
+

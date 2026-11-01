@@ -1,3 +1,5 @@
+> Registro de referência React/edições anteriores. Valores, status e pendências descrevem a etapa deste documento. Para o Android atual, consulte [contexto](../context.md), [regras Godot 0.7](../rules.md) e [Como jogar](COMO_JOGAR.md). Não presumir paridade entre motores.
+
 > HISTÓRICO v0.1 — valores substituídos pelo GDD v0.4. Consulte [ATUALIZACAO_V04.md](ATUALIZACAO_V04.md) para o estado atual.
 
 # Protótipo local — registro de decisões
@@ -64,3 +66,4 @@ Limitações de interface: não houve inspeção visual automatizada em navegado
 Validação executada: `npm.cmd test` — 11 testes aprovados no Vitest 5.0.5; `npm.cmd run build` — TypeScript e bundle Vite aprovados. A instalação após atualização do Vitest reportou zero vulnerabilidades. Nenhum teste de balanceamento foi realizado.
 
 Smoke do servidor: Vite iniciado em `127.0.0.1:5173`; HTML e módulo `src/main.tsx` responderam HTTP 200. Neste ambiente, a otimização de dependências precisou executar fora do sandbox devido à leitura negada em diretórios ancestrais; isso não exigiu mudança de permissões no projeto. Não equivale a teste de interação em navegador.
+

@@ -53,6 +53,6 @@ Testes e capturas de Windows não substituem testes de toque, rede, desempenho o
 
 ## APK de teste
 
-O workflow Android exporta a variante `com.bhsp.terrasdevastadas.preview.v07`, chamada **Terras Devastadas Teste 0.7**, versão `0.0.4-regras-0.7`. Ela instala ao lado do APK anterior, preservando seus dados. Todas as pessoas da sala LAN devem usar esta edição. Começar uma partida nova para jogar com as regras 0.7; carregar uma partida 0.6 preserva as regras anteriores.
+O workflow Android exporta a variante `com.bhsp.terrasdevastadas.preview.v07`, chamada **Terras Devastadas Teste 0.7**, versão `0.0.4-ui-tv`. Ela instala ao lado do APK anterior, preservando seus dados. Todas as pessoas da sala LAN devem usar esta edição. Começar uma partida nova para jogar com as regras 0.7; carregar uma partida 0.6 preserva as regras anteriores.
 
 A chave de debug do CI é temporária por execução. Builds futuros com o mesmo pacote podem exigir reinstalar essa variante de teste; não usar este workflow para substituir a assinatura de distribuição.

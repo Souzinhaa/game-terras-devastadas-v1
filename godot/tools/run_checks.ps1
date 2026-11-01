@@ -12,7 +12,7 @@ $logRoot = Join-Path $repo '.tools/campaign-checks'
 New-Item -ItemType Directory -Force -Path $logRoot | Out-Null
 $headlessSuites = @('data_validation', 'smoke', 'combat_smoke', 'campaign_smoke', 'campaign_edges', 'shared_contracts', 'pvp_rewards', 'balance_smoke', 'lan_session_smoke', 'lan_campaign_smoke')
 $suites = $headlessSuites
-if (-not $HeadlessOnly) { $suites += @('ui_smoke', 'reveal_smoke', 'combat_ui_smoke', 'transfers_smoke', 'modern_ui_smoke', 'exploration_ui_smoke', 'campaign_ui_smoke', 'onboarding_ui_smoke', 'start_screen_ui_smoke', 'mobile_layout_smoke', 'mobile_layout_large', 'lan_mobile_layout', 'lan_mobile_compact', 'lan_mobile_s23', 'lan_ui_smoke', 'tv_remote_smoke') }
+if (-not $HeadlessOnly) { $suites += @('ui_smoke', 'reveal_smoke', 'combat_ui_smoke', 'transfers_smoke', 'modern_ui_smoke', 'exploration_ui_smoke', 'campaign_ui_smoke', 'onboarding_ui_smoke', 'start_screen_ui_smoke', 'mobile_layout_smoke', 'mobile_layout_large', 'lan_mobile_layout', 'lan_mobile_compact', 'lan_mobile_s23', 'lan_ui_smoke', 'tv_remote_smoke', 'tv_dashboard_smoke') }
 if ($OnlySuites.Count) { $suites = @($suites | Where-Object { $_ -in $OnlySuites }) }
 $oldAppData = $env:APPDATA
 $oldLocalData = $env:LOCALAPPDATA

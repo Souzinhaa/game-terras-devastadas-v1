@@ -1,3 +1,5 @@
+> Registro de referência React/edições anteriores. Valores, status e pendências descrevem a etapa deste documento. Para o Android atual, consulte [contexto](../context.md), [regras Godot 0.7](../rules.md) e [Como jogar](COMO_JOGAR.md). Não presumir paridade entre motores.
+
 > Atualização v0.5: rules.md/rules-cards.md prevalecem; armas compartilham um ataque por rodada, E04/E06/E09 são únicos e E06 é por combate.
 
 # Integração do catálogo de cartas — conteúdo 0.4.1

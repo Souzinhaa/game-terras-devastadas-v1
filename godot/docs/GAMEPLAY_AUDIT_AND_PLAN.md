@@ -1,5 +1,7 @@
 # Auditoria do jogo e plano de implementação
 
+> Registro histórico de uma etapa anterior. Números, ausências e pendências abaixo descrevem aquela revisão, anterior às regras 0.7 e/ou à LAN atual. Para desenvolvimento Android, usar [CONTEXT.md](../CONTEXT.md), [regras atuais](../../rules.md), [Como jogar](../../docs/COMO_JOGAR.md) e [rebalanceamento 0.7](REBALANCEAMENTO_V07.md). A CI Android e a implementação LAN posteriores estão documentadas nesses pontos de entrada.
+
 Data: 30/10/2026. Escopo principal: Godot 4.7 Standard / Android em paisagem, offline, hot-seat para 2–4 jogadores. Esta é a auditoria original, anterior à implementação. O estado posterior, testes e pendências estão em [CAMPAIGN_IMPLEMENTATION.md](CAMPAIGN_IMPLEMENTATION.md); as lacunas abaixo descrevem o momento do diagnóstico.
 
 ## Diagnóstico

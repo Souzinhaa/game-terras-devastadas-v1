@@ -1,6 +1,6 @@
 # Instruções para agentes — Terras Devastadas / Godot
 
-Escopo: projeto nativo em `godot/`. Atualizado em 30/10/2026.
+Escopo: projeto nativo em `godot/`. Atualizado em 31/10/2026.
 
 Novas partidas usam `campaign-v07`; consultar `docs/REBALANCEAMENTO_V07.md`. Saves `campaign-v06` preservam seus números e baralhos. Testes de regressão v0.6 usam perfil explícito; `tests/balance_smoke.gd` verifica as regras novas e a compatibilidade.
 
@@ -8,11 +8,11 @@ Novas partidas usam `campaign-v07`; consultar `docs/REBALANCEAMENTO_V07.md`. Sav
 
 1. `CONTEXT.md`: estado real e limites da migração.
 2. `README.md`: execução, regras disponíveis e testes.
-3. `../rules.md`, `../rules-cards.md` e JSON relevantes: contratos de regras.
+3. `../rules.md`, `../rules-cards.md`, `../docs/COMO_JOGAR.md` e JSON relevantes: contratos 0.7 e guia. Ajuda local/LAN: `scripts/how_to_play.gd`, com perfil real.
 4. `../update_ui.md` e `docs/UI_IMPLEMENTATION.md`: direção e implementação da interface.
 5. Código e testes do sistema a alterar.
 
-O contexto da raiz contém histórico React. Não tratar seus sistemas implementados como funcionalidades existentes no Godot. Em conflito entre documentação e código, verificar e registrar a divergência antes de declarar uma função pronta.
+O contexto da raiz descreve o desenvolvimento Android atual. A referência React anterior está em `../docs/historico/CONTEXTO_REACT_V06.md`; não presumir paridade entre motores nem usar relatórios históricos como estado atual. Em conflito entre documentação e código, verificar e registrar a divergência antes de declarar uma função pronta.
 
 ## GodotPrompter
 
@@ -30,6 +30,7 @@ As skills orientam a implementação; não mudam as regras, o escopo pedido ou a
 - Exploração concede recursos ao depósito. O popup exibe o delta real; fechar ou abrir depósito não sorteia nem concede itens novamente.
 - Manter mão recolhida central sem faixa preta, resumo lateral do veículo e privacidade na passagem de dispositivo.
 - UI em cenas/tema compartilhado. Preferir atualização por mudança de estado, sem reconstruir inventário/mão sem necessidade.
+- Feedback de botões em `ui_feedback.gd`; efeitos públicos em `board_feedback.gd`; TV em `network/tv_dashboard.gd`. Não alterar a animação de compra/revelação por efeito genérico. Movimento reduzido deve manter informação sem animar; efeitos não enviam comandos nem consomem RNG. A TV continua sem dados/capacidades privadas.
 - Preservar originais dos assets. Copiar para o runtime em `godot/assets` e manter configurações `.import`; não editar cache `.godot/`.
 - Não apresentar testes Windows como validação Android física nem PCK como APK.
 - Não implementar backend, autenticação, multiplayer de rede ou novas regras sem pedido.

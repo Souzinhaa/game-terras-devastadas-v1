@@ -2,7 +2,7 @@
 
 Data: 31/10/2026. Godot 4.7.2 Standard, GDScript, Compatibility.
 
-**Revisão atual: 0.2.1-lan-ui / código 3.** O HUD original foi restaurado no modo LAN, a preparação ganhou tela própria e a descoberta passou a consultar/responder automaticamente. Ver [correção de interface e toque](LAN_UI_TOUCH_FIX.md). As descrições da primeira entrega abaixo são históricas quando mencionam a lista lateral de ações.
+**Revisão atual: regras 0.7, branch feature/release-0.0.4.** HUD compartilhado no celular, descoberta automática, ajuda por edição, retorno visual dos botões e Tabuleiro TV com etapas de turno/placar compacto persistente. Ver [contexto atual](../CONTEXT.md), [regras](../../rules.md) e [interação/TV](UI_INTERACTION_TV.md). A revisão 0.2.1-lan-ui/código 3 foi a correção inicial de HUD/toque; descrições da primeira entrega abaixo são históricas quando mencionam barra lateral ou números de build anteriores.
 
 ## Resultado e limite da entrega
 

@@ -1,5 +1,13 @@
 # Contratos da sessão LAN — versão 1
 
+## Atualização de apresentação e regras 0.7
+
+Novas partidas usam `campaign-v07`; saves 0.6 preservam a edição. A projeção pública informa `rules_version`, `victory_target`, recuperação do carro e `threat_band` de setores neutros. Faixa não revela identidade/atributos do hostil antes da descoberta. Somente a projeção privada do dono informa `combat_auto_pass`.
+
+`combatFast` é uma capacidade do jogador ativo, sem escolhas automáticas; `combatAutoPass` fica vinculado ao próprio ator. Reenvio usa os recibos existentes. A TV não recebe essas capacidades, cartas, recursos privados, RNG, baralhos ou save integral.
+
+O dashboard TV usa as mesmas etapas de turno e um placar compacto com pontos, vidas e anúncio. Efeitos de dano/conquista/turno comparam somente campos públicos já resolvidos, por `match_id`/`epoch`/`revision`. Primeiro snapshot e nova epoch estabelecem baseline; snapshots repetidos não repetem efeitos. Animações não enviam confirmação, não bloqueiam comandos e não recalculam resultados. Movimento reduzido conserva os valores sem os efeitos. A ajuda local/LAN vem de `scripts/how_to_play.gd` e acompanha a edição.
+
 Data: 31/10/2026. Implementação em `scripts/network/`. Este contrato descreve o código, complementando o [plano](MULTIPLAYER_LAN_MIGRATION_PLAN.md) e o [relatório de entrega](MULTIPLAYER_LAN_IMPLEMENTATION.md).
 
 ## Autoridade e identidades
