@@ -19,11 +19,20 @@ func _initialize() -> void:
 	check(JSON.stringify(a.state) == JSON.stringify(b.state), "Seed reproduzível")
 	check(a.state.territories.size() == 35, "35 setores preservados")
 	check(a.player().fuel == 3 and a.player().integrity == 6, "Hatch inicial")
+	for participant: Dictionary in a.state.players:
+		check(participant.hand.size() == 2 and participant.hand_instances.size() == 2, "Mão inicial distribuída com duas instâncias")
+	check(a.state.pending_reveals.is_empty(), "Distribuição não gera tickets de compra")
+	var legacy = Game.new()
+	legacy.new_game(["A", "B"], 42, "campaign-v06")
+	check(legacy.player().hand.size() == 1 and not legacy.pending_reveal().is_empty(), "Setup legado preservado")
+	var original: String = JSON.stringify(legacy.state)
+	var restored = Game.new()
+	check(restored.restore_state(JSON.parse_string(original)).is_empty() and JSON.parse_string(JSON.stringify(restored.state)) == JSON.parse_string(original), "Retomada não distribui nem revela novamente")
 	reveal_all(a)
 	check(not a.act("end").is_empty(), "Não pode encerrar antes de iniciar")
 	check(a.act("start").is_empty(), "Iniciar turno")
 	reveal_all(a)
-	check(a.player().hand.size() == 2, "Compra no primeiro turno")
+	check(a.player().hand.size() == 3, "Duas iniciais mais compra no primeiro turno")
 	var route: Dictionary = {}
 	for candidate in a.routes:
 		if a.route_reason(candidate).is_empty():

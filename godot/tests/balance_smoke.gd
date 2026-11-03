@@ -56,6 +56,20 @@ func run() -> void:
 	var g: RefCounted = fresh()
 	check(g.state.rules_version == "0.7" and g.state.content_version == "0.7.0", "New edition explicit")
 	check(g.campaign.victory_target() == 3, "New victory target")
+	var cargo_game: RefCounted = fresh()
+	check(cargo_game.capacity() == 5, "Hatch v0.7 carries five")
+	cargo_game.player().stock.scrap = 5
+	check(cargo_game.action_reason("end", {}).is_empty(), "Exactly full cargo can end turn")
+	check(cargo_game.action_reason("upgradeVehicle", {"model": "sedan"}).is_empty(), "Hatch can carry upgrade cost without depot")
+	command(cargo_game, "upgradeVehicle", {"model": "sedan"})
+	check(cargo_game.player().model == "sedan" and cargo_game.player().stock.scrap == 0, "Five carried scraps pay upgrade")
+	cargo_game = fresh("campaign-v06")
+	check(cargo_game.capacity() == 4, "Legacy Hatch keeps capacity four")
+	cargo_game.player().installed.append(cargo_game.campaign.instance("E08"))
+	check(cargo_game.capacity() == 6, "Legacy cargo expansion remains six")
+	cargo_game = fresh()
+	cargo_game.player().installed.append(cargo_game.campaign.instance("E08"))
+	check(cargo_game.capacity() == 7, "Modern cargo expansion adds two to five")
 	check("E11" not in g.state.improvements and "V16" not in g.state.events, "Unavailable cards excluded from new decks")
 	check(g.state.card_registry.size() == 148, "Excluded copies retain identities")
 	var bands: Dictionary = {}
@@ -217,13 +231,14 @@ func lan_checks() -> void:
 	check(a.snapshot(actor).private.combat_auto_pass and not a.snapshot(int(a.game.state.players[1].id)).private.combat_auto_pass, "Pass preference projected only to its owner")
 	var choice: Dictionary = {}
 	for option: Dictionary in a.options(actor):
-		if option.action == "combatFast": choice = option
-	check(not choice.is_empty(), "LAN exposes fast mode to active actor")
+		check(option.action != "combatFast", "LAN never batches opponent dice")
+		if option.action == "combatRoll": choice = option
+	check(not choice.is_empty(), "LAN exposes own die to attacking actor")
 	if choice.is_empty(): return
-	var request: Dictionary = a.request(actor, choice.id, "fast-once")
-	check(a.submit(actor, request).accepted, "LAN accepts fast batch")
+	var request: Dictionary = a.request(actor, choice.id, "roll-once")
+	check(a.submit(actor, request).accepted, "LAN accepts own attack")
 	var after: String = JSON.stringify(a.game.state)
-	check(a.submit(actor, request).accepted and JSON.stringify(a.game.state) == after, "Duplicate receipt never rerolls batch")
+	check(a.submit(actor, request).accepted and JSON.stringify(a.game.state) == after, "Duplicate receipt never rerolls own attack")
 	var observer: Dictionary = a.snapshot()
 	check(observer.private.is_empty() and observer.public.victory_target == 3, "Public projection contains target, no private hand")
 	for item: Dictionary in observer.public.territories.values():

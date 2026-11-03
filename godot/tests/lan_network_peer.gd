@@ -66,7 +66,9 @@ func _process(_delta: float) -> bool:
 			if not verified:
 				verified = true
 				started_at = now
-			if now - started_at < 1500: return false
+			# A reconexão real tenta novamente após 4 s; manter o servidor vivo
+			# até o cliente recuperar a vaga, mesmo quando os turnos terminam rápido.
+			if now - started_at < 6000: return false
 			print("LAN_NETWORK_HOST_OK revision=%d" % endpoint.authority.revision)
 			quit(0)
 			return false

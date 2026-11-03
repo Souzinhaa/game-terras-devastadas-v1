@@ -23,6 +23,10 @@ foreach ($apkPath in @($phone, $tv)) {
     try {
         if (@($archive.Entries | Where-Object { $_.FullName -match '^assets/(tests|tools|docs)/' }).Count -gt 0) { throw ('Conteúdo de desenvolvimento no APK: ' + $apkPath) }
         if ($null -eq $archive.GetEntry('assets/project.binary')) { throw 'APK sem projeto Godot.' }
+        if (@($archive.Entries | Where-Object { $_.FullName -match '^assets/\.godot/imported/aftermath\.mp3-.*\.mp3str$' -and $_.Length -gt 7000000 }).Count -ne 1) { throw 'APK sem a faixa Aftermath completa.' }
+        foreach ($licenseFile in @('CREDITS.txt', 'LICENSE.txt')) {
+            if ($null -eq $archive.GetEntry('assets/assets/audio/music/' + $licenseFile)) { throw ('APK sem créditos/licença da música: ' + $licenseFile) }
+        }
         $stamp = $archive.GetEntry('assets/data/network-build.json')
         if ($null -eq $stamp) { throw 'APK sem identificação de compatibilidade LAN.' }
         $reader = New-Object System.IO.StreamReader($stamp.Open())

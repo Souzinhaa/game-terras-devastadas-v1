@@ -13,6 +13,16 @@ func initialize() -> void:
 	if not s.has("combat"): s.combat = {}
 	if not s.has("finished"): s.finished = false
 	if not s.combat.is_empty():
+		if game.state.get("rules_profile", "") == "campaign-v07":
+			if not s.combat.has("round_generals"):
+				# Saves anteriores não distinguem suporte de reação: preservar a cota gasta.
+				s.combat.round_generals = []
+				for p: Dictionary in s.players:
+					if p.get("used_general", false): s.combat.round_generals.append(int(p.id))
+			else:
+				var normalized_generals: Array = []
+				for id: Variant in s.combat.round_generals: normalized_generals.append(int(id))
+				s.combat.round_generals = normalized_generals
 		for field: String in ["responses", "auto_pass"]:
 			if s.combat.has(field):
 				var normalized: Array = []
@@ -99,7 +109,7 @@ func start(territory: String, defender_id: int) -> String:
 	else: right = fighter(player_by_id(defender_id))
 	game.state.actions -= 1
 	game.state.combat = {"left": fighter(p), "right": right, "territory": territory, "side": 0,
-		"round": 1, "phase": "cards", "responses": [], "modifiers": {"attack": 0, "damage": 0, "reduction": 0},
+		"round": 1, "phase": "cards", "responses": [], "round_generals": [], "modifiers": {"attack": 0, "damage": 0, "reduction": 0},
 		"last": {}, "first_attack": false, "first_hit": false, "reward": {}, "summary": "", "winner": -1}
 	# O dono presente decide defender com o carro antes do primeiro dado.
 	if owner >= 0:
@@ -122,7 +132,10 @@ func prepare_reactions() -> void:
 func eligible_cards(p: Dictionary) -> Array:
 	var e = encounter()
 	var cards: Array = []
-	if e.is_empty() or not operational(p) or p.used_general: return cards
+	if e.is_empty() or not operational(p): return cards
+	if game.campaign.modern():
+		if int(p.id) in e.get("round_generals", []): return cards
+	elif p.used_general: return cards
 	for i in range(p.hand.size()):
 		var id = p.hand[i]
 		if e.phase == "escape_cards":
@@ -159,7 +172,10 @@ func respond(index: int) -> String:
 			"G04": e.modifiers.reduction += 1
 			"G05": e.modifiers.escape += 1
 			"G06": e.modifiers.escape -= 1
-		p.used_general = true
+		if game.campaign.modern():
+			if not e.has("round_generals"): e.round_generals = []
+			e.round_generals.append(int(p.id))
+		else: p.used_general = true
 		game.campaign.discard(game.take_hand_card(p, index))
 		game.note(p.name + " usou " + id + " antes do ataque.")
 	e.responses.append(int(p.id))
@@ -314,6 +330,7 @@ func act(action: String, args: Dictionary) -> String:
 			else:
 				e.side = 0
 				e.round += 1
+				e.round_generals = []
 				e.phase = "between"
 		"combatNext":
 			if e.get("phase") not in ["between", "escape_result"]: return "Aguarde o fim da rodada."

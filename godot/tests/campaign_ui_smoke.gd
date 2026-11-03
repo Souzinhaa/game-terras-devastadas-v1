@@ -34,11 +34,34 @@ func run() -> void:
 	app.campaign_panel.administration()
 	await process_frame
 	await process_frame
+	var before_menu: String = JSON.stringify(app.game.state)
+	check(app.popup.body.find_children("*", "Button", true, false).size() == 4, "Administration starts with four short categories")
+	find_button(app.popup, "Reparar / melhorar").pressed.emit()
+	await process_frame
 	check(find_button(app.popup, "Comprar melhoria") != null, "Improvement purchase reachable")
-	check(find_button(app.popup, "Moto") != null, "Upgrade choices reachable")
 	check(find_button(app.popup, "Reparo complexo") != null, "Complex repair reachable")
+	find_button(app.popup, "Trocar veículo").pressed.emit()
+	await process_frame
+	check(find_button(app.popup, "Moto") != null, "Upgrade choices reachable")
+	app.popup.back_button.pressed.emit()
+	check(app.popup.title == "REPARAR / MELHORAR", "Back returns one menu")
+	app.handle_back()
+	check(app.popup.title == "VEÍCULO E RECURSOS", "Android back returns to management")
+	check(before_menu == JSON.stringify(app.game.state), "Browsing and back preserve state and RNG")
 	check(app.popup.panel.get_global_rect().end.x <= app.size.x + 1, "Administration stays within viewport")
+	await process_frame
+	await RenderingServer.frame_post_draw
 	root.get_texture().get_image().save_png("res://../.tools/campaign-administration.png")
+	app.campaign_panel.administration("resources")
+	await process_frame
+	var fuel_before: int = int(app.game.player().fuel)
+	var cargo_fuel_before: int = int(app.game.player().stock.fuel)
+	var unload: Button = find_button(app.popup, "Tanque → carga")
+	check(unload != null and not unload.disabled, "Resource submenu offers legal fuel transfer")
+	if unload: unload.pressed.emit()
+	await process_frame
+	check(int(app.game.player().fuel) == fuel_before - 1 and int(app.game.player().stock.fuel) == cargo_fuel_before + 1, "Submenu executes exactly one fuel transfer")
+	check(app.popup.title == "ORGANIZAR RECURSOS", "Accepted action keeps current submenu")
 	app.campaign_panel.scoreboard()
 	await process_frame
 	check(app.popup.visible, "Scoreboard visible")
@@ -53,9 +76,9 @@ func run() -> void:
 	check(identity != null, "Event hidden behind recipient identity")
 	if identity: identity.pressed.emit()
 	await process_frame
-	var flip = find_button(app.popup, "Virar carta")
-	check(flip != null, "Event begins hidden")
-	if flip: flip.pressed.emit()
+	check(app.encounter_reveal.visible and app.encounter_reveal.phase == "waiting", "Event uses acquisition animation with hidden face")
+	app.encounter_reveal.flip()
+	app.encounter_reveal.collect()
 	await process_frame
 	await process_frame
 	var choose = find_button(app.popup, "Receber ")
@@ -159,7 +182,7 @@ func run() -> void:
 	await process_frame
 	await process_frame
 	check(not app.reveal.visible, "Reward card stays private until winner identifies")
-	var prize_receive = find_button(app.combat_view, "receber carta")
+	var prize_receive = find_button(app.combat_view, "Revelar carta recebida")
 	check(prize_receive != null, "Winner can receive random card")
 	if prize_receive: prize_receive.pressed.emit()
 	await process_frame

@@ -13,6 +13,7 @@ Implementação autorizada após a revisão de design, em 31/10/2026. Escopo: Go
 
 | Sistema | Regras 0.7 |
 | --- | --- |
+| Hatch (ajuste autorizado em 02/11/2026) | Capacidade 5; E08 aumenta para 7. Cabe o custo de cinco sucatas da melhoria sem outros itens. Saves 0.6 preservam capacidade 4, ou 6 com E08. |
 | Exploração | Uma ação; 2–3 recursos no depósito. O jogador garante uma unidade de sucata ou combustível; as outras 1–2 são sorteadas entre os seis tipos. Sem seleção explícita no comando, o padrão é sucata. Mantido o limite de três explorações por setor. |
 | Suprimentos | Uma vez por turno próprio, fora de encontros, trocar uma água, pneu ou bateria da carga por uma sucata, sem ação principal. A troca conserva o tamanho da carga; não há venda infinita nem doações entre jogadores. |
 | Moto | Mantém dano 2, consumo 1, carga 2, terra e equipamentos sem peso. Melhorar continua custando cinco sucatas e uma ação; preserva combustível em vez de gerar dez unidades. |

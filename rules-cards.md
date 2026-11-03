@@ -28,7 +28,7 @@ Equipamentos e territoriais compartilham o mesmo baralho de melhorias, com **34 
 
 ## 2 Convenções universais
 
-- Geral vai à mão. Limite de uso: 1 por jogador em cada turno do mapa, inclusive adversário. Combate e corrida não renovam esse limite.
+- Geral vai à mão. Na edição 0.7, limite de combate: 1 por jogador por rodada, compartilhado entre ataques, adicionais e fuga; renova após ambos os ataques principais. Fora de combate: 1 por jogador por turno do mapa, inclusive adversário e corrida. Cotas independentes. Saves 0.6 preservam o limite único por turno do mapa.
 - Cartas que modificam dados entram antes da rolagem. Ordem de oportunidade: jogador da vez, depois ordem dos turnos. Não existe reação retroativa ao resultado.
 - Melhoria vai à reserva correspondente; instalada permanece no espaço ativo. Cada equipamento ocupa 1 dos 2 espaços adicionais; cada territorial ocupa 1 dos 2 espaços do território. Nenhuma carta ocupa carga na mão.
 - Equipamentos são compatíveis com os cinco modelos. Carga extra aparece explicitamente; instalados na Moto não ocupam carga. Liberar espaço antes de instalar; não permitir carga ilegal.
@@ -187,7 +187,7 @@ Inscrição voluntária para todos, inclusive o revelador na edição 0.7. Depoi
 - A mão geral tem formas de ajudar terceiros sem doação direta. Ameaças só curam por G08; não restaurar vida por fuga ou novo turno.
 - G17/G18 são as únicas cartas deste conjunto que criam/removem bloqueio de estrada; V11 é atraso individual.
 - Saque continua 2 recursos no máximo; T05 reduz esse limite. G19/G20 não alteram duelo de carros.
-- E02 ocupa duas cargas; o hatch de carga 4 pode usá-lo liberando espaço para equipamento e recursos. Equipamento não se instala violando capacidade.
+- E02 ocupa duas cargas; o Hatch de carga 5 pode usá-lo liberando espaço para equipamento e recursos. Equipamento não se instala violando capacidade.
 - Mão geral limite 5; equipamento 3; reserva territorial provisória 3. Compras podem exigir descarte imediatamente. Compra G15 não aumenta cota de gerais.
 - Nenhuma carta muda regra de vitória, concessão de defesa padrão na conquista ou descarte na eliminação.
 
@@ -202,9 +202,9 @@ Registrar triggers e fontes por instância. Definição contém duas cópias, ma
 ### Testes de aceitação
 
 1. Registro de 74 definições/148 identidades; setup 0.7 com gerais 48, melhorias 34, corrida 32 e eventos 30; E11/V16 com quatro identidades indisponíveis. Save 0.6 preserva composição anterior.
-2. Nenhuma geral altera dado depois da rolagem; limite não renova no combate/corrida.
+2. Nenhuma geral altera dado depois da rolagem. Em 0.7, a cota de combate renova por rodada, não por dado. A corrida usa a cota do turno do mapa.
 3. Cura não supera máximo; ganho não supera tanque/carga sem escolha de descarte.
-4. E02 ocupa 2 das 4 cargas do hatch; E08 aumenta sua capacidade para 6.
+4. E02 ocupa 2 das 5 cargas do Hatch; E08 aumenta sua capacidade para 7. Saves 0.6 preservam quatro cargas, ou seis com E08.
 5. Duplicatas de não únicas somam; únicas impedem segunda instalação.
 6. T06 permite substituição e descarta antiga; outras cartas não substituem espaços ocupados.
 7. T01 preserva dano existente; conquest descarta todas melhorias antigas.
@@ -216,6 +216,6 @@ Registrar triggers e fontes por instância. Definição contém duas cópias, ma
 
 ## 10 Pendências para a próxima edição
 
-Validar números em sessões reais; rival neutro permanece desativado e corrida com um participante não inicia. Zero de Integridade consome vida e retira da corrida; segunda destruição elimina. Validar a progressão de Hatch para três modelos e completar exploração regional; hostis H01–H12 já estão definidos em hostis.json. Testar frequência de munição/combustível e impacto da carga 4 do hatch. Aumento de carga E08 pode ser especialmente forte para hatch: medir antes de aumentar suas cópias.
+Validar números em sessões reais; rival neutro permanece desativado e corrida com um participante não inicia. Zero de Integridade consome vida e retira da corrida; segunda destruição elimina. Validar a progressão de Hatch para três modelos e completar exploração regional; hostis H01–H12 já estão definidos em hostis.json. Testar frequência de munição/combustível e impacto da carga 5 do Hatch. Aumento de carga E08 pode ser especialmente forte para Hatch: medir antes de aumentar suas cópias.
 
 Este catálogo cobre integralmente os quatro grupos pedidos, incluindo territoriais porque compartilham o baralho de equipamento. Não afirma conter todas as ameaças, explorações ou veículos da edição final.

@@ -4,9 +4,11 @@ const Board = preload("res://scripts/board.gd")
 const Reveal = preload("res://scripts/card_reveal.gd")
 const CombatView = preload("res://scripts/combat_view.gd")
 const VehicleArt = preload("res://scripts/vehicle_art.gd")
+var city_actions = preload("res://scripts/city_actions.gd").new()
 var campaign_panel = preload("res://scripts/campaign_panel.gd").new()
 var combat_view: Control
 var vehicle_portrait: Control
+var vehicle_details: Control
 var vehicle_summary_label: Label
 var hud_margin: Control
 var map_toggle: Button
@@ -34,9 +36,9 @@ var refuel_button: Button
 var excess_refuel_button: Button
 var discard_resource_button: Button
 var repair_button: Button
-var maintenance_hint: Label
 var ui_audio: AudioStreamPlayer
 var board_feedback: Control
+var encounter_effects: Control
 var last_cargo: Dictionary = {}
 var cargo_tweens: Dictionary = {}
 var device_ui_scale: float = 1.0
@@ -45,6 +47,10 @@ var setup_scroll: ScrollContainer
 var keyboard_height: int = -1
 var drawer_tween: Tween
 var reveal: Control
+var encounter_reveal: Control
+var travel_presentation: Control
+var escape_picker: Control
+var encounter_identity: String = ""
 var game = Game.new()
 var local_session = preload("res://scripts/network/local_session.gd").new(game)
 var board: Control
@@ -52,6 +58,7 @@ var vehicle_panel: PanelContainer
 var hud: VBoxContainer
 var hand: Control
 var card_overlay: Control
+var card_zoom: Control
 var card_center: VBoxContainer
 var card_tween: Tween
 var action_hint: Label
@@ -70,7 +77,9 @@ var setup_error: Label
 var theme_native: Theme
 
 func _ready() -> void:
+	get_node("/root/Music").set_context(true)
 	campaign_panel.app = self
+	city_actions.app = self
 	device_ui_scale = android_ui_scale()
 	build_theme()
 	ui_audio = preload("res://scripts/ui_audio.gd").new()
@@ -79,6 +88,20 @@ func _ready() -> void:
 	ui_audio.haptics = preferences.haptics
 	get_tree().node_added.connect(bind_button_sound)
 	build_ui()
+	get_node("/root/NetworkEndpoint").changed.connect(local_board_changed)
+	get_node("/root/NetworkEndpoint").feedback.connect(local_board_feedback)
+	vehicle_details = preload("res://scripts/vehicle_details.gd").new()
+	vehicle_details.z_index = 120
+	overlay_root.add_child(vehicle_details)
+	preload("res://scripts/vehicle_details.gd").bind(vehicle_portrait, func(): show_vehicle_details(int(game.player().id)))
+	var effects_layer := CanvasLayer.new()
+	effects_layer.layer = 25
+	add_child(effects_layer)
+	encounter_effects = preload("res://scripts/encounter_effects.gd").new()
+	effects_layer.add_child(encounter_effects)
+	var scroll_input: Node = preload("res://scripts/ui_scroll_input.gd").new()
+	scroll_input.root_control = self
+	add_child(scroll_input)
 	board_feedback = preload("res://scripts/board_feedback.gd").new()
 	board_feedback.board = board
 	board_feedback.z_index = 1
@@ -108,6 +131,7 @@ func _notification(what: int) -> void:
 		if is_instance_valid(hud_margin): update_map_layout()
 
 func _exit_tree() -> void:
+	stop_local_board()
 	if drawer_tween: drawer_tween.kill()
 	if card_tween: card_tween.kill()
 	for tween in cargo_tweens.values(): tween.kill()
@@ -209,6 +233,7 @@ func build_ui() -> void:
 	board.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 	board.city_selected.connect(show_city)
 	board.route_selected.connect(preview_travel)
+	board.vehicle_selected.connect(show_vehicle_details)
 	var hud_layer = CanvasLayer.new()
 	hud_layer.layer = 1
 	add_child(hud_layer)
@@ -284,6 +309,36 @@ func build_ui() -> void:
 	reveal.name = "CardReveal"
 	overlay_root.add_child(reveal)
 	reveal.collected.connect(func(ticket: int): dispatch("acknowledgeCard", {"ticket": ticket, "player_id": reveal_owner}))
+	encounter_reveal = preload("res://scripts/encounter_reveal.gd").new()
+	encounter_reveal.name = "EncounterReveal"
+	overlay_root.add_child(encounter_reveal)
+	encounter_reveal.reveal_requested.connect(func():
+		if encounter_identity != choice_identity(game.state.choice):
+			encounter_reveal.suspend()
+			return
+		if not game.state.choice.get("revealed", false): dispatch("cardChoice")
+		if not game.state.choice.get("revealed", false): encounter_reveal.suspend())
+	encounter_reveal.collected.connect(func(_ticket: int):
+		campaign_panel.pending_signature = ""
+		if encounter_identity == choice_identity(game.state.choice) and game.state.choice.get("revealed", false) and game.action_reason("cardChoice", {}).is_empty():
+			popup.hide()
+			dispatch("cardChoice")
+			return
+		present_campaign_pending())
+	travel_presentation = preload("res://scripts/travel_presentation.gd").new()
+	travel_presentation.name = "TravelPresentation"
+	travel_presentation.board = board
+	overlay_root.add_child(travel_presentation)
+	travel_presentation.completed.connect(present_campaign_pending)
+	escape_picker = preload("res://scripts/escape_map_picker.gd").new()
+	escape_picker.board = board
+	overlay_root.add_child(escape_picker)
+	escape_picker.route_chosen.connect(func(actor: int, route: String):
+		if escape_picker.purpose == "travel":
+			refresh()
+			preview_travel(route)
+		else: dispatch("combatEscape", {"player_id": actor, "route": route}))
+	escape_picker.cancelled.connect(refresh)
 	combat_view = CombatView.new()
 	combat_view.game = game
 	combat_view.name = "CombatView"
@@ -300,7 +355,7 @@ func build_ui() -> void:
 	overlay_root.add_child(handoff)
 	exploration_result = preload("res://scenes/ui/exploration_result.tscn").instantiate()
 	overlay_root.add_child(exploration_result)
-	exploration_result.depot_requested.connect(show_sectors)
+	exploration_result.depot_requested.connect(func(city_id: String): city_actions.show_sectors(city_id, "depot"))
 	intro_guide = preload("res://scenes/ui/intro_guide.tscn").instantiate()
 	overlay_root.add_child(intro_guide)
 	intro_guide.continued.connect(func():
@@ -343,7 +398,7 @@ func build_cargo() -> void:
 	cargo_heading.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	cargo_heading.theme_type_variation = &"Heading"
 	cargo_heading.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-	button("Fechar", func(): vehicle_panel.hide(), header).custom_minimum_size.y = 52
+	button("Fechar", func(): vehicle_panel.hide(), header).custom_minimum_size = Vector2(140, 56)
 	cargo_capacity_label = label("", hud)
 	var grid = GridContainer.new()
 	grid.name = "CargoGrid"
@@ -359,19 +414,26 @@ func build_cargo() -> void:
 		icon.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
 		icon.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
 		grid.add_child(icon)
-		label(RESOURCE_NAMES[resource], grid).size_flags_horizontal = Control.SIZE_EXPAND_FILL
+		var resource_name: Label = label(RESOURCE_NAMES[resource], grid)
+		resource_name.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+		resource_name.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 		var quantity = label("0", grid)
 		quantity.name = resource
+		quantity.custom_minimum_size.x = 64
+		quantity.horizontal_alignment = HORIZONTAL_ALIGNMENT_RIGHT
 		cargo_amounts[resource] = quantity
-	label("O tanque é separado da carga.\nNos seus setores locais, use Depósito → Tanque sem ocupar carga.", hud, 18).autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-	refuel_button = button("Abastecer 1 da carga · livre", func(): dispatch("refuel"), hud)
-	excess_refuel_button = button("Enviar excedente de combustível ao tanque", func(): dispatch("refuelExcess"), hud)
-	discard_resource_button = button("Escolher recurso para descartar", show_resource_discard, hud)
-	button("Acessar depósitos da cidade", func(): show_sectors(), hud)
-	repair_button = button("Reparar +1 · custa 1 sucata", func(): dispatch("repair"), hud)
-	label("Reparo simples: uma vez por turno.", hud, 18)
-	maintenance_hint = label("", hud, 18)
-	maintenance_hint.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	var commands := GridContainer.new()
+	commands.columns = 2
+	commands.add_theme_constant_override("h_separation", 8)
+	commands.add_theme_constant_override("v_separation", 8)
+	hud.add_child(commands)
+	refuel_button = button("Abastecer", func(): dispatch("refuel"), commands)
+	repair_button = button("Reparar +1", func(): dispatch("repair"), commands)
+	button("Depósitos", func(): show_sectors(), commands)
+	discard_resource_button = button("Descartar", show_resource_discard, commands)
+	for command: Button in commands.get_children():
+		command.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	excess_refuel_button = button("Abastecer excedente", func(): dispatch("refuelExcess"), hud)
 
 func toggle_cargo() -> void:
 	if drawer_tween: drawer_tween.kill()
@@ -399,16 +461,18 @@ func show_menu() -> void:
 		popup.hide()
 		toggle_cargo(), content)
 	button("Histórico", show_history, content)
-	button("Administrar / equipamentos / veículo", campaign_panel.administration, content)
+	button("Veículo e recursos", func(): campaign_panel.administration("", show_menu), content)
 	button("Placar e objetivo", campaign_panel.scoreboard, content)
 	button("Gerais de outros jogadores antes da ação", campaign_panel.support, content)
 	button("Resolver encontro / excedentes", func(): campaign_panel.pending_signature = ""; campaign_panel.pending(), content)
 	button("Como jogar", show_help, content)
+	button("Conectar Tabuleiro/TV", show_local_board, content)
 	button("Configurações", show_settings, content)
 	button("Nova partida", confirm_new_game, content).theme_type_variation = &"Danger"
 	button("Tela inicial", show_start_screen, content)
 
 func show_start_screen(persist: bool = true) -> void:
+	stop_local_board()
 	if persist and not game.state.is_empty(): game.persistence_error = game.save_game()
 	lock_private_ui()
 	combat_view.reaction_open = false
@@ -424,6 +488,47 @@ func show_start_screen(persist: bool = true) -> void:
 	var summary = "Partida salva · turno %d" % game.state.turn if can_continue else "Partida encerrada. Comece uma nova jornada." if not game.state.is_empty() else ""
 	start_screen.present(can_continue, summary)
 
+func stop_local_board() -> void:
+	var endpoint := get_node_or_null("/root/NetworkEndpoint")
+	if endpoint and endpoint.local_board: endpoint.leave()
+
+func local_board_changed() -> void:
+	if is_instance_valid(popup) and popup.visible and popup.title == "TABULEIRO / TV":
+		refresh_local_board_sheet.call_deferred()
+	elif is_instance_valid(notifications) and get_node("/root/NetworkEndpoint").local_board and not get_node("/root/NetworkEndpoint").pending.is_empty():
+		notifications.notify("Uma TV quer conectar. Abra Menu → Conectar Tabuleiro/TV para aceitar.")
+
+func refresh_local_board_sheet() -> void:
+	if is_instance_valid(popup) and popup.visible and popup.title == "TABULEIRO / TV": show_local_board()
+
+func local_board_feedback(message: String) -> void:
+	if is_instance_valid(popup) and popup.visible and popup.title == "TABULEIRO / TV": popup.message(message)
+
+func show_local_board() -> void:
+	var content = dialog_content("TABULEIRO / TV", show_menu)
+	label("Continue jogando neste celular e acompanhe o tabuleiro na TV. Conecte os dois aparelhos à mesma rede Wi-Fi e abra o aplicativo Tabuleiro na TV.", content, 20).autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	label("A TV mostra apenas informações públicas. Cartas na mão, carga e depósitos continuam privados no celular.", content, 18).autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	var endpoint := get_node("/root/NetworkEndpoint")
+	if not endpoint.local_board:
+		button("Disponibilizar tabuleiro para a TV", func():
+			var error: String = endpoint.host_local(game, local_session)
+			show_local_board()
+			if not error.is_empty(): popup.message(error, true), content).theme_type_variation = &"Primary"
+		return
+	label("TV conectada" if not endpoint.spectators.is_empty() else "Aguardando a TV · selecione Local na lista de partidas da TV.", content, 22).autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	var addresses: Array[String] = []
+	for ip: String in IP.get_local_addresses():
+		if ip.count(".") == 3 and not ip.begins_with("127.") and not ip.begins_with("169.254."): addresses.append(ip)
+	label("Conexão manual: %s · porta %d" % [", ".join(addresses), endpoint.port], content, 18).autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	for peer_id: int in endpoint.pending.keys():
+		var item: Dictionary = endpoint.pending[peer_id]
+		label("Pedido de conexão: " + str(item.name), content, 20)
+		button("Aceitar TV", func(): endpoint.approve(peer_id), content)
+		button("Recusar", func(): endpoint.approve(peer_id, false), content)
+	button("Desconectar Tabuleiro/TV", func():
+		stop_local_board()
+		show_local_board(), content).theme_type_variation = &"Danger"
+
 func continue_saved_game() -> void:
 	if game.state.is_empty() or game.state.get("finished", false): return
 	start_screen.hide()
@@ -432,6 +537,7 @@ func continue_saved_game() -> void:
 
 func show_settings() -> void:
 	var content = dialog_content("CONFIGURAÇÕES")
+	preload("res://scripts/music_settings.gd").populate(content, get_node("/root/Music"))
 	label("Texto", content, 24)
 	var text_size = OptionButton.new()
 	text_size.custom_minimum_size.y = 64
@@ -451,7 +557,7 @@ func show_settings() -> void:
 		preferences.reduced_motion = value
 		reveal.reduced_motion = value
 		apply_preferences())
-	label("Volume dos efeitos da interface", content)
+	label("Volume dos efeitos", content)
 	var volume = HSlider.new()
 	volume.custom_minimum_size.y = 64
 	volume.min_value = 0
@@ -492,7 +598,7 @@ func apply_preferences() -> void:
 	hud_margin.theme = theme_native
 	overlay_root.theme = theme_native
 	setup.theme = theme_native
-	vehicle_panel.offset_right = 370 * font_scale()
+	vehicle_panel.offset_right = minf(420 * font_scale(), size.x - 64)
 	for node in get_tree().get_nodes_in_group("ui_scalable_label"):
 		if is_ancestor_of(node): node.add_theme_font_size_override("font_size", roundi(float(node.get_meta("base_font_size")) * font_scale()))
 	combat_view.reduce_motion = preferences.reduced_motion
@@ -533,6 +639,16 @@ func show_hand_list() -> void:
 		choice.custom_minimum_size.y = 140
 
 func handle_back() -> void:
+	if is_instance_valid(vehicle_details) and vehicle_details.visible:
+		vehicle_details.hide()
+		return
+	if is_instance_valid(escape_picker) and escape_picker.visible:
+		escape_picker.cancel_selection()
+		return
+	for zoom: Control in [card_zoom, reveal.card_zoom, encounter_reveal.card_zoom, combat_view.card_zoom]:
+		if is_instance_valid(zoom) and zoom.visible:
+			zoom.dismiss()
+			return
 	if not preview_route.is_empty():
 		cancel_route_preview()
 		return
@@ -549,7 +665,13 @@ func handle_back() -> void:
 	if combat_view.card_picker.visible:
 		combat_view.minimize_cards()
 		return
+	if encounter_reveal.visible:
+		encounter_reveal.collect()
+		return
 	if combat_view.visible or reveal.visible: return
+	if travel_presentation.visible:
+		travel_presentation.finish()
+		return
 	if exploration_result.visible:
 		exploration_result.dismiss()
 		return
@@ -559,7 +681,7 @@ func handle_back() -> void:
 			handoff.cancelled.emit()
 		return
 	if card_overlay.visible: close_card()
-	elif popup.visible: popup.dismiss()
+	elif popup.visible: popup.go_back()
 	elif vehicle_panel.visible: vehicle_panel.hide()
 	elif map_only: toggle_map_mode()
 	elif setup.visible:
@@ -567,6 +689,12 @@ func handle_back() -> void:
 	else: show_menu()
 
 func lock_private_ui() -> void:
+	if is_instance_valid(vehicle_details): vehicle_details.hide()
+	if is_instance_valid(encounter_effects): encounter_effects.suspend()
+	if is_instance_valid(escape_picker): escape_picker.suspend()
+	if is_instance_valid(card_zoom): card_zoom.dismiss()
+	if is_instance_valid(encounter_reveal): encounter_reveal.suspend()
+	if is_instance_valid(travel_presentation): travel_presentation.suspend()
 	if not preview_route.is_empty(): cancel_route_preview()
 	hud_margin.hide()
 	map_toggle.hide()
@@ -580,7 +708,7 @@ func lock_private_ui() -> void:
 func _input(event: InputEvent) -> void:
 	if not event.is_action_pressed("ui_focus_next") and not event.is_action_pressed("ui_focus_prev"): return
 	var modal: Control
-	for candidate in [route_preview, intro_guide, handoff, reveal, combat_view.card_preview, combat_view.card_picker, exploration_result, card_overlay, popup, start_screen, combat_view]:
+	for candidate in [card_zoom, reveal.card_zoom, encounter_reveal.card_zoom, combat_view.card_zoom, travel_presentation, encounter_reveal, route_preview, intro_guide, handoff, reveal, combat_view.card_preview, combat_view.card_picker, exploration_result, card_overlay, popup, start_screen, combat_view]:
 		if is_instance_valid(candidate) and candidate.visible:
 			modal = candidate
 			break
@@ -693,25 +821,34 @@ func refresh() -> void:
 			discard_reason = game.inventory_reason("discardResource", {"resource": resource})
 			break
 	set_availability(discard_resource_button, discard_reason)
-	maintenance_hint.text = "Inicie o turno para gerenciar o veículo." if not game.state.started else "Sem combustível na carga." if int(p.stock.fuel) <= 0 else ""
-	if int(p.integrity) >= int(game.combat_rules.STATS[p.model][0]): maintenance_hint.text += "\nReparo: veículo íntegro."
-	elif int(p.repairs) >= 1: maintenance_hint.text += "\nReparo simples já utilizado neste turno."
-	elif int(p.stock.scrap) <= 0: maintenance_hint.text += "\nReparo: requer 1 sucata."
-	turn_label.text = "%s   ·   Turno %d   ·   %s" % [p.name, game.state.turn, "%d ação" % game.state.actions if game.state.started else "Preparação"]
-	turn_label.add_theme_color_override("font_color", Board.COLORS[int(p.id)])
+	if not refuel_button.disabled: refuel_button.tooltip_text = "1 combustível da carga para o tanque · livre"
+	if not repair_button.disabled: repair_button.tooltip_text = "1 sucata por +1 estrutura · uma vez por turno"
+	preload("res://scripts/hud_presentation.gd").header(hud_margin.get_node("SafeArea/Layout"), p, int(game.state.turn))
 	hud_margin.get_node("SafeArea/Layout/TurnSteps").update_state(game.state)
-	turn_button.text = "Encerrar turno" if game.state.started else "Iniciar turno"
+	turn_button.text = "Encerrar turno" if game.state.started else "Comprar Carta"
 	turn_button.disabled = game.state.get("finished", false)
 	if turn_button.disabled: turn_button.text = "Partida encerrada"
 	action_hint.text = principal_guidance()
-	action_button.text = "Viajar / explorar"
+	action_button.text = "Escolher ação"
 	var choosing_action = game.state.started and int(game.state.actions) > 0 and not p.penalty and not game.campaign.hand_excess(p)
 	action_button.theme_type_variation = &"Primary" if choosing_action else &"Quiet"
 	turn_button.theme_type_variation = &"Quiet" if choosing_action else &"Primary"
+	var preparing: bool = not game.state.started and not game.state.get("finished", false)
+	preload("res://scripts/hud_presentation.gd").draw_button(turn_button, preparing)
+	action_button.visible = not preparing
+	action_hint.visible = not preparing
+	excess_refuel_button.visible = not excess_refuel_button.disabled
 	if not game.state.started: action_button.text = "Consultar cidade"
 	if game.campaign.hand_excess(p): turn_button.text = "Resolver mão"
-	hand_dock.render(p.hand, game.catalog, game.hidden_hand_indices(), Reveal.back_for)
+	if game.cargo() > game.capacity():
+		turn_button.text = "Liberar carga"
+		action_hint.text = "Carga %d/%d · libere %d unidade(s) para encerrar." % [game.cargo(), game.capacity(), game.cargo() - game.capacity()]
+	var identities: Array = []
+	for i: int in range(p.hand.size()): identities.append(str(p.hand_instances[i].instance_id) if i < p.hand_instances.size() else "")
+	hand_dock.render(p.hand, game.catalog, game.hidden_hand_indices(), Reveal.back_for, identities, game.state.get("initial_card_instances", {}).get(str(int(p.id)), []), JSON.stringify([game.state.initial_seed, game.state.initial_names]), preferences.reduced_motion)
 	combat_view.reduce_motion = reveal.reduced_motion
+	combat_view.card_zoom.safe_insets = safe_insets()
+	card_zoom.safe_insets = safe_insets()
 	combat_view.sync()
 	map_toggle.visible = map_only and not combat_view.visible
 	popup.motion_reduced = reveal.reduced_motion
@@ -723,14 +860,31 @@ func refresh() -> void:
 		map_toggle.hide()
 	else: hud_margin.visible = not map_only
 	board.queue_redraw()
+	if escape_picker.visible:
+		combat_view.hide()
+		hud_margin.hide()
 	call_deferred("present_pending_reveal")
 	call_deferred("present_campaign_pending")
 
 func present_campaign_pending() -> void:
 	campaign_panel.pending()
 
+func choice_identity(choice: Dictionary) -> String:
+	return str([choice.get("kind", ""), choice.get("card", ""), choice.get("player_id", -1), game.state.get("turn", 0)])
+
+func present_encounter_card(choice: Dictionary, owner: Dictionary) -> void:
+	if encounter_reveal.visible or travel_presentation.visible: return
+	popup.hide()
+	close_card(false)
+	encounter_identity = choice_identity(choice)
+	encounter_reveal.reduced_motion = preferences.reduced_motion
+	encounter_reveal.safe_insets = safe_insets()
+	overlay_root.move_child(encounter_reveal, overlay_root.get_child_count() - 1)
+	encounter_reveal.present_encounter(str(choice.kind), card_definition(choice.card), str(owner.name))
+	if choice.get("revealed", false): encounter_reveal.show_front()
+
 func present_pending_reveal() -> void:
-	if game.state.is_empty() or start_screen.visible or reveal.visible or setup.visible or handoff.visible or intro_guide.visible: return
+	if game.state.is_empty() or start_screen.visible or reveal.visible or encounter_reveal.visible or travel_presentation.visible or setup.visible or handoff.visible or intro_guide.visible: return
 	var owner = game.player()
 	if not game.state.get("combat", {}).is_empty():
 		var reacting = game.combat_rules.player_by_id(int(game.state.combat.get("reward_owner", owner.id))) if game.state.combat.get("phase") == "finished" else game.combat_rules.reaction_player()
@@ -755,7 +909,7 @@ func principal_guidance() -> String:
 	if game.player().get("penalty", false): return "Turno perdido pela destruição. Encerre para passar ao próximo jogador."
 	if not preferences.tutorial:
 		return game.city(game.player().city).name + " · " + ("ação disponível" if int(game.state.actions) > 0 else "ação utilizada")
-	if not game.state.started: return "1. Toque em Iniciar turno para comprar sua carta."
+	if not game.state.started: return "Toque em Comprar Carta."
 	if game.campaign.hand_excess(game.player()): return "Mão cheia: toque nas cartas e descarte até ficar com cinco."
 	if int(game.state.actions) == 0: return "Ação utilizada. Retire recursos dos depósitos ou encerre o turno."
 	if game.state.moved: return "Escolha um setor para explorar ou conquistar em Todas as cidades."
@@ -763,18 +917,35 @@ func principal_guidance() -> String:
 
 func dispatch(action: String, args: Dictionary = {}) -> void:
 	if combat_view.busy: return
-	if action == "combatReveal":
+	if action == "combatChooseEscape":
+		show_escape_map()
+		return
+	if action in ["combatReveal", "combatReaction"]:
+		var encounter: Dictionary = game.state.get("combat", {})
+		var owner: Dictionary
+		if action == "combatReaction":
+			owner = game.combat_rules.reaction_player()
+		elif encounter.get("phase") == "finished":
+			owner = game.combat_rules.player_by_id(int(encounter.get("reward_owner", game.player().id)))
+		if owner.is_empty() or int(args.get("player_id", -1)) != int(owner.id): return
 		combat_view.reaction_open = true
-		if game.state.combat.get("phase") == "finished":
-			var received = game.pending_reveal(int(game.state.combat.get("reward_owner", game.player().id)))
+		if action == "combatReveal":
+			var received = game.pending_reveal(int(owner.id))
 			if not received.is_empty(): combat_view.reward_reveal_ticket = int(received.ticket)
 		present_pending_reveal()
 		combat_view.sync()
 		return
 	var old_city: String = game.player().city
+	var sound_before: Dictionary = game.state.duplicate(true)
+	var effect_owner: int = int(sound_before.get("choice", {}).get("player_id", game.player().id))
+	var effect_context: String = str(game.state.initial_seed) + str(game.state.initial_names)
+	encounter_effects.reduced_motion = preferences.reduced_motion
+	encounter_effects.safe_insets = safe_insets()
+	encounter_effects.observe(sound_before, game.combat_rules.player_by_id(effect_owner), effect_context, game.state.command_log.size())
 	var explored = game.state.territories.get(args.get("territory", ""), {}) if action == "explore" else {}
 	var stock_before: Dictionary = explored.get("stock", {}).duplicate()
 	var error = local_session.submit(action, args)
+	if error.is_empty() and action not in ["combatRoll", "combatEscapeRoll", "combatFast", "combatEquipmentAttack"]: get_node("/root/GameSFX").play_sequence(preload("res://scripts/game_sfx.gd").sounds_for(sound_before, game.state, action))
 	if not game.persistence_error.is_empty(): notifications.notify("Ação aplicada; salvamento pendente. Abra Resolver encontro no menu.", true)
 	refresh()
 	if error.is_empty() and action == "explore":
@@ -784,21 +955,46 @@ func dispatch(action: String, args: Dictionary = {}) -> void:
 			if gained > 0: found[resource] = gained
 		if not found.is_empty(): call_deferred("present_exploration", found, str(explored.city), str(args.territory))
 	if error.is_empty():
+		encounter_effects.observe(game.state, game.combat_rules.player_by_id(effect_owner), effect_context, game.state.command_log.size(), action)
 		board_feedback.reduced = preferences.reduced_motion
 		board_feedback.observe(game.state, str(game.state.get("initial_seed", "")) + str(game.state.get("initial_names", [])), game.state.get("command_log", []).size())
 	if error.is_empty() and action not in ["acknowledgeCard"] and not action.begins_with("combat") and action not in ["conquer", "duel"]:
 		var recent = str(game.state.log.back())
 		notifications.notify(recent)
 		if popup.visible: popup.message(recent)
-	if error.is_empty() and game.player().city != old_city and action == "move" and not reveal.reduced_motion:
-		vehicle_portrait.drive(1.2, game.city(game.player().city).x > game.city(old_city).x)
+	if error.is_empty() and game.player().city != old_city and action == "move":
 		board.clear_selection()
-		board.animate_travel(old_city, game.player().city, args.get("route", ""))
+		travel_presentation.safe_insets = safe_insets()
+		overlay_root.move_child(travel_presentation, overlay_root.get_child_count() - 1)
+		travel_presentation.present(old_city, str(game.player().city), str(args.get("route", "")), int(game.player().id), preferences.reduced_motion, preferences.volume)
 	if not error.is_empty():
 		status.text = error
 		notifications.notify(error, true)
 		if popup.visible: popup.message(error, true)
 		if combat_view.visible and is_instance_valid(combat_view.feedback): combat_view.feedback.text = error
+
+func show_escape_map() -> void:
+	notifications.hide()
+	var entries: Dictionary = {}
+	var encounter: Dictionary = game.state.get("combat", {})
+	if encounter.get("phase") != "between": return
+	for fighter: Dictionary in [encounter.left, encounter.right]:
+		if int(fighter.player_id) < 0: continue
+		var p: Dictionary = game.combat_rules.player_by_id(int(fighter.player_id))
+		var routes: Array[String] = []
+		for route: Dictionary in game.routes:
+			if game.action_reason("combatEscape", {"player_id": int(p.id), "route": route.id}).is_empty(): routes.append(str(route.id))
+		if not routes.is_empty(): entries[str(int(p.id))] = {"name": p.name, "city": p.city, "routes": routes}
+	if entries.is_empty(): return
+	combat_view.close_card_preview()
+	combat_view.card_picker.hide()
+	combat_view.hide()
+	popup.hide()
+	vehicle_panel.hide()
+	map_toggle.hide()
+	hud_margin.hide()
+	escape_picker.safe_insets = safe_insets()
+	escape_picker.present(entries, preferences.reduced_motion)
 
 func present_exploration(found: Dictionary, city: String, sector: String) -> void:
 	notifications.hide()
@@ -808,8 +1004,15 @@ func present_exploration(found: Dictionary, city: String, sector: String) -> voi
 
 func next_turn() -> void:
 	if game.state.is_empty(): return
+	if game.cargo() > game.capacity():
+		show_cargo_resolution(int(game.player().id))
+		return
 	if game.campaign.hand_excess(game.player()):
 		show_hand_list()
+		return
+	if game.state.started and not game.campaign.excess_reason().is_empty():
+		campaign_panel.pending_signature = ""
+		campaign_panel.show_excess()
 		return
 	if game.state.started:
 		var next_index = (int(game.state.active) + 1) % game.state.players.size()
@@ -821,10 +1024,10 @@ func next_turn() -> void:
 		handoff.ask(game.player().name, game.state.players[next_index].name)
 	else: dispatch("start")
 
-func dialog_content(title_text: String) -> VBoxContainer:
+func dialog_content(title_text: String, previous: Callable = Callable()) -> VBoxContainer:
 	close_card(false)
 	vehicle_panel.hide()
-	var content = popup.reset(title_text)
+	var content = popup.reset(title_text, previous)
 	overlay_root.move_child(popup, overlay_root.get_child_count() - 1)
 	popup.sheet_width = 650
 	popup.popup_centered()
@@ -832,32 +1035,33 @@ func dialog_content(title_text: String) -> VBoxContainer:
 
 func show_map_actions() -> void:
 	if game.state.is_empty(): return
-	var body = dialog_content("Viajar ou explorar")
-	button("Explorar / conquistar · " + game.city(game.player().city).name, show_sectors, body)
-	label("SAINDO DE " + game.city(game.player().city).name.to_upper(), body, 18)
-	label("Escolha uma estrada para ver o trajeto antes de confirmar.", body, 18)
-	for destination in game.cities:
-		var routes: Array = []
-		for route in game.routes:
-			if (route.from == game.player().city and route.to == destination.id) or (route.to == game.player().city and route.from == destination.id): routes.append(route)
-		if routes.is_empty(): continue
-		var card = PanelContainer.new()
-		body.add_child(card)
-		var content = VBoxContainer.new()
-		content.add_theme_constant_override("separation", 8)
-		card.add_child(content)
-		label(destination.name, content, 25)
-		for route in routes:
-			var reason = game.route_reason(route)
-			var surface = "Asfalto" if route.terrain == "paved" else "Estrada de terra"
-			var travel = button(route.label + "\n" + surface + " · %d combustível · Ver rota →" % int(game.vehicle().consumption), func(): preview_travel(route.id), content)
-			travel.alignment = HORIZONTAL_ALIGNMENT_LEFT
-			travel.custom_minimum_size.y = maxf(80, travel.custom_minimum_size.y)
-			travel.set_meta("travel_route", route.id)
-			set_availability(travel, reason)
-			if not reason.is_empty(): label(reason, content, 17)
+	var body = dialog_content("O QUE FAZER AGORA?")
+	label(principal_guidance(), body, 20)
+	button("Agir aqui · " + game.city(game.player().city).name, show_sectors, body).theme_type_variation = &"Primary"
+	label("Explorar, conquistar ou saquear: escolha uma ação no setor.", body, 18)
+	button("Cuidar do veículo / depósitos", func(): campaign_panel.administration("", show_map_actions), body)
+	if game.action_reason("end").is_empty(): button("Encerrar meu turno", func(): dispatch("end"), body)
+	if game.routes.any(func(route: Dictionary): return game.route_reason(route).is_empty()): button("Viajar · escolher no mapa", show_travel_map, body)
+
+func show_travel_map() -> void:
+	var routes: Array[String] = []
+	for route: Dictionary in game.routes:
+		if game.route_reason(route).is_empty(): routes.append(str(route.id))
+	if routes.is_empty():
+		popup.message("Não há viagem disponível agora. Viaje antes de usar a ação.", true)
+		return
+	popup.hide()
+	vehicle_panel.hide()
+	map_toggle.hide()
+	hud_margin.hide()
+	escape_picker.safe_insets = safe_insets()
+	var p: Dictionary = game.player()
+	escape_picker.present({str(int(p.id)): {"name": p.name, "city": p.city, "routes": routes}}, preferences.reduced_motion, "travel")
 
 func preview_travel(route_id: String) -> void:
+	if escape_picker.visible:
+		escape_picker.select_route(route_id)
+		return
 	if not preview_route.is_empty(): return
 	var route: Dictionary = {}
 	for candidate in game.routes:
@@ -932,6 +1136,9 @@ func confirm_route_preview() -> void:
 	dispatch("move", {"route": route_id})
 
 func show_city(id: String) -> void:
+	if escape_picker.visible:
+		escape_picker.select_city(id)
+		return
 	if id.is_empty(): return
 	board.select_city(id)
 	var c = game.city(id)
@@ -960,27 +1167,52 @@ func show_city(id: String) -> void:
 				popup.hide()
 				dispatch("duel", {"defender": int(opponent.id)}), body)
 			duel.disabled = not game.state.started or not reason.is_empty()
-	append_sectors(body, id)
+	button("Agir aqui · setores e depósitos", func(): show_sectors(id), body).name = "CityActions"
+
+func show_cargo_resolution(player_id: int) -> void:
+	var p: Dictionary = game.combat_rules.player_by_id(player_id)
+	if p.is_empty(): return
+	var body = dialog_content("LIBERAR CARGA", show_map_actions)
+	if player_id != int(game.player().id) or campaign_panel.private_owner not in [-1, player_id]:
+		if not campaign_panel.identify(p, body, func(): show_cargo_resolution(player_id)): return
+	var total: int = game.campaign.extra_cargo(p)
+	for amount: Variant in p.stock.values(): total += int(amount)
+	var excess: int = maxi(0, total - game.campaign.capacity(p))
+	label("%s · carga %d/%d" % [p.name, total, game.campaign.capacity(p)], body)
+	if excess == 0:
+		label("Carga ajustada. Você já pode encerrar o turno.", body, 20)
+		button("Voltar ao jogo", popup.dismiss, body)
+		return
+	label("Libere %d unidade(s): guarde, abasteça ou descarte." % excess, body, 20).autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	if player_id == int(game.player().id):
+		var can_store := false
+		for id: String in game.state.territories:
+			var territory: Dictionary = game.state.territories[id]
+			if territory.city != p.city or int(territory.owner) != player_id: continue
+			for resource: String in Game.RESOURCES:
+				if int(p.stock[resource]) <= 0: continue
+				if game.action_reason("deposit", {"territory": id, "resource": resource}).is_empty(): can_store = true
+		if can_store: button("Guardar em depósito", func(): city_actions.show_sectors(p.city, "depot"), body)
+		if game.action_reason("refuelExcess", {}).is_empty():
+			button("Abastecer tanque com o excedente", func(): dispatch("refuelExcess"); show_cargo_resolution(player_id), body)
+	for resource: String in Game.RESOURCES:
+		var args := {"player_id": player_id, "resource": resource}
+		if not game.action_reason("discardResource", args).is_empty(): continue
+		var discard := button("Descartar 1 %s · carga %d" % [RESOURCE_NAMES[resource], int(p.stock[resource])], func(): dispatch("discardResource", args); show_cargo_resolution(player_id), body)
+		resource_icon(discard, resource)
+
+func show_vehicle_details(player_id: int) -> void:
+	if game.state.is_empty() or handoff.visible or start_screen.visible or intro_guide.visible: return
+	var p: Dictionary = game.combat_rules.player_by_id(player_id)
+	if p.is_empty(): return
+	var own := {}
+	if player_id == int(game.player().id) and campaign_panel.private_owner in [-1, player_id]:
+		own = {"fuel": p.fuel, "cargo": game.cargo(), "stock": p.stock}
+	vehicle_details.safe_insets = safe_insets()
+	vehicle_details.present(p, game.campaign.vehicle_info(p), own, game.catalog)
 
 func show_sectors(city_id: String = "") -> void:
-	if game.state.is_empty(): return
-	if city_id.is_empty(): city_id = game.player().city
-	var body = dialog_content("Setores · " + game.city(city_id).name)
-	button("Administrar e melhorias", campaign_panel.administration, body)
-	button("Placar e vitória territorial", campaign_panel.scoreboard, body)
-	var selector = OptionButton.new()
-	selector.name = "CitySelector"
-	selector.custom_minimum_size.y = 64
-	body.add_child(selector)
-	for i in range(game.cities.size()):
-		selector.add_item(game.cities[i].name)
-		if game.cities[i].id == city_id: selector.select(i)
-	selector.item_selected.connect(func(index: int): show_sectors(game.cities[index].id))
-	var guidance = label(principal_guidance(), body, 18)
-	guidance.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-	var feedback = label(status.text, body, 17)
-	feedback.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-	append_sectors(body, city_id)
+	city_actions.show_menu(city_id)
 
 func owner_name(owner: int) -> String:
 	if owner < 0: return "Sem dono"
@@ -996,81 +1228,6 @@ func exploration_reason(t: Dictionary) -> String:
 	if int(t.explorations) >= 3: return "Limite de três explorações atingido."
 	return ""
 
-func append_sectors(body: VBoxContainer, city_id: String) -> void:
-	var index = 0
-	for id in game.state.territories:
-		var t = game.state.territories[id]
-		if t.city != city_id: continue
-		index += 1
-		var sector_panel = preload("res://scenes/ui/sector_row.tscn").instantiate()
-		sector_panel.name = "Sector_" + id
-		var owner = int(t.owner)
-		var color: Color = Board.COLORS[owner] if owner >= 0 and owner < Board.COLORS.size() else Color("92958a")
-		sector_panel.add_theme_stylebox_override("panel", style(Color("1d2621"), color))
-		body.add_child(sector_panel)
-		var sector_body = VBoxContainer.new()
-		sector_panel.add_child(sector_body)
-		var title = label("Setor %d · %s" % [index, owner_name(owner)], sector_body)
-		title.add_theme_color_override("font_color", color)
-		if owner != int(game.player().id):
-			var reason = game.combat_rules.start_reason(id)
-			if not game.state.started: reason = "Inicie o turno."
-			var conquest = button("Conquistar setor · 1 ação", func():
-				popup.hide()
-				dispatch("conquer", {"territory": id}), sector_body)
-			conquest.disabled = not reason.is_empty()
-			if owner >= 0 and city_id == game.player().city:
-				campaign_panel.command("Saquear depósito · 1 ação + 1 combustível", "loot", {"territory": id}, sector_body)
-			var explanation = label(reason if not reason.is_empty() else "Enfrente a ameaça ou a defesa territorial. Cartas são consultadas antes de cada ataque.", sector_body, 17)
-			explanation.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-			if t.has("hostile") and t.has("threat_band") and int(t.owner) < 0:
-				label("Risco: " + ["fácil", "médio", "difícil"][int(t.threat_band)], sector_body, 17)
-			continue
-		label("Explorações %d / 3 · recursos ficam no depósito" % t.explorations, sector_body, 17)
-		var reason = exploration_reason(t)
-		var explore = button("Explorar setor · 1 ação", func():
-			dispatch("explore", {"territory": id})
-			show_sectors(city_id), sector_body)
-		if game.campaign.modern():
-			explore.text = "Explorar · garantir 1 sucata · 1 ação"
-			explore.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-			explore.clip_text = false
-			var fuel_explore: Button = button("Explorar · garantir 1 combustível · 1 ação", func():
-				dispatch("explore", {"territory": id, "supply": "fuel"})
-				show_sectors(city_id), sector_body)
-			fuel_explore.disabled = not reason.is_empty()
-			fuel_explore.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-			fuel_explore.clip_text = false
-			label("Uma unidade escolhida e 1–2 recursos sorteados, todos no depósito.", sector_body, 17)
-		explore.name = "Explore_" + id
-		explore.disabled = not reason.is_empty()
-		if not reason.is_empty(): label(reason, sector_body, 17).autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-		var stored = 0
-		for value in t.stock.values(): stored += int(value)
-		label("Depósito: %d/%d · Carga do carro: %d/%d" % [stored, game.campaign.depot_capacity(t), game.cargo(), game.capacity()], sector_body, 18)
-		label("Cada toque transfere 1 recurso. Abastecer envia ao tanque tudo que couber. Operações livres, sem gastar ação.", sector_body, 17).autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-		var accessible = city_id == game.player().city and game.state.started
-		if not accessible: label("Inicie o turno e esteja nesta cidade para transferir.", sector_body, 17)
-		if int(t.stock.fuel) > 0:
-			var fuel = button("Depósito → Tanque · abastecer até encher", func():
-				dispatch("refuelDepot", {"territory": id})
-				show_sectors(city_id), sector_body)
-			resource_icon(fuel, "fuel")
-			set_availability(fuel, game.transfer_reason("refuelDepot", {"territory": id}))
-			label("Tanque %d/%d · combustível no depósito %d" % [game.player().fuel, game.tank(), t.stock.fuel], sector_body, 17)
-		for resource in Game.RESOURCES:
-			if int(t.stock[resource]) == 0 and int(game.player().stock[resource]) == 0: continue
-			var heading = button("%s · Depósito %d · Carga %d" % [RESOURCE_NAMES[resource], t.stock[resource], game.player().stock[resource]], func(): pass, sector_body)
-			resource_icon(heading, resource)
-			heading.disabled = true
-			for operation in ["withdraw", "deposit"]:
-				if operation == "withdraw" and int(t.stock[resource]) <= 0: continue
-				if operation == "deposit" and int(game.player().stock[resource]) <= 0: continue
-				var transfer = button("Depósito → Carga · retirar 1" if operation == "withdraw" else "Carga → Depósito · guardar 1", func():
-					dispatch(operation, {"territory": id, "resource": resource})
-					show_sectors(city_id), sector_body)
-				set_availability(transfer, game.transfer_reason(operation, {"territory": id, "resource": resource}))
-		if stored == 0: label("Depósito vazio. Guarde recursos da carga ou explore este setor.", sector_body, 17).autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 
 func set_availability(target: Button, reason: String) -> void:
 	target.disabled = not reason.is_empty()
@@ -1099,6 +1256,8 @@ func card_definition(id: String) -> Dictionary:
 	return {}
 
 func build_card_overlay() -> void:
+	card_zoom = preload("res://scripts/card_zoom.gd").new()
+	overlay_root.add_child(card_zoom)
 	card_overlay = preload("res://scenes/ui/card_details.tscn").instantiate()
 	overlay_root.add_child(card_overlay)
 	card_overlay.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
@@ -1115,31 +1274,48 @@ func show_card(index: int) -> void:
 		present_pending_reveal()
 		return
 	popup.hide()
+	hand_dock.mark_opened(index)
+	card_zoom.dismiss()
 	if card_tween: card_tween.kill()
 	clear_children(card_center)
 	var c = card_definition(game.player().hand[index])
 	var insets = safe_insets()
 	var available = get_viewport_rect().size - Vector2(insets.x + insets.z + 80, insets.y + insets.w + 72)
-	card_center.custom_minimum_size = Vector2(minf(940, available.x), minf(620, available.y))
+	var desired := Vector2(minf(940, available.x), minf(620, available.y))
+	var panel: PanelContainer = card_overlay.get_node("Center/Panel")
+	panel.custom_minimum_size = desired
+	panel.custom_maximum_size = desired
+	var center: CenterContainer = card_overlay.get_node("Center")
+	center.offset_left = insets.x
+	center.offset_top = insets.y
+	center.offset_right = -insets.z
+	center.offset_bottom = -insets.w
+	card_center.custom_minimum_size = Vector2.ZERO
+	card_center.scale = Vector2.ONE
+	card_zoom.safe_insets = insets
 	var heading = label(c.name.to_upper(), card_center, 28)
 	heading.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-	var body = HBoxContainer.new()
+	var body = VBoxContainer.new()
 	body.size_flags_vertical = Control.SIZE_EXPAND_FILL
 	body.add_theme_constant_override("separation", 24)
 	card_center.add_child(body)
 	var art = TextureRect.new()
 	art.texture = load("res://assets/cards/" + c.image)
 	art.custom_minimum_size = Vector2(250, 0)
+	art.size_flags_horizontal = Control.SIZE_SHRINK_CENTER
 	art.size_flags_vertical = Control.SIZE_EXPAND_FILL
 	art.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
 	art.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
-	art.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	art.name = "ReadableCardArt"
+	card_zoom.bind_art(art)
 	body.add_child(art)
 	var scroll = ScrollContainer.new()
 	scroll.name = "CardTextScroll"
 	scroll.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	scroll.size_flags_vertical = Control.SIZE_EXPAND_FILL
 	scroll.horizontal_scroll_mode = ScrollContainer.SCROLL_MODE_DISABLED
+	scroll.custom_minimum_size.y = 64
+	scroll.custom_maximum_size.y = 110
 	body.add_child(scroll)
 	var reading = VBoxContainer.new()
 	reading.size_flags_horizontal = Control.SIZE_EXPAND_FILL
@@ -1148,7 +1324,7 @@ func show_card(index: int) -> void:
 	var description = label(c.rulesText, reading, 22)
 	description.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	description.accessibility_name = c.name + ". " + c.rulesText + ". " + c.timing
-	label(c.timing, reading, 18)
+	label(c.timing, reading, 18).autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	var usable = game.player().hand[index] in ["G01", "G02", "G03", "G04", "G05", "G06", "G07"]
 	var caption = label("Pode ser usada na janela de reação do combate." if usable else "Consulte os alvos e a janela antes de usar ou instalar.", card_center, 16)
 	caption.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
@@ -1184,24 +1360,22 @@ func show_card(index: int) -> void:
 		card_center.modulate.a = 1
 		row.get_child(0).grab_focus()
 		return
-	card_center.scale = Vector2(0.82, 0.82)
+	card_center.scale = Vector2.ONE
 	card_center.modulate.a = 0
 	card_tween = create_tween().set_parallel(true).set_trans(Tween.TRANS_CUBIC).set_ease(Tween.EASE_OUT)
-	card_tween.tween_property(card_center, "scale", Vector2.ONE, 0.22)
 	card_tween.tween_property(card_center, "modulate:a", 1.0, 0.18)
 	row.get_child(0).grab_focus()
 
 func close_card(animated: bool = true) -> void:
+	if is_instance_valid(card_zoom): card_zoom.dismiss()
 	if not is_instance_valid(card_overlay) or not card_overlay.visible: return
-	hand.show()
+	# Fechamento atômico: nenhuma camada transparente retém os toques da mão.
 	if card_tween: card_tween.kill()
-	if not animated or reveal.reduced_motion:
-		card_overlay.hide()
-		return
-	card_tween = create_tween().set_parallel(true).set_trans(Tween.TRANS_CUBIC).set_ease(Tween.EASE_IN)
-	card_tween.tween_property(card_center, "scale", Vector2(0.82, 0.82), 0.14)
-	card_tween.tween_property(card_center, "modulate:a", 0.0, 0.14)
-	card_tween.chain().tween_callback(card_overlay.hide)
+	card_overlay.hide()
+	card_center.modulate = Color.WHITE
+	card_center.scale = Vector2.ONE
+	hand.show()
+	hand_dock.arrange()
 
 func _unhandled_input(event: InputEvent) -> void:
 	if event.is_action_pressed("ui_cancel"):
@@ -1281,12 +1455,14 @@ func build_setup() -> void:
 				return
 			backup.store_string(previous)
 			backup.close()
+		stop_local_board()
 		var error = game.new_game(names, seed_value)
 		if not error.is_empty():
 			setup_error.text = error
 			setup.call_deferred("popup_centered")
 			return
 		var save_error = game.save_game()
+		hand_dock.reset_reading(JSON.stringify([game.state.initial_seed, game.state.initial_names]))
 		refresh()
 		if not save_error.is_empty(): status.text = save_error
 		board.center_player())

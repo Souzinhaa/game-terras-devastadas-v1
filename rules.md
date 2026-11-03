@@ -36,9 +36,9 @@ Há 12 cidades, 35 setores, 19 rotas e oito pontos territoriais possíveis.
 | Santa Gertrudes | 2 | 0,5 |
 | Santa Cruz da Conceição | 2 | 0,5 |
 
-A ordem e os setores iniciais são sorteados com a seed da partida, priorizando cidades iniciais distintas. Cada jogador recebe um setor próprio íntegro, depósito vazio e um **Hatch** com integridade 6, três combustíveis no tanque, uma sucata na carga, uma geral e duas vidas. Não recebe cidade completa, equipamentos adicionais ou kit de modelo superior.
+A ordem e os setores iniciais são sorteados com a seed da partida, priorizando cidades iniciais distintas. Cada jogador recebe um setor próprio íntegro, depósito vazio e um **Hatch** com integridade 6, três combustíveis no tanque, uma sucata na carga, duas gerais e duas vidas. Não recebe cidade completa, equipamentos adicionais ou kit de modelo superior.
 
-A geral inicial precisa ser revelada pelo dono. A compra normal de uma geral ocorre também no primeiro turno próprio. Seed e decisões tornam a partida reproduzível no mesmo motor/edição, sem prometer sequência igual ao React.
+As duas gerais iniciais já ficam na mão, sem animação de compra. Ao tocar em **Comprar Carta**, o jogador inicia seu turno e compra uma geral, inclusive no primeiro turno próprio; essa carta usa a revelação normal. Saves existentes conservam suas mãos e revelações pendentes, sem redistribuição. Seed e decisões tornam novas partidas reproduzíveis na mesma versão do motor/edição, sem prometer sequência igual ao React ou ao setup anterior.
 
 Nos setores neutros da edição 0.7, o primeiro setor neutro ordenado de cada cidade tem faixa fácil; os demais, média; o último de uma cidade de quatro setores tem faixa difícil. Um dos quatro hostis da faixa é atribuído deterministicamente pela seed/setor. A faixa de risco é pública; identidade e atributos permanecem ocultos até a descoberta. Retomar não rerrola ameaças.
 
@@ -48,7 +48,7 @@ Valores básicos, antes de cartas:
 
 | Modelo | Integridade máxima | Defesa | Dano fixo | Agilidade de fuga | Carga | Tanque | Consumo por rota | Terra |
 | --- | ---: | ---: | ---: | ---: | ---: | ---: | ---: | --- |
-| Hatch | 6 | 4+ | 1 | +1 | 4 | 8 | 1 | Não |
+| Hatch | 6 | 4+ | 1 | +1 | 5 | 8 | 1 | Não |
 | Moto | 6 | 4+ | 2 | +1 | 2 | 10 | 1 | Sim |
 | Sedã | 8 | 4+ | 1 | 0 | 7 | 12 | 2 | Não |
 | SUV | 10 | 4+ | 1 | 0 | 6 | 12 | 2 | Sim |
@@ -57,6 +57,8 @@ Valores básicos, antes de cartas:
 Defesa é o limiar de acerto do atacante: número maior dificulta acertar. Dano fixo não consome munição. Equipamentos da Moto não ocupam carga, mas continuam sujeitos aos dois espaços adicionais, custos e limites de uso. Sair da Moto restaura o peso aplicável.
 
 Melhorar um Hatch para outro modelo custa **cinco sucatas próprias locais e uma ação principal**. Pode somar carga e depósitos próprios da cidade, pagando primeiro a carga. Preserva combustível, integridade atual, mão, recursos, equipamentos e vidas. **Moto não recebe dez combustíveis na edição 0.7.** Tanque maior não cria combustível, integridade máxima maior não cura e melhorar não renova vidas.
+
+Na edição 0.7, o Hatch comporta cinco cargas, permitindo transportar sozinho o custo da melhoria quando não há outros itens ocupando espaço. Estar exatamente no limite não impede encerrar o turno; somente excedentes precisam ser guardados, usados ou descartados. Saves da edição 0.6 conservam quatro cargas.
 
 Não há melhoria direta entre modelos superiores. Veículo encontrado de save/oferta existente segue os custos e escolhas próprios de assumir/reparar; V16 não cria novas ofertas nesta edição. Captura PvP possui regra distinta na seção 9.
 
@@ -105,7 +107,7 @@ Melhorias territoriais alteram a fortificação/depósito. Reparo de território
 
 ## 7. Cartas e revelação
 
-Limites na mão/reserva: cinco gerais, três equipamentos e três territoriais. Instalados ficam fora desses limites. Gerais usam a cota de **uma por jogador por turno do mapa**, inclusive durante a vez de outra pessoa. Combate e corrida não renovam essa cota.
+Limites na mão/reserva: cinco gerais, três equipamentos e três territoriais. Instalados ficam fora desses limites. Na edição 0.7, o combate permite **uma geral por jogador por rodada de combate**, compartilhada entre os ataques, adicionais e fuga daquela rodada. A cota renova após os dois ataques principais, não a cada dado. Fora de combate, permanece **uma geral por jogador por turno do mapa**, inclusive durante a vez de outra pessoa e na corrida. As cotas de combate e mapa são independentes. Saves 0.6 preservam a cota única por turno do mapa.
 
 Reações entram antes do dado; não há reação retroativa. A ordem começa no jogador ativo e segue a ordem circular. Carta sem alvo legal não pode ser gasta voluntariamente. Evento/surpresa obrigatório segue sua alternativa ou resolve sem efeito quando não houver alvo.
 
@@ -130,6 +132,8 @@ Fuga ocorre entre rodadas: D6 + agilidade + modificadores, sucesso a partir de c
 ### Avançar até a próxima decisão
 
 O botão é voluntário. Executa até 24 transições de ataques/continuações sem decisão opcional disponível, mantendo os mesmos dados/regras do modo manual. Para diante de reação, equipamento ativável, munição opcional, fuga legal ou resultado final. Não confirma carta, veículo, descarte ou recompensa.
+
+Na LAN, cada jogador rola o ataque do próprio carro no próprio aparelho, inclusive quando está defendendo durante o turno do adversário. O atacante do setor rola pelos hostis/fortificações. O avanço automático não é oferecido na LAN, para preservar as rolagens individuais; as continuações e decisões permanecem explícitas.
 
 Cada pessoa pode optar por **Passar nas próximas rolagens deste combate** e **Voltar a reagir** antes do dado. Passar não usa carta nem a cota de geral. A preferência dura aquele combate, é salva e, na LAN, só pode ser alterada pelo próprio dono.
 

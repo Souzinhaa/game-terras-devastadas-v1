@@ -15,6 +15,8 @@ func _init() -> void:
 	haptics = config.get_value("interface", "haptics", false)
 
 func save() -> Error:
+	# Mesclar preferências alteradas por outras telas, como volume da música.
+	config.load("user://ui-preferences.cfg")
 	config.set_value("interface", "text_scale", text_scale)
 	config.set_value("interface", "tutorial", tutorial)
 	config.set_value("interface", "haptics", haptics)

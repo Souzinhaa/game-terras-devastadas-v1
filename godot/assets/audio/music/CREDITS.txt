@@ -1,0 +1,10 @@
+"Aftermath" Kevin MacLeod (incompetech.com)
+Licensed under Creative Commons: By Attribution 4.0 License
+https://creativecommons.org/licenses/by/4.0/
+
+Track: https://incompetech.com/music/royalty-free/index.html?isrc=USUAN1100575
+Original MP3: https://incompetech.com/music/royalty-free/mp3-royaltyfree/Aftermath.mp3
+ISRC: USUAN1100575
+The original recording is included without editing or transcoding.
+Playback volume and looping are controlled by the game.
+Full license: LICENSE.txt in this directory.

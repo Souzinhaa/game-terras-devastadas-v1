@@ -27,16 +27,16 @@ func run() -> void:
 		if t.city == p.city and int(t.owner) == int(p.id): own = id
 	var depot = game.state.territories[own]
 	depot.stock.fuel = 6
-	p.stock.scrap = int(game.vehicle().capacity)
+	p.stock.scrap = int(game.capacity())
 	p.fuel = int(game.vehicle().tank) - 2
 	var rng = game.state.get("rng", 0)
 	var actions = game.state.actions
 	check(game.act("refuelDepot", {"territory": own}).is_empty(), "Direct fill works with full cargo")
-	check(p.fuel == game.vehicle().tank and depot.stock.fuel == 4 and game.cargo() == game.vehicle().capacity, "Direct fill conserves fuel and bypasses cargo")
+	check(p.fuel == game.vehicle().tank and depot.stock.fuel == 4 and game.cargo() == game.capacity(), "Direct fill conserves fuel and bypasses cargo")
 	check(game.act("deposit", {"territory": own, "resource": "scrap"}).is_empty(), "Deposit")
-	check(depot.stock.scrap == 1 and game.cargo() == int(game.vehicle().capacity) - 1, "Deposit direction")
+	check(depot.stock.scrap == 1 and game.cargo() == int(game.capacity()) - 1, "Deposit direction")
 	check(game.act("withdraw", {"territory": own, "resource": "scrap"}).is_empty(), "Withdraw")
-	check(depot.stock.scrap == 0 and game.cargo() == game.vehicle().capacity, "Withdraw direction")
+	check(depot.stock.scrap == 0 and game.cargo() == game.capacity(), "Withdraw direction")
 	depot.owner = 99
 	check(not game.act("refuelDepot", {"territory": own}).is_empty(), "Foreign depot blocked")
 	depot.owner = p.id
@@ -52,9 +52,9 @@ func run() -> void:
 	check(not game.act("refuelExcess").is_empty(), "Cannot refuel mid combat")
 	game.state.combat = {"phase": "finished"}
 	check(game.act("refuelExcess").is_empty(), "Recover excess in combat result")
-	check(p.stock.fuel == 1 and p.fuel == game.vehicle().tank and game.cargo() == int(game.vehicle().capacity) + 1, "Only what fits enters tank")
+	check(p.stock.fuel == 1 and p.fuel == game.vehicle().tank and game.cargo() == int(game.capacity()) + 1, "Only what fits enters tank")
 	check(game.act("discardResource", {"resource": "fuel"}).is_empty(), "Discard remaining excess")
-	check(game.cargo() == game.vehicle().capacity, "Excess resolved")
+	check(game.cargo() == game.capacity(), "Excess resolved")
 	game.state.combat = {}
 	check(game.state.actions == actions and game.state.get("rng", 0) == rng, "Transfers preserve actions and RNG")
 	game.save_game()
@@ -87,7 +87,7 @@ func run() -> void:
 	app.refresh()
 	check(app.excess_refuel_button.disabled, "Excess button disabled when cargo fits")
 	check(not app.refuel_button.disabled, "Normal refuel enabled with reserve and tank space")
-	p.stock.scrap = int(game.vehicle().capacity)
+	p.stock.scrap = int(game.capacity())
 	app.refresh()
 	check(not app.excess_refuel_button.disabled, "Excess button enabled when transfer is legal")
 	check(game.act("refuelExcess").is_empty(), "Enabled excess transfer succeeds")

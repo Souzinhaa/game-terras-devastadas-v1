@@ -53,7 +53,9 @@ func resolve_reactions(a: RefCounted) -> void:
 func shoot(a: RefCounted, face: int) -> void:
 	resolve_reactions(a)
 	set_face(a, face)
-	execute(a, int(a.game.player().id), "combatRoll")
+	var e: Dictionary = a.game.state.combat
+	var fighter: Dictionary = e.left if int(e.side) == 0 else e.right
+	execute(a, int(fighter.player_id) if int(fighter.player_id) >= 0 else int(e.left.player_id), "combatRoll")
 
 func _initialize() -> void:
 	# Instalações e substituição territorial.

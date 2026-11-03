@@ -16,6 +16,7 @@ var save_path: String = SAVE_PATH
 var persistence_error: String = ""
 var options_cache: Dictionary = {}
 var last_event: Dictionary = {}
+var public_activity: Array[Dictionary] = []
 var busy: bool = false
 
 static func token() -> String:
@@ -90,6 +91,8 @@ func _submit_checked(player_id: int, message: Dictionary) -> Dictionary:
 	revision += 1
 	options_cache.clear()
 	last_event = event_for(selected, player_id, before)
+	public_activity.append(Projector.fields(last_event, ["id", "revision", "actor", "type", "message"]))
+	if public_activity.size() > 12: public_activity.pop_front()
 	var answer: Dictionary = {"accepted": true, "command_id": message.command_id, "revision": revision, "saved": false, "message": "Ação aplicada."}
 	receipts[receipt_key] = {"fingerprint": fingerprint, "actor": player_id, "action": selected.action, "result": answer}
 	persist()
@@ -105,22 +108,36 @@ func command_status(player_id: int, command_id: String) -> Dictionary:
 
 func event_for(choice: Dictionary, player_id: int, before: Dictionary) -> Dictionary:
 	var event: Dictionary = {"id": match_id + ":" + str(revision), "revision": revision, "actor": player_id, "type": choice.action, "message": "Partida atualizada."}
+	var actor_name: String = game.combat_rules.player_by_id(player_id).name
+	var captions: Dictionary = {"start": "comprou a carta e iniciou o turno", "end": "encerrou o turno", "conquer": "iniciou uma conquista", "duel": "iniciou um combate", "combatCard": "passou a reação" if int(choice.args.get("index", -1)) < 0 else "jogou uma carta de combate", "combatDefend": "escolheu a defesa do setor", "combatContinue": "passou ao próximo ataque", "combatNext": "iniciou a próxima rodada", "combatClose": "concluiu o combate", "combatEscape": "iniciou uma tentativa de fuga", "raceEntry": "se inscreveu na corrida" if choice.args.get("join", false) else "recusou a inscrição", "racePass": "passou a reação da corrida", "raceGeneral": "jogou uma carta de corrida", "raceRoll": "rolou seu avanço na corrida", "loot": "iniciou um saque", "lootDefend": "escolheu a defesa do depósito", "lootRoll": "rolou o saque", "repair": "reparou o veículo", "refuel": "abasteceu o veículo", "install": "instalou uma melhoria", "cardChoice": "resolveu uma carta de encontro", "deposit": "guardou recursos no depósito", "withdraw": "retirou recursos do depósito"}
+	if captions.has(choice.action): event.message = actor_name + " " + str(captions[choice.action]) + "."
+	event.sounds = preload("res://scripts/game_sfx.gd").sounds_for(before, game.state, str(choice.action))
 	if choice.action == "move":
 		event.from = before.players[int(before.active)].city
 		event.to = game.player().city
 		event.route = choice.args.route
 		event.message = game.player().name + " viajou para " + game.city(event.to).name + "."
 	elif choice.action == "explore":
-		event.message = "Exploração concluída."
+		event.message = actor_name + " explorou " + game.city(game.state.territories[choice.args.territory].city).name + " · setor " + str(choice.args.territory).get_slice("-", 1) + "."
 		event.private_delta = {}
 		for resource: String in Game.RESOURCES:
 			var delta: int = int(game.state.territories[choice.args.territory].stock[resource]) - int(before.territories[choice.args.territory].stock[resource])
 			if delta > 0: event.private_delta[resource] = delta
 	elif choice.action in ["combatRoll", "combatEscapeRoll"]:
 		var last: Dictionary = game.state.combat.get("last", {})
-		event.message = "Dado %s · total %s · dano %s" % [str(last.get("natural", "—")), str(last.get("total", "—")), str(last.get("damage", 0))]
+		var e: Dictionary = game.state.combat
+		var roller: Dictionary = e.left if int(last.get("side", 0)) == 0 else e.right
+		event.message = "%s · dado %s · total %s · dano %s" % [str(roller.name), str(last.get("natural", "—")), str(last.get("total", "—")), str(last.get("damage", 0))]
 	elif choice.action == "combatFast":
 		event.message = "Combate avançou até a próxima decisão. Confira o resultado."
+	elif choice.action == "raceRoll":
+		var race_last: Dictionary = game.state.race.get("last", {})
+		if not race_last.is_empty(): event.message = "%s · dado %d · avançou %d na corrida." % [actor_name, int(race_last.natural), int(race_last.advance)]
+	if choice.action in ["combatCard", "raceGeneral", "playGeneral"] and int(choice.args.get("index", -1)) >= 0:
+		for p: Dictionary in before.players:
+			if int(p.id) == player_id:
+				var card: String = str(p.hand[int(choice.args.index)])
+				event.message = actor_name + " jogou " + str(game.campaign.definition(card).get("name", card)) + "."
 	return event
 
 func persist() -> String:
@@ -129,7 +146,7 @@ func persist() -> String:
 	for receipt: Dictionary in receipts.values():
 		receipt.result.saved = true
 		receipt.result.message = "Ação aplicada e salva."
-	var envelope: Dictionary = {"schema": "wasteland-lan", "version": 1, "protocol": PROTOCOL, "match_id": match_id, "revision": revision, "seats": seats, "receipts": receipts, "game": game.state}
+	var envelope: Dictionary = {"schema": "wasteland-lan", "version": 1, "protocol": PROTOCOL, "match_id": match_id, "revision": revision, "seats": seats, "receipts": receipts, "game": game.state, "public_activity": public_activity}
 	var file: FileAccess = FileAccess.open(save_path + ".tmp", FileAccess.WRITE)
 	var error: Error = ERR_CANT_CREATE
 	if file != null:
@@ -173,6 +190,12 @@ func restore(path: String = SAVE_PATH) -> String:
 		if not outcome.revision is int and not outcome.revision is float: return "Revisão de recibo inválida."
 		if float(outcome.revision) != floor(float(outcome.revision)) or int(outcome.revision) < 1 or int(outcome.revision) > int(data.revision): return "Revisão de recibo inválida."
 	var candidate: RefCounted = Game.new()
+	var restored_activity: Array[Dictionary] = []
+	if data.has("public_activity"):
+		if not data.public_activity is Array or data.public_activity.size() > 12: return "Histórico público inválido."
+		for entry: Variant in data.public_activity:
+			if not entry is Dictionary or not entry.get("message") is String: return "Acontecimento público inválido."
+			restored_activity.append(Projector.fields(entry, ["id", "revision", "actor", "type", "message"]))
 	candidate.persistence_managed = true
 	if not data.game.is_empty():
 		var error: String = candidate.restore_state(data.game)
@@ -182,6 +205,7 @@ func restore(path: String = SAVE_PATH) -> String:
 			var player: Dictionary = candidate.combat_rules.player_by_id(int(seat.id))
 			if player.is_empty() or player.name != seat.name: return "Identidades não correspondem às vagas salvas."
 	game = candidate
+	public_activity = restored_activity
 	seats = data.seats
 	receipts = data.receipts
 	match_id = data.match_id

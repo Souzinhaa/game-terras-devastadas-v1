@@ -1,4 +1,4 @@
-param([string]$Godot = "", [string]$Repo = "")
+param([string]$Godot = "", [string]$Repo = "", [string]$PeerScript = 'res://tests/lan_network_peer.gd')
 $ErrorActionPreference = 'Stop'
 if (-not $Repo) { $Repo = Split-Path -Parent (Split-Path -Parent (Split-Path -Parent $MyInvocation.MyCommand.Path)) }
 if (-not $Godot) { $Godot = Join-Path $Repo '.tools/godot/Godot_v4.7.2-stable_win64_console.exe' }
@@ -11,7 +11,7 @@ try {
         New-Item -ItemType Directory -Path $profile -Force | Out-Null
         $env:APPDATA = $profile
         $env:LOCALAPPDATA = $profile
-        $arguments = @('--headless', '--path', ('"' + (Join-Path $Repo 'godot') + '"'), '--script', 'res://tests/lan_network_peer.gd', '--', $role)
+        $arguments = @('--headless', '--path', ('"' + (Join-Path $Repo 'godot') + '"'), '--script', $PeerScript, '--', $role)
         $process = Start-Process -FilePath $Godot -ArgumentList $arguments -WindowStyle Hidden -PassThru -RedirectStandardOutput (Join-Path $runRoot ($role + '.out.log')) -RedirectStandardError (Join-Path $runRoot ($role + '.err.log'))
         $null = $process.Handle
         $processes += [pscustomobject]@{ Role = $role; Process = $process }

@@ -104,10 +104,16 @@ func count(entity: Dictionary, id: String) -> int:
 	return n
 
 func capacity(p: Dictionary) -> int:
-	return int(model(p).capacity) + count(p, "E08") * 2
+	var vehicle := model(p)
+	return int(vehicle.get("capacityV07", vehicle.capacity) if modern() else vehicle.capacity) + count(p, "E08") * 2
 
 func tank(p: Dictionary) -> int:
 	return int(model(p).tank) + count(p, "E07") * 3
+
+func vehicle_info(p: Dictionary) -> Dictionary:
+	var vehicle := model(p)
+	var fighter: Dictionary = game.combat_rules.fighter(p)
+	return {"name": vehicle.name, "maximum": fighter.maximum, "damage": fighter.damage, "defense": fighter.defense, "agility": game.combat_rules.STATS[p.model][2], "capacity": capacity(p), "tank": tank(p), "consumption": int(vehicle.consumption), "offroad": "dirt" in vehicle.allowedSurfaces, "slots": int(vehicle.additionalSlots)}
 
 func extra_cargo(p: Dictionary) -> int:
 	if p.model == "moto": return 0
@@ -520,6 +526,12 @@ func validate(s: Dictionary) -> String:
 			for id: Variant in e.auto_pass:
 				if not number(id) or int(id) not in ids or int(id) in auto_ids: return "Preferência de outro jogador."
 				auto_ids.append(int(id))
+		if e.has("round_generals"):
+			if not e.round_generals is Array: return "Cota de gerais de combate inválida."
+			var general_ids: Array = []
+			for id: Variant in e.round_generals:
+				if not number(id) or int(id) not in ids or int(id) in general_ids: return "Cota de gerais de outro jogador."
+				general_ids.append(int(id))
 		if e.has("reward_owner") and int(e.reward_owner) not in ids: return "Vencedor da recompensa inválido."
 		if e.has("vehicle_choice"):
 			if not e.has("reward_owner"): return "Escolha de veículo sem vencedor."

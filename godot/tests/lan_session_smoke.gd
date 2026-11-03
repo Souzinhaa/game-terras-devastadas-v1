@@ -51,7 +51,7 @@ func _initialize() -> void:
 	for forbidden: String in ["seed", "initial_seed", "deck", "card_registry", "command_log", "pending_reveals", "stock", "credential_hash"]:
 		check(not JSON.stringify(tv_view).contains('"' + forbidden + '"'), "Public projection excludes " + forbidden)
 	check(not own_view.options.is_empty() and not own_view.options[0].has("args"), "Network options exclude engine indices/arguments")
-	var first: Dictionary = choice(a, actor, "acknowledgeCard")
+	var first: Dictionary = choice(a, actor, "start")
 	var message: Dictionary = a.request(actor, first.id, "dedup-test")
 	var forged: Dictionary = a.submit(other, message)
 	check(not forged.accepted, "Other actor cannot execute offered capability")

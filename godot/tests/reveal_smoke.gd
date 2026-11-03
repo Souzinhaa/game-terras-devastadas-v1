@@ -45,8 +45,9 @@ func run() -> void:
 	app.game.new_game(["Bruno", "Ana"], 42)
 	app.refresh()
 	await process_frame
-	check(not app.game.act("start").is_empty(), "Carta inicial não pode ser ignorada")
-	await reveal_current(true)
+	for participant: Dictionary in app.game.state.players:
+		check(participant.hand.size() == 2, "Duas cartas já distribuídas a cada jogador")
+	check(app.game.state.pending_reveals.is_empty() and not app.reveal.visible, "Distribuição inicial não abre animação")
 	app.dispatch("start")
 	await process_frame
 	check(not app.game.pending_reveal().is_empty(), "Compra do turno abre revelação")
@@ -77,7 +78,10 @@ func run() -> void:
 	app.game.player().hand_instances.resize(2)
 	app.dispatch("end")
 	await process_frame
-	check(app.reveal.visible and app.reveal.recipient.text.begins_with(app.game.player().name), "Carta inicial pertence ao próximo jogador")
+	check(not app.reveal.visible and app.game.pending_reveal().is_empty(), "Próximo jogador já tem sua mão inicial sem animação")
+	app.dispatch("start")
+	await process_frame
+	check(app.reveal.visible and app.reveal.recipient.text.begins_with(app.game.player().name), "Somente compra do próximo jogador abre animação")
 	await reveal_current(false)
 	print("Reveal smoke: %d falhas; inicial, compra, fila, cinco tipos, retomada, cliques repetidos e movimento reduzido." % failures)
 	# O último pressed sintético também dispara o som; aguardar o mixer liberar

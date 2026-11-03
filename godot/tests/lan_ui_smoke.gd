@@ -16,6 +16,15 @@ func find_button(node: Node, caption: String) -> Button:
 		if found: return found
 	return null
 
+func tap(control: Control) -> void:
+	for down: bool in [true, false]:
+		var event := InputEventMouseButton.new()
+		event.position = control.get_global_rect().get_center()
+		event.global_position = event.position
+		event.button_index = MOUSE_BUTTON_LEFT
+		event.pressed = down
+		root.push_input(event, true)
+
 func run() -> void:
 	var endpoint: Node = root.get_node("NetworkEndpoint")
 	var screen: Control = load("res://scenes/lan.tscn").instantiate()
@@ -37,7 +46,7 @@ func run() -> void:
 	check(screen.board.visible, "Map visible during game")
 	check(screen.player_hud.visible and screen.player_hud.hud.scene_file_path == "res://scenes/ui/game_hud.tscn", "LAN uses original local-game HUD scene")
 	check(not screen.connection_menu.visible and not screen.body.get_parent().visible, "Legacy sidebar and lobby are absent during play")
-	check(screen.reveal.visible == (int(endpoint.authority.game.player().id) == 0), "Only authorized owner gets initial reveal")
+	check(not screen.reveal.visible and endpoint.authority.game.state.pending_reveals.is_empty(), "Initial LAN hands are already distributed without reveal")
 	if screen.reveal.visible:
 		screen.reveal.reduced_motion = true
 		check(screen.reveal.flip_button.tooltip_text == "Carta recebida. Toque para revelar.", "Pending face absent from tooltip")
@@ -45,6 +54,18 @@ func run() -> void:
 		screen.reveal.collect()
 	await process_frame
 	check(screen.board_view.state == endpoint.view.public, "Map facade receives public state only")
+	var card_id: String = str(endpoint.view.private.hand[0].card_id)
+	for cycle: int in range(3):
+		screen.show_card(card_id)
+		await process_frame
+		await process_frame
+		tap(screen.card_art)
+		check(screen.card_zoom.visible, "LAN toque na arte abre zoom")
+		tap(screen.card_zoom.close_button)
+		check(not screen.card_zoom.visible and screen.card_reader.visible, "LAN voltar do zoom preserva leitor")
+		tap(screen.card_reader.action)
+		check(not screen.card_reader.visible and screen.player_hud.sheet.visible, "LAN usar carta continua acessível após zoom")
+		screen.player_hud.sheet.dismiss()
 	endpoint.pending[123] = {"name": "TestTV", "spectator": true}
 	endpoint.publish()
 	await process_frame
@@ -104,7 +125,7 @@ func run() -> void:
 	await process_frame
 	await process_frame
 	screen.player_hud.show_group("Combate")
-	check(screen.player_hud.sheet.visible and screen.player_hud.sheet.body.get_child_count() > 2, "Combat keeps fighter art and paged controls")
+	check(not screen.player_hud.sheet.visible and screen.player_hud.public_arena.visible and screen.player_hud.encounter_commands.get_child_count() > 2, "Combat keeps arena and own decisions together without an obscuring sheet")
 	screen.player_hud.sheet.hide()
 	screen.private_locked = true
 	screen.page = "Mão"

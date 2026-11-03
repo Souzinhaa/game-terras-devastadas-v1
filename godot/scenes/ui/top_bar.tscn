@@ -7,17 +7,30 @@ custom_minimum_size = Vector2(0, 66)
 theme_override_constants/separation = 20
 
 [node name="Brand" type="Label" parent="Row"]
+visible = false
 text = "TERRAS DEVASTADAS"
 theme_type_variation = &"Brand"
 
 [node name="Rule" type="VSeparator" parent="Row"]
+visible = false
 
 [node name="Turn" type="Label" parent="Row"]
-size_flags_horizontal = 3
+custom_minimum_size = Vector2(220, 0)
+clip_text = true
 text = "Prepare sua partida"
 text_overrun_behavior = 3
 
+[node name="Spacer" type="Control" parent="Row"]
+size_flags_horizontal = 3
+mouse_filter = 2
+
+[node name="Round" type="Label" parent="Row"]
+custom_minimum_size = Vector2(140, 0)
+text = "Turno 1"
+horizontal_alignment = 2
+
 [node name="Menu" type="Button" parent="Row"]
-custom_minimum_size = Vector2(170, 48)
-text = "Menu"
+icon_alignment = 1
+custom_minimum_size = Vector2(56, 48)
+tooltip_text = "Menu"
 theme_type_variation = &"Quiet"

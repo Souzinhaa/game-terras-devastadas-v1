@@ -10,9 +10,10 @@ if (-not $Godot) {
 }
 $logRoot = Join-Path $repo '.tools/campaign-checks'
 New-Item -ItemType Directory -Force -Path $logRoot | Out-Null
-$headlessSuites = @('data_validation', 'smoke', 'combat_smoke', 'campaign_smoke', 'campaign_edges', 'shared_contracts', 'pvp_rewards', 'balance_smoke', 'lan_session_smoke', 'lan_campaign_smoke')
+$headlessSuites = @('data_validation', 'smoke', 'combat_smoke', 'combat_turns_smoke', 'campaign_smoke', 'campaign_edges', 'shared_contracts', 'pvp_rewards', 'balance_smoke', 'lan_session_smoke', 'lan_campaign_smoke', 'scroll_touch_smoke')
 $suites = $headlessSuites
-if (-not $HeadlessOnly) { $suites += @('ui_smoke', 'reveal_smoke', 'combat_ui_smoke', 'transfers_smoke', 'modern_ui_smoke', 'exploration_ui_smoke', 'campaign_ui_smoke', 'onboarding_ui_smoke', 'start_screen_ui_smoke', 'mobile_layout_smoke', 'mobile_layout_large', 'lan_mobile_layout', 'lan_mobile_compact', 'lan_mobile_s23', 'lan_ui_smoke', 'tv_remote_smoke', 'tv_dashboard_smoke') }
+if (-not $HeadlessOnly) { $suites += @('ui_smoke', 'reveal_smoke', 'combat_ui_smoke', 'transfers_smoke', 'modern_ui_smoke', 'exploration_ui_smoke', 'campaign_ui_smoke', 'onboarding_ui_smoke', 'start_screen_ui_smoke', 'mobile_layout_smoke', 'mobile_layout_large', 'lan_mobile_layout', 'lan_mobile_compact', 'lan_mobile_s23', 'lan_ui_smoke', 'tv_remote_smoke', 'tv_dashboard_smoke', 'public_encounters_ui_smoke', 'lan_action_menu_ui_smoke', 'hud_preparation_smoke', 'travel_encounter_ui_smoke', 'encounter_flow_ui_smoke', 'turn_flow_ui_smoke', 'music_smoke', 'card_reading_ui_smoke', 'combat_escape_sfx_smoke') }
+$suites += @('local_board_ui_smoke')
 if ($OnlySuites.Count) { $suites = @($suites | Where-Object { $_ -in $OnlySuites }) }
 $oldAppData = $env:APPDATA
 $oldLocalData = $env:LOCALAPPDATA
@@ -24,7 +25,7 @@ try {
         $env:APPDATA = $profile
         $env:LOCALAPPDATA = $profile
         $scriptSuite = if ($suite -eq 'mobile_layout_large') { 'mobile_layout_smoke' } elseif ($suite -in @('lan_mobile_compact', 'lan_mobile_s23')) { 'lan_mobile_layout' } else { $suite }
-        $arguments = @('--debug', '--ignore-error-breaks', '--path', $project, '--script', ('res://tests/' + $scriptSuite + '.gd'))
+        $arguments = @('--audio-driver', 'Dummy', '--debug', '--ignore-error-breaks', '--path', $project, '--script', ('res://tests/' + $scriptSuite + '.gd'))
         if ($suite -notin $headlessSuites) { $arguments += @('--position', '-10000,-10000') }
         if ($suite -eq 'mobile_layout_large') { $arguments += @('--', '--text-large') }
         if ($suite -eq 'lan_mobile_compact') { $arguments += @('--', '--compact') }

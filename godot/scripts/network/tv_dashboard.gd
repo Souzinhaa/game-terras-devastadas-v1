@@ -25,6 +25,9 @@ var latest: Dictionary = {}
 var context_id: String = ""
 var last_revision: int = -1
 var banner_tween: Tween
+var public_arena: Control
+var race_board: Control
+var activity_line: Label
 
 func _ready() -> void:
 	set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
@@ -44,6 +47,7 @@ func _ready() -> void:
 	app.button("Cidades", app.show_city_menu, row)
 	app.button("Placar", show_scoreboard, row)
 	motion_button = app.button("Animações", toggle_motion, row)
+	app.button("Música", app.show_music_settings, row)
 	app.button("Sair", app.leave_screen, row)
 	for control: Node in row.get_children():
 		if control is Button:
@@ -80,6 +84,12 @@ func _ready() -> void:
 	encounter_body.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	encounter_body.add_theme_constant_override("separation", 12)
 	encounter_scroll.add_child(encounter_body)
+	public_arena = preload("res://scripts/combat_view.gd").new()
+	public_arena.public_only = true
+	public_arena.custom_minimum_size.y = 380
+	encounter_body.add_child(public_arena)
+	race_board = preload("res://scripts/race_board.gd").new()
+	encounter_body.add_child(race_board)
 	encounter.hide()
 	banner = PanelContainer.new()
 	banner.name = "TVActionBanner"
@@ -88,6 +98,8 @@ func _ready() -> void:
 	banner_text = app.label("", banner, 23)
 	banner_text.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	banner.hide()
+	activity_line = app.label("", self, 18)
+	activity_line.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	resized.connect(fit)
 	fit()
 
@@ -99,10 +111,13 @@ func fit() -> void:
 	top.size = Vector2(maxf(320, size.x - inset * 2), top_height)
 	scorebar.position = Vector2(inset, size.y - 136)
 	scorebar.size = Vector2(top.size.x, 112)
+	activity_line.position = Vector2(inset, size.y - 198)
+	activity_line.size = Vector2(top.size.x, 58)
 	var detail_width: float = clampf(size.x * 0.27, 280, 390)
+	if not latest.get("combat", {}).is_empty() or not latest.get("race", {}).is_empty(): detail_width = minf(size.x - inset * 2, maxf(540, size.x * 0.62))
 	encounter.position = Vector2(size.x - inset - detail_width, 24 + top_height + 16)
-	encounter.size = Vector2(detail_width, maxf(100, size.y - top_height - 208))
-	encounter.custom_maximum_size = encounter.size
+	encounter.custom_maximum_size = Vector2(detail_width, maxf(100, size.y - top_height - 238))
+	encounter.size = encounter.custom_maximum_size
 	banner.position = Vector2(inset, 24 + top_height + 16)
 	banner.size = Vector2(minf(550, maxf(250, size.x - detail_width - inset * 2 - 24)), 84)
 	app.board.content_insets = Vector2(top_height + 38, 142)
@@ -119,6 +134,7 @@ func sync(view: Dictionary) -> void:
 	var next_revision: int = int(view.get("revision", -1))
 	var new_context: bool = next_context != context_id
 	if new_context:
+		public_arena.reset_public()
 		context_id = next_context
 		last_revision = -1
 		previous_values.clear()
@@ -133,6 +149,9 @@ func sync(view: Dictionary) -> void:
 	if latest.get("finished", false): heading.text = "PARTIDA ENCERRADA · veja o placar"
 	connection.text = "CONEXÃO INDISPONÍVEL · dados da última atualização" if not app.endpoint.connected else "SALVAMENTO PENDENTE · aguardando anfitrião"
 	connection.visible = not app.endpoint.connected or bool(view.get("save_pending", false))
+	activity_line.text = str(latest.get("waiting", ""))
+	var recent: Array = latest.get("activity", [])
+	if not recent.is_empty(): activity_line.text += "\nÚltima ação: " + str(recent.back().message)
 	steps.update_state(latest)
 	motion_button.text = "Animações: " + ("reduzidas" if app.endpoint.reduced_motion else "ligadas")
 	for p: Dictionary in players:
@@ -170,35 +189,22 @@ func sync(view: Dictionary) -> void:
 
 func render_encounter() -> void:
 	for child: Node in encounter_body.get_children():
+		if child in [public_arena, race_board]: continue
 		encounter_body.remove_child(child)
 		child.queue_free()
 	var combat: Dictionary = latest.get("combat", {})
 	var race: Dictionary = latest.get("race", {})
 	var loot: Dictionary = latest.get("loot", {})
-	encounter.visible = not combat.is_empty() or not race.is_empty() or not loot.is_empty() or not str(latest.get("waiting", "")).is_empty()
+	public_arena.sync_public(combat, str(latest.get("waiting", "")), app.endpoint.reduced_motion)
+	race_board.sync(race, latest.players, app.endpoint.reduced_motion, context_id)
+	encounter.visible = not combat.is_empty() or not race.is_empty() or not loot.is_empty()
 	if not encounter.visible: return
 	if not combat.is_empty():
-		app.label("COMBATE · RODADA %d" % int(combat.round), encounter_body, 25)
-		for fighter: Dictionary in [combat.left, combat.right]:
-			app.label(str(fighter.name), encounter_body, 23)
-			meter("combat:" + str(fighter.player_id) + ":" + str(fighter.get("hostile", "")), float(fighter.health), float(fighter.maximum), "Estrutura", encounter_body)
-			app.label("Defesa %d+ · dano %d" % [int(fighter.defense), int(fighter.damage)], encounter_body, 18)
-		var last: Dictionary = combat.get("last", {})
-		if last.has("natural"):
-			var dice: Control = Dice.new()
-			encounter_body.add_child(dice)
-			dice.value = int(last.natural)
-			Feedback.flash(dice, Color("ffc477"), app.endpoint.reduced_motion)
-			app.label("Último dado %d · total %d · dano %d" % [int(last.natural), int(last.get("total", 0)), int(last.get("damage", 0))], encounter_body, 20)
-		app.label(str(combat.get("summary", "")) if combat.phase == "finished" else "Decisões e cartas são feitas nos celulares.", encounter_body, 18)
+		pass # Mesma arena, dado e animação de dano do celular/local.
 	elif not race.is_empty():
 		app.label("CORRIDA · " + str(race.track), encounter_body, 25)
-		var distance: int = int(preload("res://scripts/world_rules.gd").TRACKS[str(race.track)].distance)
-		for entry: Dictionary in race.get("entrants", []):
-			var p: Dictionary = player(int(entry.player_id))
-			app.label(str(p.get("name", "Jogador")) + (" · fora da prova" if entry.withdrawn else ""), encounter_body, 22)
-			meter("race-" + str(entry.player_id), float(entry.progress), float(distance), "Avanço", encounter_body)
-		app.label("Aguardando decisões nos celulares." if race.phase == "entry" else "A rodada de chegada será completada.", encounter_body, 18)
+		app.label(str(latest.get("waiting", "")), encounter_body, 20)
+		if not race.get("last", {}).is_empty(): app.label("Dado %d · avanço %d" % [int(race.last.natural), int(race.last.advance)], encounter_body, 20)
 	elif not loot.is_empty():
 		app.label("SAQUE EM ANDAMENTO", encounter_body, 25)
 		app.label("Resolva a defesa ou a retirada nos celulares. O controle do setor permanece.", encounter_body, 20)

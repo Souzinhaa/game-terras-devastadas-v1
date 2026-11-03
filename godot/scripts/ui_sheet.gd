@@ -9,6 +9,8 @@ var heading: Label
 var feedback: Label
 var panel: PanelContainer
 var close_button: Button
+var back_button: Button
+var back_action: Callable
 var motion_reduced: bool = false
 var tween: Tween
 var sheet_width: float = 650
@@ -36,6 +38,13 @@ func _ready() -> void:
 	panel.add_child(column)
 	var header = HBoxContainer.new()
 	column.add_child(header)
+	back_button = Button.new()
+	back_button.text = "‹ Voltar"
+	back_button.custom_minimum_size = Vector2(110, 56)
+	back_button.theme_type_variation = &"Quiet"
+	header.add_child(back_button)
+	back_button.hide()
+	back_button.pressed.connect(go_back)
 	heading = Label.new()
 	heading.text = title
 	heading.theme_type_variation = &"Heading"
@@ -75,7 +84,10 @@ func fit() -> void:
 	panel.offset_top = 20 + safe_insets.y
 	panel.offset_bottom = -20 - safe_insets.w
 
-func reset(heading_text: String) -> VBoxContainer:
+func reset(heading_text: String, previous: Callable = Callable()) -> VBoxContainer:
+	back_action = previous
+	back_button.visible = previous.is_valid()
+	body.get_parent().scroll_vertical = 0
 	title = heading_text
 	for child in body.get_children():
 		body.remove_child(child)
@@ -91,7 +103,12 @@ func popup_centered(_desired_size: Vector2i = Vector2i.ZERO) -> void:
 	if not motion_reduced:
 		tween = create_tween().set_trans(Tween.TRANS_CUBIC).set_ease(Tween.EASE_OUT)
 		tween.tween_property(self, "modulate:a", 1.0, 0.18)
-	close_button.grab_focus()
+	if back_button.visible: back_button.grab_focus()
+	else: close_button.grab_focus()
+
+func go_back() -> void:
+	if back_action.is_valid(): back_action.call()
+	else: dismiss()
 
 func dismiss() -> void:
 	hide()

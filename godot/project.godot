@@ -11,12 +11,15 @@ config_version=5
 [application]
 
 config/name="Terras Devastadas"
+config/version="0.0.4-local-tv"
 run/main_scene="res://scenes/bootstrap.tscn"
 config/features=PackedStringArray("4.7", "GL Compatibility")
 
 [autoload]
 
 NetworkEndpoint="*res://scripts/network/network_endpoint.gd"
+Music="*res://scripts/background_music.gd"
+GameSFX="*res://scripts/game_sfx.gd"
 
 [display]
 
@@ -27,13 +30,13 @@ window/size/window_height_override=720
 window/stretch/mode="canvas_items"
 window/stretch/aspect="expand"
 
+[editor_plugins]
+
+enabled=PackedStringArray("res://addons/lan_export/plugin.cfg")
+
 [rendering]
 
 renderer/rendering_method="gl_compatibility"
 renderer/rendering_method.mobile="gl_compatibility"
 textures/vram_compression/import_etc2_astc=true
 environment/defaults/default_clear_color=Color(0.055, 0.065, 0.06, 1)
-
-[editor_plugins]
-
-enabled=PackedStringArray("res://addons/lan_export/plugin.cfg")

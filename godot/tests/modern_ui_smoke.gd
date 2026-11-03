@@ -80,7 +80,7 @@ func run() -> void:
 	app.show_city(app.game.player().city)
 	await process_frame
 	check(JSON.stringify(app.game.state) == original, "Consultar/cancelar cidade não gasta recursos ou RNG")
-	check(app.popup.find_child("Sector_" + app.game.player().city + "-1", true, false) != null, "Setores a um toque da cidade")
+	check(app.popup.find_child("CityActions", true, false) != null, "Ações da cidade acessíveis sem lista extensa")
 	await capture("ui-city-" + suffix)
 	app.handle_back()
 	check(not app.popup.visible, "Voltar fecha o detalhe")

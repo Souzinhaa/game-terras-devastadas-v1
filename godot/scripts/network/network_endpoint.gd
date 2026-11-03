@@ -4,6 +4,7 @@ signal changed
 signal feedback(message: String)
 signal command_completed(result: Dictionary)
 signal event_received(event: Dictionary)
+signal snapshot_received
 const Authority = preload("res://scripts/network/session_authority.gd")
 const Stamp = preload("res://scripts/network/compatibility_stamp.gd")
 const PORT = 24876
@@ -37,6 +38,46 @@ var last_event_id: String = ""
 var connecting_since: int = 0
 var reconnect_elapsed: float = 0.0
 var reduced_motion: bool = false
+var local_board: bool = false
+var local_source: RefCounted
+
+## Compartilha a instância hot-seat, sem migrar seu save nem aceitar jogadores.
+func host_local(engine: RefCounted, source: RefCounted, server_port: int = PORT) -> String:
+	if engine.state.is_empty(): return "Inicie ou retome uma partida local primeiro."
+	if not network_permission(true): return "Autorize o acesso à rede local e tente novamente."
+	leave()
+	var peer := ENetMultiplayerPeer.new()
+	var result: Error = peer.create_server(server_port, 8)
+	if result != OK: return "Não foi possível abrir a porta UDP %d (%s)." % [server_port, error_string(result)]
+	authority = Authority.new()
+	authority.game = engine
+	for player: Dictionary in engine.state.players:
+		authority.seats.append({"id": player.id, "name": player.name, "ready": true})
+	authority.revision = engine.state.command_log.size() + 1
+	authority.persistence_error = engine.persistence_error
+	authority.saved_revision = authority.revision if engine.persistence_error.is_empty() else -1
+	local_board = true
+	local_source = source
+	local_source.applied.connect(publish_local_action)
+	multiplayer.multiplayer_peer = peer
+	mode = "host"
+	port = server_port
+	capacity = authority.seats.size()
+	connected = true
+	start_discovery()
+	DisplayServer.screen_set_keep_on(true)
+	publish()
+	return ""
+
+func publish_local_action(action: String, args: Dictionary, before: Dictionary, actor: int) -> void:
+	if not local_board or mode != "host": return
+	authority.revision += 1
+	authority.persistence_error = authority.game.persistence_error
+	if authority.persistence_error.is_empty(): authority.saved_revision = authority.revision
+	authority.last_event = authority.event_for({"action": action, "args": args}, actor, before)
+	authority.public_activity.append(Authority.Projector.fields(authority.last_event, ["id", "revision", "actor", "type", "message"]))
+	if authority.public_activity.size() > 12: authority.public_activity.pop_front()
+	publish(true)
 
 func _ready() -> void:
 	compatibility = compatibility_stamp()
@@ -164,6 +205,9 @@ func _hello(message: Dictionary) -> void:
 	if not message.get("name") is String or not message.get("spectator") is bool or not message.get("credential", "") is String or not message.get("match", "") is String: return
 	var name_value: String = str(message.name).strip_edges().left(32)
 	if name_value.is_empty(): return
+	if local_board and not message.spectator:
+		_notice.rpc_id(sender, "Esta é uma partida local. Conecte usando o aplicativo Tabuleiro/TV.", true)
+		return
 	if not message.spectator and message.match == authority.match_id and not str(message.credential).is_empty():
 		for seat: Dictionary in authority.seats:
 			if int(seat.id) == 0: continue
@@ -242,6 +286,7 @@ func _notice(message: String, stop: bool = false) -> void:
 	changed.emit()
 
 func set_ready(value: bool) -> void:
+	if local_board: return
 	if mode == "host":
 		authority.seats[0].ready = value
 		authority.persist()
@@ -257,6 +302,7 @@ func _ready_request(value: bool) -> void:
 	publish()
 
 func start_match() -> String:
+	if local_board: return "A partida local é controlada no celular."
 	if mode != "host": return "Somente o anfitrião inicia."
 	if bindings.size() != authority.seats.size(): return "Aguarde todos os jogadores reconectarem."
 	var error: String = authority.start_match()
@@ -305,7 +351,11 @@ func _query_command(command_id: String) -> void:
 
 func retry_save() -> void:
 	if mode != "host": return
-	var error: String = authority.persist()
+	var error: String = authority.game.save_game() if local_board else authority.persist()
+	if local_board:
+		authority.game.persistence_error = error
+		authority.persistence_error = error
+		if error.is_empty(): authority.saved_revision = authority.revision
 	feedback.emit("Partida salva." if error.is_empty() else error)
 	publish(false)
 
@@ -313,15 +363,16 @@ func publish(with_event: bool = false) -> void:
 	if mode != "host": return
 	var players: Array = []
 	for seat: Dictionary in authority.seats:
-		players.append({"id": seat.id, "name": seat.name, "ready": seat.ready, "connected": int(seat.id) in bindings.values()})
+		players.append({"id": seat.id, "name": seat.name, "ready": seat.ready, "connected": local_board or int(seat.id) in bindings.values()})
 	lobby = {"players": players, "capacity": capacity, "started": not authority.game.state.is_empty(), "screens": spectators.size()}
-	view = authority.snapshot(0)
+	view = authority.snapshot(-1 if local_board else 0)
 	for peer_id: int in ready_peers:
 		if peer_id == 1: continue
 		var snapshot: Dictionary = authority.snapshot(int(bindings.get(peer_id, -1)))
 		_snapshot.rpc_id(peer_id, snapshot, lobby)
 		if with_event: _send_event(peer_id, int(bindings.get(peer_id, -1)))
 	if with_event: _local_event(0)
+	snapshot_received.emit()
 	changed.emit()
 
 @rpc("authority", "call_remote", "reliable")
@@ -331,6 +382,7 @@ func _snapshot(snapshot_value: Dictionary, lobby_value: Dictionary) -> void:
 	if not view.is_empty() and view.epoch == snapshot_value.epoch and int(snapshot_value.revision) < int(view.revision): return
 	view = snapshot_value
 	lobby = lobby_value
+	snapshot_received.emit()
 	changed.emit()
 
 func _send_event(peer_id: int, player_id: int) -> void:
@@ -341,7 +393,7 @@ func filtered_event(player_id: int) -> Dictionary:
 	var source: Dictionary = authority.last_event
 	if source.is_empty(): return {}
 	var event: Dictionary = {}
-	for key: String in ["id", "revision", "actor", "type", "message", "from", "to", "route"]:
+	for key: String in ["id", "revision", "actor", "type", "message", "from", "to", "route", "sounds"]:
 		if source.has(key): event[key] = source[key]
 	if int(source.actor) == player_id and source.has("private_delta"): event.delta = source.private_delta.duplicate()
 	return event
@@ -381,7 +433,7 @@ func start_discovery() -> void:
 	discovery_elapsed = 10.0
 
 func room_advertisement() -> Dictionary:
-	return {"service": "wasteland-lan-1", "name": str(authority.seats[0].name), "port": port, "started": not authority.game.state.is_empty(), "compatibility": compatibility}
+	return {"service": "wasteland-lan-1", "name": ("Local · " if local_board else "") + str(authority.seats[0].name), "port": port, "started": not authority.game.state.is_empty(), "compatibility": compatibility}
 
 func discovery_probe() -> void:
 	if receive_udp == null: return
@@ -435,7 +487,7 @@ func _process(delta: float) -> void:
 				connect_peer()
 
 func _notification(what: int) -> void:
-	if what == NOTIFICATION_APPLICATION_PAUSED and mode == "host" and authority: authority.persist()
+	if what == NOTIFICATION_APPLICATION_PAUSED and mode == "host" and authority and not local_board: authority.persist()
 	if what == NOTIFICATION_APPLICATION_RESUMED and connected:
 		if network_permission(false): refresh_view()
 		else:
@@ -461,7 +513,10 @@ func _permission_result(permission: String, granted: bool) -> void:
 	if granted: start_discovery()
 
 func leave() -> void:
-	if mode == "host" and authority: authority.persist()
+	if mode == "host" and authority and not local_board: authority.persist()
+	if local_source and local_source.applied.is_connected(publish_local_action): local_source.applied.disconnect(publish_local_action)
+	local_source = null
+	local_board = false
 	if multiplayer.multiplayer_peer: multiplayer.multiplayer_peer.close()
 	multiplayer.multiplayer_peer = OfflineMultiplayerPeer.new()
 	mode = "offline"

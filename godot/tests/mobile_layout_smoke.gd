@@ -59,13 +59,12 @@ func run() -> void:
 		check(app.board.city_position(app.game.city(id)).y - 64 > header_bottom, "Northern city and label clear header: " + id)
 	app.show_map_actions()
 	await process_frame
-	check(app.popup.title == "Viajar ou explorar", "HUD exposes travel destination list")
-	var travel_options = 0
-	for control in app.popup.body.find_children("*", "Button", true, false):
-		if control.has_meta("travel_route"): travel_options += 1
-	check(travel_options > 0, "Connected destinations are visible without finding map markers")
+	check(app.popup.title == "O QUE FAZER AGORA?", "HUD explains the next action")
+	app.show_travel_map()
+	check(app.escape_picker.visible and not app.board.escape_routes.is_empty(), "Travel opens a full map with legal highlighted paths")
 	await RenderingServer.frame_post_draw
 	root.get_texture().get_image().save_png("res://../.tools/routes-" + suffix + ".png")
+	app.escape_picker.cancel_selection()
 	var chosen_route = ""
 	for route in app.game.routes:
 		if (route.from == p.city or route.to == p.city) and app.game.route_reason(route).is_empty(): chosen_route = route.id; break

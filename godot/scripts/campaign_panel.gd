@@ -7,16 +7,19 @@ var app:
 var private_owner: int = -1
 var pending_signature: String = ""
 var support_owner: int = -1
+var previous_race: Dictionary = {}
+var administration_section: String = ""
+var administration_return: Callable
 
 func line(value: String, parent: Node) -> void:
 	app.label(value, parent, 18).autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 
-func command(caption: String, action: String, args: Dictionary, parent: Node, reopen: bool = false) -> Button:
+func command(caption: String, action: String, args: Dictionary, parent: Node, reopen: bool = false, show_reason: bool = true) -> Button:
 	var control = app.button(caption, func():
 		app.popup.hide()
 		if action == "playGeneral": support_owner = -1
 		app.dispatch(action, args)
-		if reopen and app.game.state.choice.is_empty() and app.game.state.race.is_empty() and app.game.state.combat.is_empty(): administration(), parent)
+		if reopen and app.game.state.choice.is_empty() and app.game.state.race.is_empty() and app.game.state.combat.is_empty(): administration(administration_section), parent)
 	var reason = app.game.action_reason(action, args)
 	control.clip_text = false
 	control.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
@@ -24,7 +27,7 @@ func command(caption: String, action: String, args: Dictionary, parent: Node, re
 	control.tooltip_text = caption + ("\n" + reason if not reason.is_empty() else "")
 	var hint: String = preload("res://scripts/ui_feedback.gd").hint(action)
 	if not hint.is_empty(): control.tooltip_text += "\n" + hint
-	if not reason.is_empty(): line(reason, parent)
+	if show_reason and not reason.is_empty(): line(reason, parent)
 	return control
 
 func art(id: String, parent: Node) -> void:
@@ -35,54 +38,72 @@ func art(id: String, parent: Node) -> void:
 	image.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
 	image.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
 	parent.add_child(image)
+	app.card_zoom.bind_art(image)
 	line(d.name + "\n" + d.rulesText, parent)
 
-func administration() -> void:
+func administration(section: String = "", previous_menu: Callable = Callable()) -> void:
+	if previous_menu.is_valid(): administration_return = previous_menu
+	administration_section = section
 	var g = app.game
 	var p = g.player()
-	var body = app.dialog_content("ADMINISTRAR / MELHORIAS")
+	var titles := {"": "VEÍCULO E RECURSOS", "vehicle": "REPARAR / MELHORAR", "upgrade": "TROCAR VEÍCULO", "resources": "ORGANIZAR RECURSOS", "equipment": "EQUIPAMENTOS", "territories": "DEFESAS E VEÍCULOS"}
+	var previous: Callable = app.show_map_actions if section.is_empty() else administration
+	if section.is_empty() and administration_return.is_valid(): previous = administration_return
+	if section == "upgrade": previous = func(): administration("vehicle")
+	var body = app.dialog_content(titles[section], previous)
 	line("Ações %d · Sucata: carga %d / total local %d\nCarga %d/%d · tanque %d/%d" % [g.state.actions, p.stock.scrap, g.campaign.local_scrap(p), g.cargo(), g.capacity(), p.fuel, g.tank()], body)
-	command("Comprar melhoria · 3 sucatas · livre 1/turno", "buyImprovement", {}, body, true)
-	command("Reparo complexo · 2 sucatas · 1 ação · até +4 vida", "repairComplex", {}, body, true)
-	command("Tanque → carga · 1 combustível", "unloadFuel", {}, body, true)
-	if g.campaign.modern():
-		line("Troca livre: 1 água, pneu ou bateria da carga por 1 sucata; uma vez por turno.", body)
-		for resource: String in ["water", "tire", "battery"]:
-			command("Trocar 1 " + preload("res://scripts/exploration_result.gd").NAMES[resource] + " por 1 sucata", "salvageSupply", {"resource": resource}, body, true)
-	if p.model == "hatch":
-		line("Melhorar: 5 sucatas próprias locais e uma ação. Preserva vida e vidas restantes.", body)
-		for v in g.vehicles:
-			if v.id == "hatch": continue
-			command("%s · carga %d · tanque %d · consumo %d%s" % [v.name, v.capacity, v.tank, v.consumption, " · Moto recebe 10 combustíveis" if v.id == "moto" and not g.campaign.modern() else " · preserva combustível"], "upgradeVehicle", {"model": v.id}, body, true)
-	line("Equipamentos instalados: %d/2" % p.installed.size(), body)
-	for i in range(p.installed.size()):
-		var d = app.card_definition(p.installed[i].definition_id)
-		line(d.name + " · " + d.rulesText, body)
-		command("Retirar e descartar " + d.name, "removeUpgrade", {"slot": i}, body, true)
-		if d.id == "E11":
-			for territory in g.state.territories:
-				var t = g.state.territories[territory]
-				if int(t.owner) == int(p.id) and t.city == p.city: command("Guincho → depósito " + territory.get_slice("-", 1), "winch", {"slot": i, "territory": territory}, body, true)
-	if int(g.state.local_scrap.get(p.city, 0)) > 0: command("Recolher 1 sucata solta para carga", "collectScrap", {}, body, true)
-	line("Reserva de melhorias: toque para instalar.", body)
-	for i in range(p.hand.size()):
-		if p.hand[i].left(1) not in ["E", "T"]: continue
-		var index = i
-		app.button(app.card_definition(p.hand[i]).name, func(): configure_card(index), body)
-	for id in g.state.territories:
-		var t = g.state.territories[id]
-		if int(t.owner) != int(p.id): continue
-		line("%s · %s · defesa %d/%d · melhorias %d/2" % [g.city(t.city).name, id.get_slice("-", 1), t.resistance, g.campaign.defense_max(t), t.installed.size()], body)
-		command("Administrar defesa · 1 sucata · 1 ação", "repairTerritory", {"territory": id}, body, true)
-		for slot in range(t.installed.size()): command("Retirar " + app.card_definition(t.installed[slot].definition_id).name, "removeUpgrade", {"territory": id, "slot": slot}, body, true)
-	for i in range(g.state.found.size()):
-		var found = g.state.found[i]
-		if found.city != p.city: continue
-		line("Encontrado: %s · vida %d · tanque %d" % [found.model, found.integrity, found.fuel], body)
-		command("Assumir · 5 sucatas locais · 1 ação", "swap", {"index": i}, body, true)
-		command("Reparar encontrado · turno separado", "repairFound", {"index": i}, body, true)
-	app.button("Placar e objetivo", scoreboard, body)
-	app.button("Resolver excedentes / encontros", func(): pending_signature = ""; pending(), body)
+	if section.is_empty():
+		app.button("Reparar / melhorar veículo", func(): administration("vehicle"), body)
+		app.button("Organizar recursos", func(): administration("resources"), body)
+		app.button("Equipamentos / instalar cartas", func(): administration("equipment"), body)
+		app.button("Defesas e veículos encontrados", func(): administration("territories"), body)
+		return
+	if section == "vehicle":
+		command("Comprar melhoria · 3 sucatas · livre 1/turno", "buyImprovement", {}, body, true)
+		command("Reparo complexo · 2 sucatas · 1 ação · até +4 vida", "repairComplex", {}, body, true)
+		if p.model == "hatch": app.button("Trocar veículo · ver modelos", func(): administration("upgrade"), body)
+	if section == "upgrade":
+		if p.model == "hatch":
+			line("5 sucatas locais · 1 ação. Preserva estrutura, combustível e vidas.", body)
+			for v in g.vehicles:
+				if v.id == "hatch": continue
+				command("%s · carga %d · tanque %d · consumo %d%s" % [v.name, v.capacity, v.tank, v.consumption, " · recebe 10 combustíveis" if v.id == "moto" and not g.campaign.modern() else ""], "upgradeVehicle", {"model": v.id}, body, true, false)
+	if section == "resources":
+		app.button("Carga / depósitos", func(): app.popup.hide(); app.toggle_cargo(), body)
+		command("Tanque → carga · 1 combustível", "unloadFuel", {}, body, true)
+		if g.campaign.modern():
+			line("Troca livre: 1 água, pneu ou bateria da carga por 1 sucata; uma vez por turno.", body)
+			for resource: String in ["water", "tire", "battery"]:
+				command("Trocar 1 " + preload("res://scripts/exploration_result.gd").NAMES[resource] + " por 1 sucata", "salvageSupply", {"resource": resource}, body, true)
+		if int(g.state.local_scrap.get(p.city, 0)) > 0: command("Recolher 1 sucata solta para carga", "collectScrap", {}, body, true)
+	if section == "equipment":
+		line("Equipamentos instalados: %d/2" % p.installed.size(), body)
+		for i in range(p.installed.size()):
+			var d = app.card_definition(p.installed[i].definition_id)
+			line(d.name + " · " + d.rulesText, body)
+			command("Retirar e descartar " + d.name, "removeUpgrade", {"slot": i}, body, true)
+			if d.id == "E11":
+				for territory in g.state.territories:
+					var t = g.state.territories[territory]
+					if int(t.owner) == int(p.id) and t.city == p.city: command("Guincho → depósito " + territory.get_slice("-", 1), "winch", {"slot": i, "territory": territory}, body, true)
+		line("Reserva de melhorias: toque para instalar.", body)
+		for i in range(p.hand.size()):
+			if p.hand[i].left(1) not in ["E", "T"]: continue
+			var index = i
+			app.button(app.card_definition(p.hand[i]).name, func(): configure_card(index, -1, func(): administration("equipment")), body)
+	if section == "territories":
+		for id in g.state.territories:
+			var t = g.state.territories[id]
+			if int(t.owner) != int(p.id): continue
+			line("%s · %s · defesa %d/%d · melhorias %d/2" % [g.city(t.city).name, id.get_slice("-", 1), t.resistance, g.campaign.defense_max(t), t.installed.size()], body)
+			command("Administrar defesa · 1 sucata · 1 ação", "repairTerritory", {"territory": id}, body, true)
+			for slot in range(t.installed.size()): command("Retirar " + app.card_definition(t.installed[slot].definition_id).name, "removeUpgrade", {"territory": id, "slot": slot}, body, true)
+		for i in range(g.state.found.size()):
+			var found = g.state.found[i]
+			if found.city != p.city: continue
+			line("Encontrado: %s · vida %d · tanque %d" % [found.model, found.integrity, found.fuel], body)
+			command("Assumir · 5 sucatas locais · 1 ação", "swap", {"index": i}, body, true)
+			command("Reparar encontrado · turno separado", "repairFound", {"index": i}, body, true)
 
 func scoreboard() -> void:
 	var g = app.game
@@ -97,14 +118,14 @@ func scoreboard() -> void:
 			if owned > 0: line("%s: %d/%d setores" % [c.name, owned, c.regions], body)
 	if g.state.get("finished", false): line("Partida encerrada: " + str(g.state.get("winner_reason", "sobrevivência")), body)
 
-func configure_card(index: int, owner_id: int = -1) -> void:
+func configure_card(index: int, owner_id: int = -1, previous: Callable = Callable()) -> void:
 	var g = app.game
 	var p = g.player() if owner_id < 0 else g.combat_rules.player_by_id(owner_id)
 	if p.is_empty(): return
 	if index < 0 or index >= p.hand.size(): return
 	if not g.pending_reveal().is_empty(): app.present_pending_reveal(); return
 	var id = str(p.hand[index])
-	var body = app.dialog_content("USAR / INSTALAR CARTA")
+	var body = app.dialog_content("USAR / INSTALAR CARTA", previous)
 	art(id, body)
 	if id.begins_with("E"):
 		command("Instalar no veículo · livre", "install", {"index": index}, body, true)
@@ -172,7 +193,8 @@ func identify(p: Dictionary, body: Node, callback: Callable) -> bool:
 
 func pending() -> void:
 	var g = app.game
-	if g.state.is_empty() or app.start_screen.visible or app.intro_guide.visible or app.handoff.visible or app.reveal.visible or app.exploration_result.visible or not g.state.combat.is_empty(): return
+	if not g.state.is_empty() and g.state.race.is_empty(): previous_race.clear()
+	if g.state.is_empty() or app.start_screen.visible or app.intro_guide.visible or app.handoff.visible or app.reveal.visible or app.encounter_reveal.visible or app.travel_presentation.visible or app.exploration_result.visible or not g.state.combat.is_empty(): return
 	if support_owner >= 0:
 		support()
 		return
@@ -190,8 +212,10 @@ func pending() -> void:
 		var body = app.dialog_content("CARTA DE ENCONTRO")
 		if not identify(owner, body, pending): return
 		if choice.kind != "inspect" and not choice.get("revealed", false):
-			line("Carta recebida. Revele antes de resolver.", body)
-			command("Virar carta", "cardChoice", {}, body)
+			app.present_encounter_card(choice, owner)
+			return
+		if choice.kind != "inspect" and g.action_reason("cardChoice", {}).is_empty():
+			app.present_encounter_card(choice, owner)
 			return
 		art(choice.card, body)
 		if choice.card == "V16": line("Esta carta está temporariamente sem efeito.", body)
@@ -243,8 +267,8 @@ func show_excess() -> void:
 		var load_size = g.campaign.extra_cargo(p)
 		for value in p.stock.values(): load_size += int(value)
 		if load_size > g.campaign.capacity(p):
-			for r in g.RESOURCES:
-				if int(p.stock[r]) > 0: command("Descartar 1 %s da carga de %s" % [app.RESOURCE_NAMES[r], p.name], "discardResource", {"resource": r, "player_id": int(p.id)}, body)
+			app.show_cargo_resolution(int(p.id))
+			return
 	for id in g.state.territories:
 		var t = g.state.territories[id]
 		var size = 0
@@ -259,6 +283,12 @@ func show_race() -> void:
 	var g = app.game
 	var race = g.state.race
 	var body = app.dialog_content("CORRIDA · " + race.track)
+	if race.phase == "entry": previous_race.clear()
+	var track_view := preload("res://scripts/race_board.gd").new()
+	body.add_child(track_view)
+	if not previous_race.is_empty(): track_view.sync(previous_race, g.state.players, true)
+	track_view.sync(race, g.state.players, app.combat_view.reduce_motion)
+	previous_race = race.duplicate(true)
 	if race.phase == "entry":
 		for p in g.state.players:
 			if int(p.id) in race.responses: continue

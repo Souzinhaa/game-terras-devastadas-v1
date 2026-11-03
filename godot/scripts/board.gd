@@ -2,6 +2,7 @@ extends Control
 ## Tabuleiro desenhado em coordenadas do mapa, com pan e pinch nativos.
 signal city_selected(id: String)
 signal route_selected(id: String)
+signal vehicle_selected(player_id: int)
 var focused_route: bool = false
 var game: RefCounted # Motor local ou fachada de apresentação LAN sem estado secreto.
 var fit_width: bool = false
@@ -19,6 +20,7 @@ var dragged = false
 var selected = ""
 var travel_from: String = ""
 var travel_to: String = ""
+var travel_actor: int = -1
 var travel_progress: float = 1.0
 var travel_tween: Tween
 var route_geometry: Dictionary = JSON.parse_string(FileAccess.get_file_as_string("res://data/route-presentation.json")).routes
@@ -28,6 +30,12 @@ var occlusions: Array[Rect2] = []
 var content_insets: Vector2 = Vector2.ZERO # topo e base reservados ao HUD
 var traveled_route: String = ""
 var route_tween: Tween
+var escape_routes: Array[String] = []
+var escape_tween: Tween
+var escape_alpha: float = 1.0:
+	set(value):
+		escape_alpha = value
+		queue_redraw()
 var route_emphasis: float = 0.4:
 	set(value):
 		route_emphasis = value
@@ -95,16 +103,46 @@ func center_player() -> void:
 	clamp_pan()
 	queue_redraw()
 
-func animate_travel(from: String, to: String, route_id: String = "") -> void:
+func animate_travel(from: String, to: String, route_id: String = "", actor: int = -1, duration: float = 1.2) -> void:
 	if travel_tween: travel_tween.kill()
 	travel_from = from
 	travel_to = to
+	travel_actor = int(game.player().id) if actor < 0 else actor
 	traveled_route = route_id
 	travel_progress = 0
 	travel_tween = create_tween().set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_IN_OUT)
 	travel_tween.tween_method(func(value: float):
 		travel_progress = value
-		queue_redraw(), 0.0, 1.0, 1.2)
+		queue_redraw(), 0.0, 1.0, duration)
+
+func travel_position(progress: float) -> Vector2:
+	var origin: Vector2 = city_position(game.city(travel_from))
+	var destination: Vector2 = city_position(game.city(travel_to))
+	var path: PackedVector2Array = route_points(traveled_route)
+	if path.size() < 2: return origin.lerp(destination, progress)
+	if path[0].distance_to(origin) > path[path.size() - 1].distance_to(origin): path.reverse()
+	path.insert(0, origin)
+	path.append(destination)
+	var length: float = 0.0
+	for i: int in range(path.size() - 1): length += path[i].distance_to(path[i + 1])
+	var remaining: float = clampf(progress, 0.0, 1.0) * length
+	for i: int in range(path.size() - 1):
+		var segment: float = path[i].distance_to(path[i + 1])
+		if remaining <= segment and segment > 0.001:
+			return path[i].lerp(path[i + 1], remaining / segment)
+		remaining -= segment
+	return destination
+
+func set_escape_routes(routes: Array, reduced_motion: bool = false) -> void:
+	if escape_tween: escape_tween.kill()
+	escape_routes.clear()
+	for route: Variant in routes: escape_routes.append(str(route))
+	escape_alpha = 1.0
+	if not escape_routes.is_empty() and not reduced_motion:
+		escape_tween = create_tween().set_loops()
+		escape_tween.tween_property(self, "escape_alpha", 0.25, 0.45)
+		escape_tween.tween_property(self, "escape_alpha", 1.0, 0.45)
+	queue_redraw()
 
 func route_points(route_id: String) -> PackedVector2Array:
 	var result = PackedVector2Array()
@@ -136,6 +174,19 @@ func clear_selection() -> void:
 	queue_redraw()
 
 func pick(at: Vector2) -> void:
+	if escape_routes.is_empty() and not focused_route:
+		var vehicle_id: int = -1
+		var vehicle_distance: float = INF
+		for p: Dictionary in game.state.players:
+			var position_on_map: Vector2 = city_position(game.city(p.city)) + Vector2((int(p.id) - 1) * 12, 0)
+			if Rect2(position_on_map - Vector2(18, 31), Vector2(36, 62)).has_point(at):
+				var distance_to_vehicle: float = at.distance_squared_to(position_on_map)
+				if distance_to_vehicle < vehicle_distance:
+					vehicle_distance = distance_to_vehicle
+					vehicle_id = int(p.id)
+		if vehicle_id >= 0:
+			vehicle_selected.emit(vehicle_id)
+			return
 	var closest = ""
 	var distance = 38.0
 	for c in game.cities:
@@ -151,7 +202,9 @@ func pick(at: Vector2) -> void:
 		var nearest_route = ""
 		var nearest_distance = 16.0
 		for route in game.routes:
-			if not game.route_reason(route).is_empty(): continue
+			if not escape_routes.is_empty():
+				if route.id not in escape_routes: continue
+			elif not game.route_reason(route).is_empty(): continue
 			var points = route_points(route.id)
 			for i in range(points.size() - 1):
 				var distance_to_route = at.distance_to(Geometry2D.get_closest_point_to_segment(at, points[i], points[i + 1]))
@@ -235,6 +288,8 @@ func _draw() -> void:
 		if points.size() < 2: continue
 		var available = game.route_reason(r).is_empty()
 		var chosen = r.id == selected_route
+		if r.id in escape_routes:
+			draw_polyline(points, Color(1.0, 0.6, 0.16, escape_alpha), 9, true)
 		var color = Color(0.44, 0.83, 0.85, 0.85) if chosen else Color(0.58, 0.78, 0.71, 0.65) if available else Color(0.74, 0.58, 0.36, 0.38)
 		if chosen: draw_polyline(points, Color(0.35, 0.9, 0.96, route_emphasis * 0.25), 12, true)
 		draw_polyline(points, Color(0.03, 0.04, 0.02, 0.45), 5 if chosen else 3, true)
@@ -288,25 +343,18 @@ func _draw() -> void:
 	for p in game.state.players:
 		var offset = Vector2((int(p.id) - 1) * 12, 0)
 		var at = city_position(game.city(p.city)) + offset
-		if int(p.id) == int(game.player().id) and travel_progress < 1.0:
-			var path = route_points(traveled_route)
-			if path.size() > 1:
-				if path[0].distance_to(city_position(game.city(travel_from))) > path[path.size() - 1].distance_to(city_position(game.city(travel_from))): path.reverse()
-				var length = 0.0
-				for i in range(path.size() - 1): length += path[i].distance_to(path[i + 1])
-				var remaining = travel_progress * length
-				at = path[path.size() - 1]
-				for i in range(path.size() - 1):
-					var segment = path[i].distance_to(path[i + 1])
-					if remaining <= segment:
-						at = path[i].lerp(path[i + 1], remaining / maxf(1, segment))
-						break
-					remaining -= segment
-				at += offset
-			else: at = city_position(game.city(travel_from)).lerp(city_position(game.city(travel_to)), travel_progress) + offset
+		var moving: bool = int(p.id) == travel_actor and travel_progress < 1.0
+		if moving: at = travel_position(travel_progress)
 		draw_circle(at + Vector2(0, 23), 5, COLORS[int(p.id)])
 		var texture = vehicle_textures.get(p.model, car_texture)
-		draw_texture_rect(texture, Rect2(at - Vector2(18, 31), Vector2(36, 62)), false)
+		if moving:
+			var direction: Vector2 = travel_position(minf(1.0, travel_progress + 0.01)) - travel_position(maxf(0.0, travel_progress - 0.01))
+			draw_arc(at, 35, 0, TAU, 32, COLORS[int(p.id)], 2, true)
+			draw_set_transform(at, direction.angle() + PI / 2.0)
+			draw_texture_rect(texture, Rect2(Vector2(-18, -31), Vector2(36, 62)), false)
+			draw_set_transform(Vector2.ZERO)
+		else:
+			draw_texture_rect(texture, Rect2(at - Vector2(18, 31), Vector2(36, 62)), false)
 
 func label_style() -> StyleBoxFlat:
 	var style = StyleBoxFlat.new()

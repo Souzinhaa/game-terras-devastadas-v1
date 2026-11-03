@@ -31,6 +31,18 @@ func _ready() -> void:
 		row.add_child(label)
 		labels.append(label)
 	update_state({})
+	var bar := get_parent().get_node_or_null("TopBar")
+	if bar:
+		bar.resized.connect(align_with_header)
+		minimum_size_changed.connect(align_with_header)
+		align_with_header.call_deferred()
+
+func align_with_header() -> void:
+	var bar: Control = get_parent().get_node_or_null("TopBar")
+	if not bar: return
+	var height := get_combined_minimum_size().y
+	offset_top = (bar.size.y - height) / 2.0
+	offset_bottom = offset_top + height
 
 func update_state(state: Dictionary) -> void:
 	var step := 0

@@ -2,6 +2,11 @@ extends Control
 signal action_requested(action: String, args: Dictionary)
 const VehicleArt = preload("res://scripts/vehicle_art.gd")
 const Dice = preload("res://scripts/dice.gd")
+const ROLL_SECONDS: float = 0.55
+const RESULT_PAUSE: float = 0.12
+const DAMAGE_SECONDS: float = 0.3
+var attack_heading: Label
+var fighter_panels: Array[PanelContainer] = []
 var game
 var body: VBoxContainer
 var arena: HBoxContainer
@@ -17,12 +22,76 @@ var reaction_open: bool = false
 var reward_reveal_ticket: int = -1
 var reduce_motion: bool = false
 var card_preview: Control
+var card_zoom: Control
 var preview_content: VBoxContainer
 var card_picker: Control
 var picker_content: VBoxContainer
 var picker_minimized: bool = false
 var picker_page: int = 0
 var picker_token: String = ""
+var public_only: bool = false
+var public_combat: Dictionary = {}
+var public_initialized: bool = false
+var public_status: String = ""
+var public_signature: String = ""
+var animation_epoch: int = 0
+var animation_tween: Tween
+var pending_public_results: Array[Dictionary] = []
+
+func reset_public() -> void:
+	animation_epoch += 1
+	if animation_tween != null: animation_tween.kill()
+	busy = false
+	public_initialized = false
+	public_signature = ""
+	last_token = ""
+	pending_public_results.clear()
+
+func sync_public(encounter: Dictionary, status: String, reduced: bool) -> void:
+	if reduced and busy: reset_public()
+	public_combat = encounter.duplicate(true)
+	public_status = status
+	reduce_motion = reduced
+	if busy:
+		var pending_token: String = JSON.stringify([encounter.get("round"), encounter.get("side"), encounter.get("last", {})])
+		if encounter.get("phase", "") in ["result", "finished", "escape_result"] and not encounter.get("last", {}).is_empty() and pending_token != last_token:
+			if not pending_public_results.any(func(item: Dictionary): return item.token == pending_token):
+				pending_public_results.append({"token": pending_token, "encounter": encounter.duplicate(true), "status": status})
+		return
+	var signature: String = JSON.stringify([encounter, status, reduced])
+	if public_signature == signature: return
+	public_signature = signature
+	if encounter.is_empty():
+		hide()
+		public_initialized = false
+		last_token = ""
+		return
+	show()
+	clear()
+	build_attack_heading(encounter)
+	arena = HBoxContainer.new()
+	arena.add_theme_constant_override("separation", 8)
+	body.add_child(arena)
+	var token: String = JSON.stringify([encounter.round, encounter.side, encounter.last])
+	var animate: bool = public_initialized and token != last_token and not encounter.last.is_empty() and encounter.phase in ["result", "finished", "escape_result"]
+	for side: int in range(2):
+		if side == 1:
+			var middle := VBoxContainer.new()
+			arena.add_child(middle)
+			dice = Dice.new()
+			dice.custom_minimum_size = Vector2(64, 64)
+			middle.add_child(dice)
+			style_die(encounter, middle)
+			if not encounter.last.is_empty(): dice.value = int(encounter.last.natural)
+		build_fighter(encounter.left if side == 0 else encounter.right, side, animate)
+	feedback = text(result_text(encounter.last) if not encounter.last.is_empty() and encounter.phase in ["result", "finished", "escape_result"] else public_status, body, 20)
+	text(public_status, body, 18)
+	last_token = token
+	public_initialized = true
+	if animate:
+		busy = true
+		feedback.text = "Rolando o dado de " + str(encounter.left.name if int(encounter.last.side) == 0 else encounter.right.name) + "…"
+		call_deferred("animate_result", encounter.last.duplicate(true))
 
 func _ready() -> void:
 	set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
@@ -35,7 +104,7 @@ func _ready() -> void:
 	var margin = MarginContainer.new()
 	add_child(margin)
 	margin.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
-	for side in ["left", "right", "top", "bottom"]: margin.add_theme_constant_override("margin_" + side, 36)
+	for side in ["left", "right", "top", "bottom"]: margin.add_theme_constant_override("margin_" + side, 8 if public_only else 36)
 	var scroll = ScrollContainer.new()
 	margin.add_child(scroll)
 	body = VBoxContainer.new()
@@ -54,6 +123,8 @@ func _ready() -> void:
 	card_preview.mouse_filter = Control.MOUSE_FILTER_STOP
 	add_child(card_preview)
 	preview_content = card_preview.get_node("Center/Content")
+	card_zoom = preload("res://scripts/card_zoom.gd").new()
+	add_child(card_zoom)
 	hide()
 
 func text(content: String, parent: Node, font_size: int = 22) -> Label:
@@ -66,6 +137,7 @@ func text(content: String, parent: Node, font_size: int = 22) -> Label:
 
 func button(content: String, command: String, args: Dictionary, parent: Node) -> Button:
 	var item = Button.new()
+	item.set_meta("combat_action", command)
 	item.text = content
 	item.custom_minimum_size.y = 64
 	item.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
@@ -81,6 +153,7 @@ func clear() -> void:
 		child.queue_free()
 	images.clear()
 	health_bars.clear()
+	fighter_panels.clear()
 
 func sync() -> void:
 	if busy: return
@@ -93,10 +166,13 @@ func sync() -> void:
 	if e.is_empty():
 		hide()
 		last_token = ""
+		reaction_owner = -1
+		reaction_open = false
+		picker_token = ""
 		return
 	show()
 	clear()
-	text("COMBATE · Rodada %d" % e.round, body, 30).horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	build_attack_heading(e)
 	arena = HBoxContainer.new()
 	arena.add_theme_constant_override("separation", 24)
 	body.add_child(arena)
@@ -110,6 +186,7 @@ func sync() -> void:
 			text("VS", middle, 28).horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 			dice = Dice.new()
 			middle.add_child(dice)
+			style_die(e, middle)
 			if not e.last.is_empty(): dice.value = int(e.last.natural)
 		build_fighter(e.left if i == 0 else e.right, i, animate)
 	feedback = text("", body, 24)
@@ -120,9 +197,13 @@ func sync() -> void:
 	if animate:
 		last_token = token
 		busy = true
+		feedback.text = "Rolando o dado de " + str(e.left.name if int(e.last.side) == 0 else e.right.name) + "…"
 		call_deferred("animate_result", e.last.duplicate(true))
 		return
-	if not e.last.is_empty(): feedback.text = result_text(e.last)
+	if not e.last.is_empty() and e.phase in ["result", "finished", "escape_result"]: feedback.text = result_text(e.last)
+	if e.phase == "finished":
+		arena.hide()
+		feedback.hide()
 	if game.action_reason("combatFast").is_empty():
 		button("Avançar até a próxima decisão", "combatFast", {}, controls)
 	for player_id: int in e.get("auto_pass", []):
@@ -137,19 +218,72 @@ func sync() -> void:
 		"cards", "escape_cards": build_reactions()
 		"ready", "escape_ready":
 			var attacker = e.left if int(e.side) == 0 else e.right
-			text("%s vai %s. Cartas de reação resolvidas." % [attacker.name, "tentar fugir" if e.phase == "escape_ready" else "atacar"], controls)
-			if e.phase == "ready": text("Cartas: dado %+d · dano %+d · redução do alvo %d" % [e.modifiers.attack, e.modifiers.damage, e.modifiers.reduction], controls, 18)
+			text(attacker.name + (" · fuga" if e.phase == "escape_ready" else " · ataque"), controls, 20)
 			if e.has("weapon_damage"): text("%s · dano %d · acerto %+d · munição já paga" % [e.get("weapon_name", "Arma adicional"), e.weapon_damage, e.get("weapon_modifier", 0)], controls, 20)
-			button("Rolar dado de fuga" if e.phase == "escape_ready" else "Rolar dado de ataque", "combatEscapeRoll" if e.phase == "escape_ready" else "combatRoll", {}, controls)
+			button("Rolar fuga de " + str(game.combat_rules.player_by_id(int(e.escape_attempt.player_id)).name) if e.phase == "escape_ready" else "Rolar ataque de " + str(attacker.name), "combatEscapeRoll" if e.phase == "escape_ready" else "combatRoll", {}, controls)
 			if e.phase == "ready": equipment_controls(false)
 		"result":
 			equipment_controls(true)
-			button("Próximo ataque · verificar cartas", "combatContinue", {}, controls)
+			button("Preparar ataque de " + str(e.right.name if int(e.side) == 0 else e.left.name), "combatContinue", {}, controls)
 		"between": build_between()
 		"escape_result": button("Continuar combate", "combatNext", {}, controls)
 		"finished":
 			arena.hide()
 			build_victory()
+	# Comandos abaixo dos combatentes; dado permanece no centro da arena.
+	var extras := VBoxContainer.new()
+	for child: Node in controls.get_children():
+		if child is Button and str(child.get_meta("combat_action", "")) in ["combatFast", "combatAutoPass", "combatEquipment", "combatEquipmentAttack"]:
+			child.reparent(extras)
+	if extras.get_child_count() > 0:
+		var more := Button.new()
+		more.text = "Mais opções"
+		more.custom_minimum_size.y = 56
+		controls.add_child(more)
+		controls.add_child(extras)
+		extras.hide()
+		more.pressed.connect(func(): extras.visible = not extras.visible)
+	else: extras.free()
+	for child: Node in controls.get_children():
+		if child is Button and str(child.get_meta("combat_action", "")) in ["combatRoll", "combatEscapeRoll", "combatContinue", "combatNext"]:
+			controls.move_child(child, 0)
+			child.theme_type_variation = &"Primary"
+			var source: Dictionary = e.left if shown_side(e) == 0 else e.right
+			var color: Color = fighter_color(source)
+			child.add_theme_stylebox_override("normal", preload("res://scripts/ui_style.gd").box(color.darkened(0.72), color, 2))
+			break
+
+static func fighter_color(fighter: Dictionary) -> Color:
+	var id: int = int(fighter.get("player_id", -1))
+	var colors = preload("res://scripts/board.gd").COLORS
+	return colors[id] if id >= 0 and id < colors.size() else Color("ee7863")
+
+static func shown_side(encounter: Dictionary) -> int:
+	if str(encounter.get("phase", "")).begins_with("escape"):
+		if encounter.get("last", {}).get("kind", "") == "escape": return int(encounter.last.side)
+		var actor: int = int(encounter.get("escape_attempt", {}).get("player_id", encounter.get("escape_actor", -1)))
+		if actor >= 0: return 0 if actor == int(encounter.left.player_id) else 1
+	if encounter.get("phase", "") in ["result", "finished"] and not encounter.get("last", {}).is_empty(): return int(encounter.last.side)
+	return int(encounter.get("side", 0))
+
+func build_attack_heading(encounter: Dictionary) -> void:
+	var side: int = shown_side(encounter)
+	var source: Dictionary = encounter.left if side == 0 else encounter.right
+	var target: Dictionary = encounter.right if side == 0 else encounter.left
+	var caption: String = "Rodada %d · %s ATACA %s" % [int(encounter.round), source.name, target.name]
+	if str(encounter.phase).begins_with("escape"): caption = "FUGA DE " + str(source.name)
+	if encounter.phase == "finished": caption = "RESULTADO · " + caption
+	attack_heading = text(caption, body, 22 if public_only else 26)
+	attack_heading.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	attack_heading.add_theme_color_override("font_color", fighter_color(source))
+
+func style_die(encounter: Dictionary, parent: Node) -> void:
+	var source: Dictionary = encounter.left if shown_side(encounter) == 0 else encounter.right
+	dice.accent = fighter_color(source)
+	dice.pending = encounter.phase not in ["result", "finished", "escape_result"]
+	var label := text(("PRÓXIMO DADO\n" if dice.pending else "DADO DE\n") + str(source.name), parent, 16 if public_only else 18)
+	label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	label.add_theme_color_override("font_color", fighter_color(source))
 
 func equipment_controls(weapons: bool) -> void:
 	var e = game.state.combat
@@ -176,11 +310,18 @@ func equipment_controls(weapons: bool) -> void:
 
 func build_fighter(f: Dictionary, side: int, before: bool) -> void:
 	var panel = PanelContainer.new()
+	fighter_panels.append(panel)
+	var encounter: Dictionary = public_combat if public_only else game.state.combat
+	var attacking: bool = side == shown_side(encounter)
+	var color: Color = fighter_color(f)
+	panel.add_theme_stylebox_override("panel", preload("res://scripts/ui_style.gd").box(color.darkened(0.88), color if attacking else color.darkened(0.45), 3 if attacking else 1))
 	panel.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	arena.add_child(panel)
 	var box = VBoxContainer.new()
 	panel.add_child(box)
-	text(f.name, box, 26).horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	var title := text(("ATACA · " if attacking else "DEFENDE · ") + str(f.name), box, 20 if public_only else 26)
+	title.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	title.add_theme_color_override("font_color", color)
 	var art: Control
 	if int(f.player_id) >= 0:
 		art = VehicleArt.new()
@@ -194,15 +335,16 @@ func build_fighter(f: Dictionary, side: int, before: bool) -> void:
 		art.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
 		var id = f.get("hostile", "")
 		art.texture = load("res://assets/hostiles/cartas/%s.png" % id) if not id.is_empty() else load("res://assets/mapa-expandido-v2.png")
-	art.custom_minimum_size = Vector2(230, 180)
+	art.custom_minimum_size = Vector2(100, 76) if public_only else Vector2(180, 120)
 	art.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	if art is TextureRect and not str(f.get("hostile", "")).is_empty(): card_zoom.bind_art(art)
 	images.append(art)
-	text("Ataque: %d dano   ·   Defesa: %d+" % [f.damage, f.defense], box, 22)
+	text("Dano %d · Defesa %d+" % [f.damage, f.defense] if public_only else "Ataque: %d dano   ·   Defesa: %d+" % [f.damage, f.defense], box, 16 if public_only else 22)
 	var hp = int(f.health)
-	var last = game.state.combat.last
+	var last = public_combat.last if public_only else game.state.combat.last
 	if before and last.get("kind") == "attack" and side == 1 - int(last.side): hp = int(last.before)
 	var bar = ProgressBar.new()
-	bar.custom_minimum_size.y = 32
+	bar.custom_minimum_size.y = 20 if public_only else 32
 	bar.max_value = f.maximum
 	bar.value = hp
 	bar.show_percentage = false
@@ -216,8 +358,8 @@ func build_fighter(f: Dictionary, side: int, before: bool) -> void:
 	bar.add_theme_stylebox_override("fill", fill)
 	box.add_child(bar)
 	health_bars.append(bar)
-	text("Vida %d / %d" % [hp, f.maximum], box, 22)
-	text(f.effect, box, 17)
+	text("Vida %d / %d" % [hp, f.maximum], box, 16 if public_only else 22)
+	art.tooltip_text = str(f.effect)
 
 func build_reactions() -> void:
 	var p = game.combat_rules.reaction_player()
@@ -225,15 +367,15 @@ func build_reactions() -> void:
 	if reaction_owner != int(p.id):
 		reaction_owner = int(p.id)
 		reaction_open = false
-	text(p.name + ", deseja usar uma carta antes deste dado? Uma geral por turno do mapa.", controls)
+	text("Reação de " + p.name + (" · fora do turno" if int(p.id) != int(game.player().id) else ""), controls)
+	text("Use uma carta ou passe.", controls, 18)
 	if not reaction_open:
 		var open = Button.new()
-		open.text = "Sou " + p.name + " · ver minhas cartas de reação"
+		open.text = "Ver cartas de reação de " + p.name
 		open.custom_minimum_size.y = 64
 		controls.add_child(open)
 		open.pressed.connect(func():
-			reaction_open = true
-			action_requested.emit("combatReveal", {"player_id": int(p.id)}))
+			action_requested.emit("combatReaction", {"player_id": int(p.id)}))
 	else:
 		if not game.pending_reveal(int(p.id)).is_empty():
 			text("Revele primeiro a carta recebida.", controls)
@@ -244,11 +386,11 @@ func build_reactions() -> void:
 		var token = str([e.phase, e.round, e.side, p.id, p.hand])
 		if token != picker_token:
 			picker_token = token
-			picker_minimized = false
+			picker_minimized = true
 			picker_page = 0
 		var reopen = Button.new()
 		reopen.name = "ReopenReactionCards"
-		reopen.text = "Ver cartas"
+		reopen.text = "Ler / ampliar cartas"
 		reopen.custom_minimum_size.y = 64
 		controls.add_child(reopen)
 		reopen.pressed.connect(func():
@@ -256,9 +398,34 @@ func build_reactions() -> void:
 			card_picker.show())
 		picker_content.custom_minimum_size.x = maxf(280, get_viewport_rect().size.x - 96)
 		text(p.name + " · escolha uma carta", picker_content, 28).horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-		text("Toque para ampliar antes de confirmar. Uma geral por turno.", picker_content, 18).horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+		text("Leitura opcional. Uma geral por " + ("rodada." if game.campaign.modern() else "turno."), picker_content, 18).horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 		text("Ataque: %s · alvo: %s" % [attacker.name, target.name], picker_content, 18).horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 		var eligible = game.combat_rules.eligible_cards(p)
+		var quick := GridContainer.new()
+		quick.name = "QuickReactionCards"
+		quick.columns = 2
+		quick.add_theme_constant_override("h_separation", 8)
+		quick.add_theme_constant_override("v_separation", 8)
+		controls.add_child(quick)
+		for index: int in eligible:
+			var id: String = p.hand[index]
+			var definition: Dictionary = game.campaign.definition(id)
+			var card := Button.new()
+			card.text = "Usar " + str(definition.name)
+			card.set_meta("combat_action", "combatCard")
+			card.custom_minimum_size.y = 56
+			card.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+			card.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+			card.tooltip_text = str(definition.rulesText)
+			var color: Color = fighter_color({"player_id": int(p.id)})
+			card.add_theme_stylebox_override("normal", preload("res://scripts/ui_style.gd").box(color.darkened(0.8), color, 2))
+			card.icon = load("res://assets/cards/" + str(definition.image))
+			card.expand_icon = true
+			card.add_theme_constant_override("icon_max_width", 40)
+			quick.add_child(card)
+			var window: String = str([e.phase, e.round, e.side, p.id])
+			card.pressed.connect(func(): use_reaction_card(index, int(p.id), id, window))
+		controls.move_child(quick, controls.get_children().find(reopen))
 		var card_height = clampf(get_viewport_rect().size.y - 368, 120, 440)
 		var card_width = card_height * 0.7
 		var per_page = maxi(1, int((get_viewport_rect().size.x - 96) / (card_width + 16)))
@@ -338,6 +505,15 @@ func build_reactions() -> void:
 			minimize.grab_focus()
 	button("Não usar carta neste dado", "combatCard", {"index": -1}, controls)
 
+func use_reaction_card(index: int, owner: int, card_id: String, window: String) -> void:
+	if busy or not reaction_open: return
+	var p: Dictionary = game.combat_rules.reaction_player()
+	var e: Dictionary = game.state.combat
+	if p.is_empty() or int(p.id) != owner: return
+	if str([e.phase, e.round, e.side, p.id]) != window: return
+	if index not in game.combat_rules.eligible_cards(p) or p.hand[index] != card_id: return
+	action_requested.emit("combatCard", {"index": index})
+
 func minimize_cards() -> void:
 	picker_minimized = true
 	card_picker.hide()
@@ -345,6 +521,7 @@ func minimize_cards() -> void:
 	if reopen: reopen.grab_focus()
 
 func close_card_preview() -> void:
+	if is_instance_valid(card_zoom): card_zoom.dismiss()
 	if is_instance_valid(card_preview): card_preview.hide()
 
 func preview_card(index: int) -> void:
@@ -369,7 +546,7 @@ func preview_card(index: int) -> void:
 	art.custom_minimum_size = Vector2(240, maxf(120, get_viewport_rect().size.y - 260))
 	art.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
 	art.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
-	art.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	card_zoom.bind_art(art)
 	preview_content.add_child(art)
 	var confirm = Button.new()
 	confirm.name = "ConfirmCardUse"
@@ -396,16 +573,16 @@ func preview_card(index: int) -> void:
 	cancel.grab_focus()
 
 func build_between() -> void:
-	text("Fim da rodada. Continuar ou tentar fugir?", controls)
 	button("Próxima rodada", "combatNext", {}, controls)
 	var e = game.state.combat
+	var can_escape: bool = false
 	for f in [e.left, e.right]:
 		if int(f.player_id) < 0: continue
 		var p = game.combat_rules.player_by_id(int(f.player_id))
 		for r in game.routes:
 			if p.city not in [r.from, r.to]: continue
-			var destination = game.city(r.to if r.from == p.city else r.from)
-			button("%s: tentar fuga para %s" % [p.name, destination.name], "combatEscape", {"route": r.id, "player_id": int(p.id)}, controls)
+			if game.action_reason("combatEscape", {"route": r.id, "player_id": int(p.id)}).is_empty(): can_escape = true
+	if can_escape: button("Fugir", "combatChooseEscape", {}, controls)
 
 func build_victory() -> void:
 	var e = game.state.combat
@@ -414,24 +591,56 @@ func build_victory() -> void:
 	controls.add_child(panel)
 	var content = VBoxContainer.new()
 	panel.add_child(content)
-	text("RESULTADO DO COMBATE", content, 26)
-	text(e.summary, content)
+	var winner: int = int(e.get("winner", -1))
+	text((e.left.name if winner == 0 else e.right.name) + " venceu" if winner >= 0 else "Combate encerrado", content, 28)
+	var details := Button.new()
+	details.text = "Ver detalhes"
+	details.theme_type_variation = &"Quiet"
+	details.custom_minimum_size.y = 56
+	details.size_flags_horizontal = Control.SIZE_SHRINK_END
+	var summary: Label = text(e.summary, content, 18)
+	summary.hide()
+	content.add_child(details)
+	details.pressed.connect(func():
+		summary.visible = not summary.visible
+		details.text = "Ocultar detalhes" if summary.visible else "Ver detalhes")
 	var recipient = game.combat_rules.player_by_id(int(e.get("reward_owner", game.player().id)))
-	if e.reward.is_empty(): text("Nenhum item de recompensa neste confronto.", content, 19)
+	if e.reward.is_empty(): text("Sem itens recebidos.", content, 19)
 	else:
-		text("Recebido na carga de " + recipient.name, content, 23)
+		text("Na carga de " + recipient.name, content, 22)
+		var rewards := GridContainer.new()
+		rewards.name = "RewardItems"
+		rewards.columns = 2 if get_viewport_rect().size.x >= 900 else 1
+		rewards.add_theme_constant_override("h_separation", 24)
+		rewards.add_theme_constant_override("v_separation", 12)
+		content.add_child(rewards)
 		for resource in e.reward:
-			text("+%d %s" % [e.reward[resource], preload("res://scripts/exploration_result.gd").NAMES.get(resource, resource)], content)
-		text("Combustível recebido fica na carga. Abra Carga para abastecer o tanque.", content, 18)
+			var row := HBoxContainer.new()
+			row.name = "Reward_" + resource
+			row.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+			row.add_theme_constant_override("separation", 12)
+			rewards.add_child(row)
+			row.custom_minimum_size.x = minf(280, get_viewport_rect().size.x - 144)
+			var icon := TextureRect.new()
+			icon.name = "Icon"
+			icon.texture = preload("res://scripts/exploration_result.gd").ICONS.get(resource)
+			icon.custom_minimum_size = Vector2(56, 56)
+			icon.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+			icon.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
+			icon.mouse_filter = Control.MOUSE_FILTER_IGNORE
+			row.add_child(icon)
+			var caption: Label = text("+%d %s" % [e.reward[resource], preload("res://scripts/exploration_result.gd").NAMES.get(resource, resource)], row, 24)
+			caption.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	content.move_child(details, content.get_child_count() - 1)
 	if not game.pending_reveal(int(recipient.id)).is_empty():
-		button("Sou " + recipient.name + " · receber carta", "combatReveal", {}, content)
+		button("Revelar carta recebida · " + recipient.name, "combatReveal", {"player_id": int(recipient.id)}, content)
 		return
 	if e.get("vehicle_choice") == "pending":
 		var model_name = ""
 		for model in game.vehicles:
 			if model.id == e.vehicle_offer.model: model_name = model.name
 		text("RECUPERAR " + model_name.to_upper() + "?", content, 25)
-		text("2 sucatas · estrutura 4. Mantém toda a carga e combustível recolhidos. Equipamentos instalados não são transferidos; os do veículo substituído serão descartados.", content, 18)
+		text("2 sucatas · estrutura 4 · substitui seu veículo e descarta os equipamentos dele.", content, 18)
 		var accept = button("Reparar e trocar · 2 sucatas", "combatVehicleChoice", {"accept": true}, content)
 		accept.disabled = int(recipient.stock.scrap) < 2
 		if accept.disabled: text("Você precisa de 2 sucatas na carga para recuperar o veículo.", content, 18)
@@ -454,31 +663,55 @@ func build_victory() -> void:
 
 func result_text(result: Dictionary) -> String:
 	var outcome = ("Fuga bem-sucedida" if result.hit else "Fuga falhou") if result.kind == "escape" else (("ACERTO · %d dano" % result.damage if int(result.damage) > 0 else "ACERTO · dano absorvido") if result.hit else "ERROU")
-	return "Dado %d %+d = %d · alvo %d+ · %s" % [result.natural, result.modifier, result.total, result.defense, outcome]
+	var encounter: Dictionary = public_combat if public_only else game.state.combat
+	var source: Dictionary = encounter.left if int(result.side) == 0 else encounter.right
+	return "%s · dado %d %+d = %d · alvo %d+ · %s" % [source.name, result.natural, result.modifier, result.total, result.defense, outcome]
 
 func animate_result(result: Dictionary) -> void:
-	feedback.text = "Rolando o dado…"
+	var epoch: int = animation_epoch
+	var encounter: Dictionary = public_combat if public_only else game.state.combat
+	var source: Dictionary = encounter.left if int(result.side) == 0 else encounter.right
+	feedback.text = "Rolando o dado de " + str(source.name) + "…"
+	if not public_only: get_node("/root/GameSFX").play("dice")
 	if not reduce_motion:
 		var roll_tween = create_tween()
-		roll_tween.tween_method(func(value: float): dice.value = int(value * 30) % 6 + 1, 0.0, 1.0, 0.65)
+		animation_tween = roll_tween
+		roll_tween.tween_method(func(value: float): dice.value = int(value * 30) % 6 + 1, 0.0, 1.0, ROLL_SECONDS).set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_OUT)
 		await roll_tween.finished
+		if epoch != animation_epoch: return
 	dice.value = int(result.natural)
 	feedback.text = result_text(result)
+	if not reduce_motion:
+		await get_tree().create_timer(RESULT_PAUSE).timeout
+		if epoch != animation_epoch: return
 	if result.kind == "attack":
+		if not public_only: get_node("/root/GameSFX").play("damage" if result.hit and int(result.damage) > 0 else "dodge" if not result.hit else "attack")
 		var target = 1 - int(result.side)
 		var art = images[target]
 		art.pivot_offset = art.size / 2
 		if not reduce_motion:
 			var effect = create_tween().set_parallel(true)
-			effect.tween_property(health_bars[target], "value", float(result.after), 0.35)
+			animation_tween = effect
+			effect.tween_property(health_bars[target], "value", float(result.after), DAMAGE_SECONDS).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_IN_OUT)
 			if result.hit:
 				art.modulate = Color("ed6d52") if int(result.damage) > 0 else Color("71d4d8")
-				effect.tween_property(art, "modulate", Color.WHITE, 0.4)
+				effect.tween_property(art, "modulate", Color.WHITE, DAMAGE_SECONDS)
 				art.rotation = -0.04
-				effect.tween_property(art, "rotation", 0.0, 0.4).set_trans(Tween.TRANS_ELASTIC)
+				effect.tween_property(art, "rotation", 0.0, DAMAGE_SECONDS).set_trans(Tween.TRANS_ELASTIC)
 			else:
 				art.rotation = 0.08
-				effect.tween_property(art, "rotation", 0.0, 0.4).set_trans(Tween.TRANS_BACK)
+				effect.tween_property(art, "rotation", 0.0, DAMAGE_SECONDS).set_trans(Tween.TRANS_BACK)
 			await effect.finished
+			if epoch != animation_epoch: return
 	busy = false
-	sync()
+	if public_only:
+		public_signature = ""
+		if not pending_public_results.is_empty():
+			var next: Dictionary = pending_public_results.pop_front()
+			var latest_encounter: Dictionary = public_combat
+			var latest_status: String = public_status
+			sync_public(next.encounter, next.status, reduce_motion)
+			public_combat = latest_encounter
+			public_status = latest_status
+		else: sync_public(public_combat, public_status, reduce_motion)
+	else: sync()

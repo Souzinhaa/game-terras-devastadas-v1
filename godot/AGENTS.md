@@ -22,6 +22,7 @@ As skills orientam a implementação; não mudam as regras, o escopo pedido ou a
 
 ## Restrições de manutenção
 
+- Preferência explícita do usuário (02/11/2026): toda feature ou correção sem indicação de modo deve ser aplicada e verificada tanto no normal/local (hot-seat) quanto no Multiplayer LAN. Conferir motor, interface e fluxo real de ambos; implementar somente no local não conclui a entrega. Incluir TV/Tabuleiro quando houver apresentação pública afetada, mantendo mãos, recursos privados e capacidades restritos aos respectivos donos. Um pedido específico de um modo pode ter escopo limitado a ele.
 - Godot 4.7 Standard, GDScript, Compatibility; alvo Android em paisagem e hot-seat de 2–4 jogadores.
 - Regras e RNG ficam no motor, nunca em animações, ícones, texto das cartas ou callbacks visuais.
 - Importar catálogo/artes não implementa equipamentos ou efeitos. Distinguir cadastrado, implementado e testado.

@@ -33,7 +33,7 @@ func run() -> void:
 	t.stock.fuel = 4
 	var stock_before = t.stock.duplicate()
 	var cargo_before = app.game.player().stock.duplicate()
-	app.show_sectors()
+	app.city_actions.show_sector(sector, "explore")
 	var explore = app.popup.find_child("Explore_" + sector, true, false) as Button
 	check(explore != null and not explore.disabled, "Exploração disponível")
 	explore.pressed.emit()

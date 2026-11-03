@@ -40,13 +40,14 @@ func run() -> void:
 		check(Rect2(Vector2.ZERO, app.size).has_point(point), "Cidade enquadrada: " + c.name)
 		check(not app.map_toggle.get_global_rect().has_point(point), "Cidade fora do controle: " + c.name)
 		app.board.pick(point)
-		check(app.board.selected == c.id, "Cidade selecionável: " + c.name)
+		check(app.board.selected == c.id or app.vehicle_details.visible, "Cidade ou veículo selecionável: " + c.name)
+		app.vehicle_details.hide()
 		app.popup.hide()
 	await RenderingServer.frame_post_draw
 	root.get_texture().get_image().save_png("res://../.tools/map-free-preview.png")
 	app.toggle_map_mode()
 	app.vehicle_portrait.drive(0.2, true)
-	check(app.vehicle_portrait.texture is AnimatedTexture and app.vehicle_portrait.texture.frames == 24, "24 quadros andando")
+	check(app.vehicle_portrait.texture is AtlasTexture and app.vehicle_portrait.driving_frames.size() == 24, "24 quadros andando, com recorte individual")
 	await create_timer(0.3).timeout
 	check(app.vehicle_portrait.texture == app.vehicle_portrait.idle_texture, "Retorna ao repouso")
 	var territory = ""
@@ -61,8 +62,10 @@ func run() -> void:
 	app.dispatch("conquer", {"territory": territory})
 	check(app.combat_view.visible and app.game.state.combat.phase == "cards", "Combate abre pergunta de carta")
 	check(app.combat_view.find_child("ReactionCards", true, false) == null, "Arte privada até dono abrir a reação")
-	app.dispatch("combatReveal", {"player_id": int(app.game.player().id)})
+	app.dispatch("combatReaction", {"player_id": int(app.game.player().id)})
 	await process_frame
+	check(app.combat_view.find_child("QuickReactionCards", true, false) != null and not app.combat_view.card_picker.visible, "Cartas podem ser usadas na arena sem cobrir o combate")
+	app.combat_view.controls.find_child("ReopenReactionCards", true, false).pressed.emit()
 	check(app.combat_view.images.size() == 2 and app.combat_view.health_bars.size() == 2, "Dois adversários e barras de vida")
 	var choice = app.combat_view.find_child("ReactionCard_0", true, false) as Button
 	check(choice != null, "Carta elegível aparece como escolha visual")
@@ -111,10 +114,27 @@ func run() -> void:
 	var seed_after = app.game.state.seed
 	app.dispatch("combatRoll")
 	check(app.game.state.seed == seed_after, "Cliques repetidos não repetem dano")
-	await create_timer(1.2).timeout
+	await create_timer(0.2).timeout
+	check(app.combat_view.arena.is_ancestor_of(app.combat_view.dice), "Dado continua entre combatentes durante rolagem")
+	check(app.combat_view.health_bars[1].value == float(app.game.state.combat.last.before), "Vida preservada durante rolagem")
+	await RenderingServer.frame_post_draw
+	check(app.combat_view.dice.get_global_rect().get_center().x > app.size.x * 0.35, "Dado não aparece no canto esquerdo")
+	root.get_texture().get_image().save_png("res://../.tools/combat-rolling-fixed.png")
+	await create_timer(0.37).timeout
+	check(app.combat_view.dice.value == 6 and app.combat_view.health_bars[1].value == float(app.game.state.combat.last.before), "Resultado do dado precede perda de vida")
+	await create_timer(0.65).timeout
 	check(not app.combat_view.busy and app.combat_view.dice.value == 6, "Exibe dado real no fim")
 	check(app.combat_view.find_child("CombatReward", true, false) != null, "Resultado e itens adquiridos")
+	check(not app.combat_view.arena.visible and not app.combat_view.feedback.visible, "Resultado prioriza itens sem repetir arena e dado")
+	for resource: String in app.game.state.combat.reward:
+		var row: Node = app.combat_view.find_child("Reward_" + resource, true, false)
+		check(row != null and row.get_node("Icon").texture != null, "Recompensa com ícone: " + resource)
+	var reward_state: String = JSON.stringify(app.game.state)
+	app.combat_view.sync()
+	check(JSON.stringify(app.game.state) == reward_state, "Reabrir resultado não concede os itens novamente")
 	await RenderingServer.frame_post_draw
+	for caption: Node in app.combat_view.find_child("RewardItems", true, false).find_children("*", "Label", true, false):
+		check(caption.size.x >= 150 and caption.size.y < 80, "Nome do recurso legível sem quebrar por letra")
 	root.get_texture().get_image().save_png("res://../.tools/combat-reward-preview.png")
 	while app.game.cargo() > int(app.game.vehicle().capacity): app.dispatch("discardResource", {"resource": "scrap" if app.game.player().stock.scrap > 0 else "fuel"})
 	app.dispatch("combatClose")
@@ -126,7 +146,7 @@ func run() -> void:
 	var reacting = app.game.state.players[1]
 	app.game.gain_card(reacting, "G04")
 	app.dispatch("conquer", {"territory": territory})
-	app.dispatch("combatReveal", {"player_id": int(reacting.id)})
+	app.dispatch("combatReaction", {"player_id": int(reacting.id)})
 	check(app.reveal.visible and app.reveal_owner == int(reacting.id), "Reação fora do turno revela carta do dono")
 	app.reveal.reduced_motion = true
 	app.reveal.flip_button.pressed.emit()
@@ -147,7 +167,43 @@ func run() -> void:
 	var confirm = app.combat_view.card_preview.find_child("ConfirmCardUse", true, false) as Button
 	check(confirm != null, "Confirmação explícita de uso")
 	if confirm != null: confirm.pressed.emit()
-	check(reacting.used_general and reacting.hand.is_empty(), "Carta do adversário consumida corretamente")
+	check(int(reacting.id) in app.game.state.combat.get("round_generals", []) and reacting.hand.is_empty(), "Carta do adversário consome a cota da rodada")
 	check(not app.combat_view.card_preview.visible, "Confirmação fecha a carta ampliada")
+	# Turno do segundo jogador: compra só dele, reações não compram nem trocam a vez.
+	app.game.new_game(["Bruno", "Ana"], 42)
+	app.game.state.pending_reveals.clear()
+	for index: int in range(app.game.state.players.size()):
+		if app.game.state.players[index].name == "Ana": app.game.state.active = index
+	for participant: Dictionary in app.game.state.players:
+		participant.hand.clear()
+		participant.hand_instances.clear()
+		app.game.gain_card(participant, "G01")
+	app.game.state.pending_reveals.clear()
+	var bruno: Dictionary = app.game.combat_rules.player_by_id(0)
+	var ana: Dictionary = app.game.combat_rules.player_by_id(1)
+	var bruno_cards: int = bruno.hand.size()
+	var ana_cards: int = ana.hand.size()
+	check(app.game.act("start").is_empty(), "Segundo jogador inicia seu turno")
+	check(ana.hand.size() == ana_cards + 1 and bruno.hand.size() == bruno_cards, "Compra inicial pertence apenas ao jogador ativo")
+	while not app.game.pending_reveal().is_empty():
+		var pending: Dictionary = app.game.pending_reveal()
+		check(app.game.act("acknowledgeCard", {"ticket": pending.ticket, "player_id": ana.id}).is_empty(), "Jogador ativo confirma sua compra")
+	for id: String in app.game.state.territories:
+		var sector: Dictionary = app.game.state.territories[id]
+		if sector.city == ana.city and int(sector.owner) < 0:
+			territory = id
+			break
+	app.reveal.hide()
+	app.combat_view.reaction_open = false
+	app.dispatch("conquer", {"territory": territory})
+	app.combat_view.reaction_open = false
+	app.dispatch("combatReaction", {"player_id": bruno.id})
+	check(not app.combat_view.reaction_open, "Identidade diferente da reação atual não abre cartas privadas")
+	app.dispatch("combatCard", {"index": -1})
+	check(app.game.combat_rules.reaction_player().id == bruno.id, "Bruno só participa na janela de reação")
+	var before_reaction: String = JSON.stringify(app.game.state)
+	app.dispatch("combatReaction", {"player_id": bruno.id})
+	check(app.game.player().id == ana.id and JSON.stringify(app.game.state) == before_reaction, "Abrir cartas de Bruno não compra, não muda RNG e mantém a vez de Ana")
+	check(not app.reveal.visible, "Cartas conhecidas de reação não abrem animação de compra")
 	print("Combat UI smoke: %d falhas; cartas, dado, recompensa, 12 cidades e veículo." % failures)
 	quit(0 if failures == 0 else 1)

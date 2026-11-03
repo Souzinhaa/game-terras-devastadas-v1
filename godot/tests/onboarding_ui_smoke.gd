@@ -44,7 +44,10 @@ func run() -> void:
 	app.handoff.confirm.pressed.emit()
 	await process_frame
 	await process_frame
-	check(app.reveal.visible, "Initial acquisition follows first-player confirmation")
+	check(not app.reveal.visible and app.game.player().hand.size() == 2, "Initial hand is ready without animation after identity confirmation")
+	app.turn_button.pressed.emit()
+	await process_frame
+	check(app.reveal.visible, "Only the explicit turn purchase opens acquisition")
 	var toggles = app.reveal.find_children("*", "CheckButton", true, false)
 	check(toggles.is_empty(), "Acquisition contains no reduce-motion checkbox")
 	app.reveal.reduced_motion = true

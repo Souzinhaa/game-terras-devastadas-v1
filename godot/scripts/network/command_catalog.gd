@@ -136,9 +136,9 @@ func choice_options(choice: Dictionary) -> void:
 	else:
 		offer("Resolver carta", "cardChoice", {}, "Decisão", true)
 		if choice.card in ["V07", "V10"]:
-			for resource: String in game.RESOURCES: offer("Escolher " + RESOURCE_NAMES[resource], "cardChoice", {"resource": resource}, "Decisão", true)
+			for resource: String in game.RESOURCES: offer("Escolher " + RESOURCE_NAMES[resource], "cardChoice", {"resource": resource}, "Decisão")
 		if choice.kind == "surprise" and choice.card in ["R05", "R08", "R09", "R14", "R15", "R16"]:
-			for p: Dictionary in game.state.players: offer("Escolher " + p.name, "cardChoice", {"target": int(p.id)}, "Decisão", true)
+			for p: Dictionary in game.state.players: offer("Escolher " + p.name, "cardChoice", {"target": int(p.id)}, "Decisão")
 
 func combat_options(p: Dictionary, active: bool) -> void:
 	var e: Dictionary = game.state.combat
@@ -148,8 +148,8 @@ func combat_options(p: Dictionary, active: bool) -> void:
 		for defend: bool in [true, false]: offer("Defender com veículo" if defend else "Usar fortificação", "combatDefend", {"defend": defend}, "Combate", true)
 	var reactor: Dictionary = game.combat_rules.reaction_player()
 	if not reactor.is_empty() and int(reactor.id) == actor:
-		offer("Passar reação", "combatCard", {"index": -1}, "Reação", true)
-		for i in game.combat_rules.eligible_cards(p): offer("Usar " + card_name(p.hand[i]), "combatCard", {"index": i}, "Reação", true)
+		offer("Passar · não usar carta", "combatCard", {"index": -1}, "Reação")
+		for i in game.combat_rules.eligible_cards(p): offer("Usar " + card_name(p.hand[i]), "combatCard", {"index": i}, "Reação")
 	for slot in range(p.installed.size()):
 		offer("Ativar " + card_name(p.installed[slot].definition_id), "combatEquipment", {"slot": slot, "player_id": actor}, "Combate", true)
 		var attacker: Dictionary = e.left if int(e.side) == 0 else e.right
@@ -160,9 +160,15 @@ func combat_options(p: Dictionary, active: bool) -> void:
 		offer("Rolar dado de fuga", "combatEscapeRoll", {}, "Combate", true)
 	if int(e.get("reward_owner", game.player().id)) == actor:
 		for accept: bool in [true, false]: offer("Recuperar veículo · 2 sucatas" if accept else "Recusar veículo", "combatVehicleChoice", {"accept": accept}, "Combate", true)
+	# O turno do mapa não transfere o dado do adversário ao jogador ativo.
+	var roller: Dictionary = e.left if int(e.side) == 0 else e.right
+	var roll_owner: int = int(roller.player_id)
+	if roll_owner < 0: roll_owner = int(e.left.player_id) # Hostil/fortificação.
+	if actor == roll_owner:
+		offer("Rolar ataque de " + str(roller.name), "combatRoll", {}, "Combate")
+		offer("Preparar ataque de " + str(e.right.name if int(e.side) == 0 else e.left.name), "combatContinue", {}, "Combate")
 	if active:
-		offer("Avançar até a próxima decisão", "combatFast", {}, "Combate")
-		for entry: Array in [["Rolar ataque", "combatRoll"], ["Próximo ataque", "combatContinue"], ["Iniciar próxima rodada", "combatNext"], ["Concluir combate / enfrentar fortificação", "combatClose"]]: offer(entry[0], entry[1], {}, "Combate", true)
+		for entry: Array in [["Iniciar próxima rodada", "combatNext"], ["Concluir combate / enfrentar fortificação", "combatClose"]]: offer(entry[0], entry[1], {}, "Combate")
 
 func race_options(p: Dictionary) -> void:
 	var race: Dictionary = game.state.race

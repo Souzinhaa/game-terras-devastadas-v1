@@ -24,6 +24,7 @@ var destination: Vector2
 var column: VBoxContainer
 var center: CenterContainer
 var safe_insets: Vector4 = Vector4.ZERO
+var card_zoom: Control
 
 static func back_for(card_id: String) -> Texture2D:
 	return BACKS.get(card_id.left(1), BACKS.G)
@@ -67,6 +68,10 @@ func _ready() -> void:
 	collect_button.custom_minimum_size.y = 64
 	column.add_child(collect_button)
 	collect_button.pressed.connect(collect)
+	card_zoom = preload("res://scripts/card_zoom.gd").new()
+	add_child(card_zoom)
+	card_zoom.bind_art(art, func() -> bool: return phase == "revealed")
+	art.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	var preferences = ConfigFile.new()
 	if preferences.load("user://ui-preferences.cfg") == OK:
 		reduced_motion = preferences.get_value("accessibility", "reduce_motion", false)
@@ -87,6 +92,8 @@ func fit() -> void:
 	recipient.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 
 func suspend() -> void:
+	if is_instance_valid(card_zoom): card_zoom.dismiss()
+	art.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	# Interromper no meio da virada nunca deixa a carta achatada na próxima apresentação.
 	if tween: tween.kill()
 	phase = "idle"
@@ -103,6 +110,9 @@ func make_label(parent: Node, font_size: int) -> Label:
 	return text
 
 func present(entry: Dictionary, definition: Dictionary, player_name: String, hand_position: Vector2) -> void:
+	card_zoom.dismiss()
+	card_zoom.safe_insets = safe_insets
+	art.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	if tween: tween.kill()
 	phase = "waiting"
 	ticket = int(entry.ticket)
@@ -125,6 +135,7 @@ func present(entry: Dictionary, definition: Dictionary, player_name: String, han
 
 func flip() -> void:
 	if phase != "waiting": return
+	get_node("/root/GameSFX").play("flip")
 	phase = "flipping"
 	flip_button.disabled = true
 	if reduced_motion:
@@ -144,6 +155,7 @@ func show_front() -> void:
 	swap_front()
 	art.scale = Vector2.ONE
 	phase = "revealed"
+	art.mouse_filter = Control.MOUSE_FILTER_STOP
 	flip_button.tooltip_text = front_name
 	flip_button.accessibility_name = front_name + ". " + front_rules
 	hint.text = front_name + "\nCarta revelada. Adicione à mão para continuar."
@@ -152,6 +164,7 @@ func show_front() -> void:
 
 func collect() -> void:
 	if phase != "revealed": return
+	card_zoom.dismiss()
 	phase = "collecting"
 	collect_button.disabled = true
 	if reduced_motion:
@@ -165,6 +178,8 @@ func collect() -> void:
 	tween.chain().tween_callback(finish)
 
 func finish() -> void:
+	card_zoom.dismiss()
+	art.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	var completed_ticket = ticket
 	hide()
 	phase = "idle"

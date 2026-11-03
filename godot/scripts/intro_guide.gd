@@ -29,7 +29,7 @@ func _ready() -> void:
 	content.add_child(heading)
 	for paragraph in [
 		"Explore seus setores escolhendo sucata ou combustível, reúna recursos e melhore seu veículo para conquistar cidades.",
-		"No seu turno, compre uma carta, viaje se quiser e faça uma ação principal. Depois, passe o aparelho ao próximo jogador.",
+		"Sua mão começa com duas cartas. Toque em Comprar Carta para iniciar o turno e comprar mais uma; depois viaje se quiser e faça uma ação principal. Ao encerrar, passe o aparelho ao próximo jogador.",
 		"Vença como último sobrevivente ou anuncie 3 pontos de cidades completas e mantenha essa pontuação até seu próximo turno. Consulte os pontos no Menu → Placar."
 	]:
 		var text = Label.new()

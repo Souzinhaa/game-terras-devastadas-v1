@@ -1,11 +1,11 @@
 {
 	"engine": "4.7.2-stable (official)",
-	"failures": 0,
-	"frame_interval_ms_median": 13.341,
-	"frame_interval_ms_p95": 13.686,
+	"failures": 1,
+	"frame_interval_ms_median": 13.345,
+	"frame_interval_ms_p95": 13.593,
 	"platform": "Windows",
 	"sampling": "90 consecutive frame timestamps after interactions; no Android or VSYNC guarantee",
 	"scope": "Desktop measurements; not Android performance validation",
-	"static_memory_mib": 58.6152143478394,
+	"static_memory_mib": 73.0911903381348,
 	"uncovered_ratio": 0.750534979423868
 }

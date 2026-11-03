@@ -36,6 +36,7 @@ func _ready() -> void:
 	art.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
 	art.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	row.add_child(art)
+	app.card_zoom.bind_art(art)
 	text_scroll = ScrollContainer.new()
 	text_scroll.horizontal_scroll_mode = ScrollContainer.SCROLL_MODE_DISABLED
 	text_scroll.size_flags_horizontal = Control.SIZE_EXPAND_FILL
@@ -71,6 +72,8 @@ func fit() -> void:
 	art.custom_minimum_size.x = clampf(desired.x * 0.34, 100, 300)
 
 func popup_centered(_desired_size: Vector2i = Vector2i.ZERO) -> void:
+	app.card_zoom.dismiss()
+	app.card_zoom.safe_insets = Layout.insets(self, app.device_profile)
 	fit()
 	text_scroll.scroll_vertical = 0
 	show()

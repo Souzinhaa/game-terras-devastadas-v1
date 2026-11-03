@@ -75,7 +75,8 @@ func new_game(names: Array, seed_value: int, profile: String = "campaign-v07") -
 			"model": "hatch", "integrity": 6, "fuel": 3, "repairs": 0, "hand": [],
 			"stock": {"fuel": 0, "scrap": 1, "tire": 0, "battery": 0, "water": 0, "ammo": 0}})
 		state.territories["%s-%d" % [c.id, roll(int(c.regions)) + 1]].owner = i
-		draw_card(state.players[i])
+		for card_index: int in range(2 if profile == "campaign-v07" else 1):
+			draw_card(state.players[i], profile != "campaign-v07")
 	for i in range(state.players.size() - 1, 0, -1):
 		var j = roll(i + 1)
 		var swap = state.players[i]
@@ -85,12 +86,17 @@ func new_game(names: Array, seed_value: int, profile: String = "campaign-v07") -
 	state.initial_names = names.duplicate()
 	state.command_log = []
 	state.rules_profile = profile
+	state.initial_hand_size = 2 if profile == "campaign-v07" else 1
 	combat_rules.initialize()
 	campaign.initialize(true)
+	state.initial_card_instances = {}
+	if profile == "campaign-v07":
+		for participant: Dictionary in state.players:
+			state.initial_card_instances[str(int(participant.id))] = participant.hand_instances.map(func(item: Dictionary): return str(item.instance_id))
 	note("Partida nativa v" + str(state.rules_version) + " iniciada. Duas vidas; vitória por sobrevivência ou cidades completas.")
 	return ""
 
-func draw_card(p: Dictionary) -> void:
+func draw_card(p: Dictionary, reveal_received: bool = true) -> void:
 	if state.deck.is_empty():
 		state.deck = state.discard.duplicate()
 		state.discard.clear()
@@ -103,9 +109,9 @@ func draw_card(p: Dictionary) -> void:
 	if not state.deck.is_empty():
 		var id = str(state.deck.pop_back())
 		campaign.begin_draw(id, "general")
-		gain_card(p, id)
+		gain_card(p, id, {}, reveal_received)
 
-func gain_card(p: Dictionary, card_id: String, transferred_instance: Dictionary = {}) -> void:
+func gain_card(p: Dictionary, card_id: String, transferred_instance: Dictionary = {}, reveal_received: bool = true) -> void:
 	# Toda aquisição deve usar este ponto, inclusive recompensas futuras.
 	p.hand.append(card_id)
 	if not p.has("hand_instances"): p.hand_instances = []
@@ -115,6 +121,7 @@ func gain_card(p: Dictionary, card_id: String, transferred_instance: Dictionary 
 		var item = campaign.find_instance(definition_id, "transit")
 		p.hand_instances.append(campaign.instance(definition_id) if item.is_empty() else item)
 	campaign.mark_instance(p.hand_instances.back(), "hand", str(int(p.id)))
+	if not reveal_received: return
 	var ticket = int(state.get("next_reveal", 1))
 	state.next_reveal = ticket + 1
 	if not state.has("pending_reveals"): state.pending_reveals = []

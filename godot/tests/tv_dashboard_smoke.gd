@@ -115,7 +115,7 @@ func run() -> void:
 	endpoint.connected = true
 	tv.render()
 	await settle()
-	check(not dashboard.connection.visible, "Reconnect same revision clears stale connection label")
+	check(not dashboard.connection.visible and not dashboard.activity_line.text.is_empty(), "Reconnect clears connection warning and retains current public activity")
 	check(endpoint.view.private.is_empty() and endpoint.view.options.is_empty(), "TV interactions never grant player capabilities")
 	endpoint.leave()
 	tv.queue_free()

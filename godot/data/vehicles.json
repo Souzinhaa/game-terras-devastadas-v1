@@ -3,6 +3,7 @@
     "id": "hatch",
     "name": "Hatch",
     "capacity": 4,
+    "capacityV07": 5,
     "tank": 8,
     "consumption": 1,
     "allowedSurfaces": [

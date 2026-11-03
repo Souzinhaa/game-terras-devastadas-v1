@@ -28,8 +28,15 @@ var search_list: VBoxContainer
 var menu: VBoxContainer
 var group_input: OptionButton
 var reveal: Control
+var encounter_reveal: Control
+var travel_presentation: Control
+var escape_picker: Control
+var escape_revision: int = -1
+var encounter_option: String = ""
+var encounter_revision: int = -1
 var modal: AcceptDialog
 var card_reader: Control
+var card_zoom: Control
 var card_art: TextureRect
 var card_text: Label
 var card_action: Button
@@ -52,16 +59,23 @@ var private_locked: bool = false
 var player_hud: Control
 var tv_dashboard: Control
 var board_feedback: Control
+var vehicle_details: Control
+var vehicle_detail_owner: int = -1
+var encounter_effects: Control
 var connection_menu: Control
 var device_profile: Dictionary = {}
+var music_sheet: Control
 
 func _ready() -> void:
+	get_node("/root/Music").set_context(tv_mode)
 	endpoint = get_node("/root/NetworkEndpoint")
 	theme = preload("res://themes/wasteland_theme.tres")
 	set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 	endpoint.changed.connect(schedule_render)
+	endpoint.snapshot_received.connect(receive_snapshot)
 	endpoint.feedback.connect(show_feedback)
 	endpoint.event_received.connect(present_event)
+	endpoint.command_completed.connect(encounter_command_completed)
 	var margin: MarginContainer = MarginContainer.new()
 	for edge: String in ["left", "right", "top", "bottom"]: margin.add_theme_constant_override("margin_" + edge, 16)
 	add_child(margin)
@@ -99,6 +113,7 @@ func _ready() -> void:
 	layout.add_child(board)
 	board.city_selected.connect(show_city)
 	board.route_selected.connect(preview_route)
+	board.vehicle_selected.connect(show_vehicle_details)
 	panel = PanelContainer.new()
 	panel.custom_minimum_size.x = 360
 	layout.add_child(panel)
@@ -129,6 +144,8 @@ func _ready() -> void:
 	modal.min_size = Vector2i(640, 220)
 	add_child(modal)
 	card_reader = CardReader.new()
+	card_zoom = preload("res://scripts/card_zoom.gd").new()
+	add_child(card_zoom)
 	card_reader.app = self
 	card_reader.z_index = 85
 	add_child(card_reader)
@@ -155,9 +172,60 @@ func _ready() -> void:
 	reveal.collected.connect(func(_ticket: int):
 		for option: Dictionary in endpoint.view.get("options", []):
 			if option.action == "acknowledgeCard": endpoint.submit_option(option.id); return)
+	encounter_reveal = preload("res://scripts/encounter_reveal.gd").new()
+	encounter_reveal.z_index = 100
+	add_child(encounter_reveal)
+	encounter_reveal.reveal_requested.connect(func():
+		if private_locked or not endpoint.connected or int(endpoint.view.get("revision", -1)) != encounter_revision:
+			encounter_reveal.suspend()
+			return
+		endpoint.submit_option(encounter_option))
+	encounter_reveal.collected.connect(func(_ticket: int):
+		encounter_option = ""
+		if private_locked or not endpoint.connected: return
+		for option: Dictionary in endpoint.view.get("options", []):
+			if option.get("automatic", false):
+				endpoint.submit_option(option.id)
+				return
+		if is_instance_valid(player_hud): player_hud.show_group("Decisão"))
+	travel_presentation = preload("res://scripts/travel_presentation.gd").new()
+	travel_presentation.z_index = 110
+	travel_presentation.board = board
+	add_child(travel_presentation)
+	travel_presentation.completed.connect(func():
+		if is_instance_valid(player_hud): player_hud.refresh())
+	var effects_layer := CanvasLayer.new()
+	effects_layer.layer = 25
+	add_child(effects_layer)
+	encounter_effects = preload("res://scripts/encounter_effects.gd").new()
+	effects_layer.add_child(encounter_effects)
+	escape_picker = preload("res://scripts/escape_map_picker.gd").new()
+	escape_picker.board = board
+	escape_picker.z_index = 90
+	add_child(escape_picker)
+	escape_picker.route_chosen.connect(func(_actor: int, route: String):
+		if escape_picker.purpose == "travel":
+			player_hud.refresh()
+			preview_route(route)
+			return
+		for option: Dictionary in endpoint.view.get("options", []):
+			if option.action == "combatEscape" and option.get("route", "") == route:
+				endpoint.submit_option(option.id)
+				return)
+	escape_picker.cancelled.connect(func():
+		if not is_instance_valid(player_hud): return
+		player_hud.refresh()
+		if escape_picker.purpose == "travel": player_hud.show_groups()
+		else: player_hud.show_group("Combate"))
+	vehicle_details = preload("res://scripts/vehicle_details.gd").new()
+	vehicle_details.z_index = 120
+	add_child(vehicle_details)
 	resized.connect(fit)
 	endpoint.start_discovery()
 	build_connection_menu()
+	var scroll_input: Node = preload("res://scripts/ui_scroll_input.gd").new()
+	scroll_input.root_control = self
+	add_child(scroll_input)
 	board_feedback = preload("res://scripts/board_feedback.gd").new()
 	board_feedback.board = board
 	board_feedback.z_index = 1
@@ -173,8 +241,17 @@ func _exit_tree() -> void:
 	if preview_tween: preview_tween.kill()
 	if is_instance_valid(endpoint):
 		endpoint.changed.disconnect(schedule_render)
+		endpoint.snapshot_received.disconnect(receive_snapshot)
 		endpoint.feedback.disconnect(show_feedback)
 		endpoint.event_received.disconnect(present_event)
+		endpoint.command_completed.disconnect(encounter_command_completed)
+
+func encounter_command_completed(result: Dictionary) -> void:
+	if not is_instance_valid(encounter_reveal) or not encounter_reveal.visible: return
+	if not result.get("accepted", false):
+		encounter_reveal.suspend()
+		encounter_option = ""
+		show_feedback(str(result.get("message", "Não foi possível revelar a carta.")))
 
 func fit() -> void:
 	if not is_instance_valid(panel): return
@@ -267,6 +344,11 @@ func create_host(resume: bool, from_backup: bool = false) -> void:
 	var error: String = endpoint.host(name_input.text if not name_input.text.strip_edges().is_empty() else "Anfitrião", int(count_input.value), resume, int(port_input.value), from_backup)
 	if not error.is_empty(): show_feedback(error)
 
+func receive_snapshot() -> void:
+	# RPCs confiáveis podem entregar várias revisões no mesmo frame. Cada resultado
+	# deve chegar à fila visual antes de a próxima revisão substituir endpoint.view.
+	if is_instance_valid(board_feedback): render()
+
 func schedule_render() -> void:
 	if render_scheduled: return
 	render_scheduled = true
@@ -275,6 +357,12 @@ func schedule_render() -> void:
 func render() -> void:
 	render_scheduled = false
 	if endpoint.mode in ["offline", "rejected"]:
+		vehicle_details.hide()
+		encounter_effects.suspend()
+		escape_picker.suspend()
+		card_zoom.dismiss()
+		encounter_reveal.suspend()
+		travel_presentation.suspend()
 		board_view.state = {}
 		board.hide()
 		if is_instance_valid(player_hud): player_hud.hide()
@@ -283,6 +371,12 @@ func render() -> void:
 		if not connection_menu.visible or not is_instance_valid(name_input): build_connection_menu()
 		return
 	if not endpoint.connected:
+		vehicle_details.hide()
+		encounter_effects.suspend()
+		escape_picker.suspend()
+		card_zoom.dismiss()
+		encounter_reveal.suspend()
+		travel_presentation.suspend()
 		last_signature = ""
 		if is_instance_valid(board_feedback): board_feedback.reset_effects()
 		summary.text = "Dados desatualizados · conexão indisponível" if not endpoint.view.is_empty() else "Conectando / aguardando aprovação"
@@ -302,6 +396,8 @@ func render() -> void:
 	connection_menu.hide()
 	board.show()
 	board_view.state = endpoint.view.public
+	if escape_picker.visible and int(endpoint.view.revision) != escape_revision: escape_picker.suspend()
+	card_zoom.safe_insets = LanLayout.insets(self, device_profile)
 	board_view.allowed_routes.clear()
 	for option: Dictionary in endpoint.view.options:
 		if option.action == "move": board_view.allowed_routes.append(str(option.route))
@@ -309,9 +405,24 @@ func render() -> void:
 	board.queue_redraw()
 	board_feedback.reduced = endpoint.reduced_motion
 	var public_notices: Array[Dictionary] = board_feedback.observe(endpoint.view.public, str(endpoint.view.match_id) + ":" + str(endpoint.view.epoch), int(endpoint.view.revision))
+	if private_locked: vehicle_details.hide()
+	elif vehicle_details.visible: show_vehicle_details(vehicle_detail_owner)
+	encounter_effects.reduced_motion = endpoint.reduced_motion
+	encounter_effects.safe_insets = LanLayout.insets(self, device_profile)
+	var latest_action := ""
+	for entry: Dictionary in endpoint.view.public.get("activity", []):
+		if int(entry.revision) == int(endpoint.view.revision): latest_action = str(entry.type)
+	encounter_effects.observe(endpoint.view.public, {} if private_locked or tv_mode else endpoint.view.get("private", {}), str(endpoint.view.match_id) + ":" + str(endpoint.view.epoch), int(endpoint.view.revision), latest_action)
 	if not tv_mode:
 		ensure_player_hud()
 		player_hud.refresh()
+		if escape_picker.visible:
+			player_hud.hud.hide()
+			player_hud.sheet.hide()
+		if encounter_reveal.visible:
+			var choice: Dictionary = endpoint.view.get("private", {}).get("choice", {})
+			if private_locked or choice.is_empty(): encounter_reveal.suspend()
+			elif choice.has("card"): encounter_reveal.supply_front(card_definition(choice.card))
 		present_pending_reveal()
 		return
 	ensure_tv_dashboard()
@@ -428,8 +539,67 @@ func render_admissions() -> void:
 		button("Aceitar " + item.name + " · tela pública", func(): endpoint.approve(peer_id), actions)
 		button("Recusar " + item.name, func(): endpoint.approve(peer_id, false), actions)
 
+func show_vehicle_details(player_id: int) -> void:
+	if private_locked or not endpoint.connected: return
+	vehicle_detail_owner = player_id
+	for p: Dictionary in endpoint.view.get("public", {}).get("players", []):
+		if int(p.id) != player_id: continue
+		if not p.has("vehicle_info"): return
+		var own: Dictionary = endpoint.view.get("private", {}) if player_id == int(endpoint.local_player_id) and not tv_mode else {}
+		vehicle_details.safe_insets = LanLayout.insets(self, device_profile)
+		vehicle_details.present(p, p.vehicle_info, own, catalog)
+		return
+
+func show_travel_map() -> void:
+	if tv_mode or private_locked or not endpoint.connected or escape_picker.visible: return
+	var routes: Array[String] = []
+	for option: Dictionary in endpoint.view.get("options", []):
+		if option.action == "move": routes.append(str(option.route))
+	if routes.is_empty(): return
+	for p: Dictionary in endpoint.view.public.players:
+		if int(p.id) != int(endpoint.local_player_id): continue
+		escape_revision = int(endpoint.view.revision)
+		player_hud.hud.hide()
+		player_hud.sheet.hide()
+		player_hud.notifications.hide()
+		escape_picker.safe_insets = LanLayout.insets(self, device_profile)
+		escape_picker.present({str(int(p.id)): {"name": p.name, "city": p.city, "routes": routes}}, endpoint.reduced_motion, "travel")
+		break
+
+func show_escape_map() -> void:
+	if tv_mode or private_locked or not endpoint.connected or escape_picker.visible: return
+	var routes: Array[String] = []
+	for option: Dictionary in endpoint.view.get("options", []):
+		if option.action == "combatEscape": routes.append(str(option.route))
+	if routes.is_empty(): return
+	for p: Dictionary in endpoint.view.public.players:
+		if int(p.id) != int(endpoint.local_player_id): continue
+		escape_revision = int(endpoint.view.revision)
+		player_hud.hud.hide()
+		player_hud.sheet.hide()
+		player_hud.notifications.hide()
+		player_hud.public_panel.hide()
+		escape_picker.safe_insets = LanLayout.insets(self, device_profile)
+		escape_picker.present({str(int(p.id)): {"name": p.name, "city": p.city, "routes": routes}}, endpoint.reduced_motion)
+		break
+
 func select_option(option: Dictionary) -> void:
 	if not endpoint.connected: return
+	var choice: Dictionary = endpoint.view.get("private", {}).get("choice", {})
+	if option.action == "cardChoice" and option.get("automatic", false):
+		if private_locked or encounter_reveal.visible: return
+		encounter_reveal.reduced_motion = endpoint.reduced_motion
+		encounter_reveal.present_encounter(str(choice.kind), card_definition(choice.card), own_name())
+		encounter_reveal.show_front()
+		return
+	if option.action == "cardChoice" and not choice.is_empty() and choice.kind != "inspect" and not choice.get("revealed", false):
+		if private_locked or encounter_reveal.visible: return
+		encounter_option = str(option.id)
+		encounter_revision = int(endpoint.view.revision)
+		encounter_reveal.safe_insets = LanLayout.insets(self, device_profile)
+		encounter_reveal.reduced_motion = endpoint.reduced_motion
+		encounter_reveal.present_encounter(str(choice.kind), {}, own_name())
+		return
 	if option.action == "move":
 		preview_route(option.route)
 		return
@@ -494,7 +664,7 @@ func cancel_preview() -> void:
 	focus_first()
 
 func present_pending_reveal() -> void:
-	if tv_mode or private_locked or not endpoint.connected or reveal.visible or not endpoint.pending_command.is_empty(): return
+	if tv_mode or private_locked or not endpoint.connected or reveal.visible or encounter_reveal.visible or travel_presentation.visible or not endpoint.pending_command.is_empty(): return
 	var pending: Dictionary = endpoint.view.get("private", {}).get("pending_reveal", {})
 	if pending.is_empty(): return
 	for option: Dictionary in endpoint.view.get("options", []):
@@ -565,6 +735,7 @@ func show_city(id: String) -> void:
 	modal.popup_centered(Vector2i(640, 300))
 
 func present_event(event: Dictionary) -> void:
+	get_node("/root/GameSFX").play_sequence(event.get("sounds", []))
 	var text: String = str(event.get("message", ""))
 	var captions: Dictionary = {"salvageSupply": "reaproveitou suprimentos", "buyImprovement": "comprou uma melhoria", "install": "instalou uma melhoria", "playGeneral": "jogou uma carta"}
 	if captions.has(str(event.get("type", ""))):
@@ -575,7 +746,14 @@ func present_event(event: Dictionary) -> void:
 	show_feedback(text)
 	if tv_mode and is_instance_valid(tv_dashboard) and tv_dashboard.visible:
 		if str(event.get("message", "")) != "Partida atualizada.": tv_dashboard.announce(text)
-	if event.type == "move" and not endpoint.reduced_motion and board.visible: board.animate_travel(event.from, event.to, event.route)
+	if event.type == "move" and board.visible:
+		for player: Dictionary in endpoint.view.get("public", {}).get("players", []):
+			if int(player.id) != int(event.actor): continue
+			var prefs := ConfigFile.new()
+			prefs.load("user://ui-preferences.cfg")
+			travel_presentation.safe_insets = LanLayout.insets(self, device_profile)
+			travel_presentation.present(str(event.from), str(event.to), str(event.route), int(event.actor), endpoint.reduced_motion, float(prefs.get_value("audio", "ui_volume", 0.45)))
+			break
 
 func show_feedback(message: String) -> void:
 	if not message.is_empty() and is_instance_valid(notice): notice.text = message
@@ -608,6 +786,25 @@ func _process(_delta: float) -> void:
 		button(str(item.name) + " · " + ip, func(): address_input.text = ip; port_input.value = int(item.port), search_list)
 
 func remote_back() -> void:
+	if is_instance_valid(vehicle_details) and vehicle_details.visible:
+		vehicle_details.hide()
+		return
+	if is_instance_valid(escape_picker) and escape_picker.visible:
+		escape_picker.cancel_selection()
+		return
+	for zoom: Control in [card_zoom, reveal.card_zoom, encounter_reveal.card_zoom]:
+		if is_instance_valid(zoom) and zoom.visible:
+			zoom.dismiss()
+			return
+	if is_instance_valid(music_sheet) and music_sheet.visible:
+		music_sheet.dismiss()
+		return
+	if encounter_reveal.visible:
+		encounter_reveal.collect()
+		return
+	if travel_presentation.visible:
+		travel_presentation.finish()
+		return
 	if is_instance_valid(connection_menu) and connection_menu.manual_dialog.visible:
 		connection_menu.manual_dialog.hide()
 		connection_menu.search_button.grab_focus()
@@ -633,6 +830,17 @@ func remote_back() -> void:
 			return
 	leave_screen()
 
+func show_music_settings() -> void:
+	if not is_instance_valid(music_sheet):
+		music_sheet = preload("res://scripts/ui_sheet.gd").new()
+		music_sheet.z_index = 120
+		add_child(music_sheet)
+	var content: VBoxContainer = music_sheet.reset("MÚSICA E CRÉDITOS")
+	preload("res://scripts/music_settings.gd").populate(content, get_node("/root/Music"))
+	music_sheet.safe_insets = LanLayout.insets(self, device_profile)
+	music_sheet.motion_reduced = endpoint.reduced_motion
+	music_sheet.popup_centered()
+
 func _unhandled_key_input(event: InputEvent) -> void:
 	if not tv_mode: return
 	if event.is_action_pressed("ui_cancel"):
@@ -648,7 +856,14 @@ func _unhandled_key_input(event: InputEvent) -> void:
 
 func _notification(what: int) -> void:
 	if what == NOTIFICATION_APPLICATION_PAUSED:
+		if is_instance_valid(vehicle_details): vehicle_details.hide()
+		if is_instance_valid(encounter_effects): encounter_effects.suspend()
+		if is_instance_valid(escape_picker): escape_picker.suspend()
+		if is_instance_valid(card_zoom): card_zoom.dismiss()
+		if is_instance_valid(music_sheet): music_sheet.hide()
 		private_locked = true
+		if is_instance_valid(encounter_reveal): encounter_reveal.suspend()
+		if is_instance_valid(travel_presentation): travel_presentation.suspend()
 		if is_instance_valid(reveal): reveal.suspend()
 		if is_instance_valid(modal): modal.hide()
 		if is_instance_valid(card_reader): card_reader.hide()

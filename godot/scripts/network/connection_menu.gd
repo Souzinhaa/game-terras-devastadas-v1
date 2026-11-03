@@ -50,6 +50,7 @@ func _ready() -> void:
 	title_label = app.label("TERRAS DEVASTADAS", column, 32)
 	title_label.theme_type_variation = &"Heading"
 	status = app.label("MULTIPLAYER LAN · procurando salas na sua rede…", column, 21)
+	app.label("Versão " + str(ProjectSettings.get_setting("application/config/version", "desenvolvimento")), column, 16)
 	content_scroll = ScrollContainer.new()
 	content_scroll.horizontal_scroll_mode = ScrollContainer.SCROLL_MODE_DISABLED
 	content_scroll.size_flags_vertical = Control.SIZE_EXPAND_FILL

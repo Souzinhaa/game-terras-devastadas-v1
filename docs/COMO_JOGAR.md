@@ -41,14 +41,14 @@ Todos começam de Hatch, com:
 
 - Integridade 6 e Defesa 4+.
 - Três combustíveis no tanque, que comporta oito.
-- Uma sucata na carga, que comporta quatro unidades.
-- Uma carta geral, um setor próprio com depósito vazio e duas vidas.
+- Uma sucata na carga, que comporta cinco unidades (quatro em saves da edição 0.6).
+- Duas cartas gerais já na mão, um setor próprio com depósito vazio e duas vidas.
 
-Você compra outra geral ao iniciar sua primeira vez. Uma carta recém-recebida precisa ser revelada pelo dono antes de usar/descartar.
+As duas cartas distribuídas no início não têm animação de compra. Você compra mais uma geral ao tocar em **Comprar Carta**, inclusive na primeira vez; essa compra precisa ser revelada pelo dono antes de usar/descartar. Saves anteriores conservam as mãos já existentes.
 
 ## 4. Seu primeiro turno
 
-1. Toque em **Iniciar turno**, revele e recolha a carta comprada.
+1. Toque em **Comprar Carta**, revele e recolha a carta comprada.
 2. Confira o tanque, carga e setores. Faça ações livres legais, como abastecer.
 3. Se quiser, viaje uma vez para cidade conectada. Leia custo/piso e confirme a rota; resolva o evento que aparecer.
 4. Faça uma ação principal: explore um setor seu, conquiste outro, desafie um carro, saqueie ou use uma operação de administração que custe ação.
@@ -68,7 +68,9 @@ Sucata serve para reparar, comprar melhorias e progredir. Combustível no tanque
 
 Uma vez por turno próprio, fora de encontros, pode trocar **uma água, pneu ou bateria da carga por uma sucata**, sem ação principal. Se estiver no depósito, retire antes. Não há consumo automático desses suprimentos.
 
-Carga, tanque, mão e depósitos têm limites. Se ganhar além deles, escolha como abastecer/armazenar/descartar nas opções legais apresentadas. O jogo não elimina automaticamente os recursos novos para você.
+Carga, tanque, mão e depósitos têm limites. Carga exatamente no limite permite encerrar o turno. Se passar dele, toque em **Liberar carga**: guarde recursos num depósito próprio local, abasteça o tanque quando possível ou descarte uma unidade por toque. O painel mostra quanto falta liberar; os recursos não são descartados automaticamente.
+
+**Viajar** abre o mapa com as estradas legais destacadas. Toque numa estrada ou cidade de destino para conferir trajeto/custo e confirme a viagem. Cancelar restaura o mapa sem gastar combustível. Tocar no carro, no mapa ou no resumo lateral, abre seus detalhes em tela cheia; carros alheios e a TV mostram somente informações públicas.
 
 ## 6. Melhorar e reparar o carro
 
@@ -91,7 +93,9 @@ Compra de melhoria custa três sucatas na carga, uma compra por turno, sem açã
 
 Setores neutros mostram risco fácil/médio/difícil, sem revelar de início o inimigo exato. Começar perto de uma ameaça fácil pode ser útil enquanto reúne recursos. Um setor rival pode ser defendido pelo carro do dono e depois pela fortificação, na mesma ação.
 
-Antes de cada dado, jogadores com reação legal podem usar carta ou passar. Há limite de **uma geral por pessoa por turno do mapa**, mesmo reagindo fora da própria vez. Primeiro leia, depois confirme; ampliar a carta não a consome.
+Antes de cada dado, jogadores com reação legal podem usar carta ou passar. Na edição 0.7, cada pessoa pode jogar **uma geral por rodada de combate**: a mesma cota vale para os dois ataques, adicionais e fuga, e renova após os dois ataques principais. Fora de combate, permanece uma geral por turno do mapa, inclusive na corrida; as cotas são independentes. Saves 0.6 preservam a regra anterior. Primeiro leia, depois confirme; ampliar a carta não a consome.
+
+Na LAN, cada combatente rola seu próprio ataque no próprio celular. Contra hostil/fortificação, o jogador que iniciou o combate rola pelo inimigo. TV e demais celulares mostram os combatentes, dado, dano e quem precisa agir. Não há avanço automático na LAN que role pelo adversário.
 
 O atacante precisa alcançar a **Defesa** do alvo no D6 com os modificadores. Um natural sempre erra; seis natural sempre acerta. A barra mostra integridade, não a chance de defesa. A arma fixa não gasta munição. Armas instaladas permitem no máximo um ataque adicional por carro e rodada, pagando munição mesmo se errar.
 
@@ -119,6 +123,8 @@ Evento de corrida permite **entrar ou recusar**, inclusive a quem o revelou. Cus
 
 Cada rodada avança com D6; marcos revelam surpresas. Termina a rodada de chegada antes de definir o primeiro. Só o vencedor recebe prêmio. Destruição retira da prova e aplica as vidas normalmente.
 
+A pista aparece no celular e na TV, com uma faixa por inscrito, veículos animados, posições, marcos e linha de chegada. O aviso identifica quem decide a carta ou rola o próximo avanço. Movimento reduzido apresenta as posições imediatamente.
+
 ## 10. Ler e navegar sem perder a partida
 
 - **Menu → Como jogar** reabre a ajuda local ou LAN.
@@ -137,3 +143,9 @@ Uma campanha salva com regras 0.6 mantém quatro pontos, penalidade de turno ap�
 E11 e V16 não são comprados/revelados em partidas novas 0.7; continuam registrados para compatibilidade. Não há bots, renda automática de cidade, distribuição direta de recursos entre jogadores ou migração de anfitrião.
 
 O APK e os testes de layout foram gerados/verificados; Android físico e diversão/balanceamento com pessoas ainda precisam de playtest.
+
+### Usar a TV com uma partida local
+
+Todos podem continuar jogando no mesmo celular enquanto a TV exibe o tabuleiro público. Conecte celular e TV à mesma rede Wi-Fi. Durante a partida local, abra **Menu → Conectar Tabuleiro/TV → Disponibilizar tabuleiro para a TV**. No aplicativo **Tabuleiro** da TV, escolha a sala **Local · nome**; se a descoberta não funcionar, informe o IP e a porta exibidos no celular. Aprove o pedido com **Aceitar TV** no celular.
+
+A TV acompanha mapa, turnos, combates e corridas. Mãos, carga e depósitos permanecem privados; a TV não joga nem ocupa vaga. Mantenha o jogo aberto no celular. Para parar, use **Desconectar Tabuleiro/TV**. Voltar à tela inicial ou iniciar outra partida também encerra a transmissão. Ao retomar um save local, disponibilize o tabuleiro novamente.

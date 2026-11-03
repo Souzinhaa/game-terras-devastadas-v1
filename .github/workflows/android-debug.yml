@@ -72,8 +72,8 @@ jobs:
           p = Path('godot/export_presets.cfg')
           text = p.read_text()
           phone, tv = text.split('[preset.1]', 1)
-          phone = re.sub(r'^version/code=\d+$', 'version/code=6', phone, flags=re.M)
-          phone = re.sub(r'^version/name="[^"]*"$', 'version/name="0.0.4-ui-tv"', phone, flags=re.M)
+          phone = re.sub(r'^version/code=\d+$', 'version/code=10', phone, flags=re.M)
+          phone = re.sub(r'^version/name="[^"]*"$', 'version/name="0.0.4-lan-flow"', phone, flags=re.M)
           phone = phone.replace('package/unique_name="com.bhsp.terrasdevastadas"', 'package/unique_name="com.bhsp.terrasdevastadas.preview.v07"')
           phone = phone.replace('package/name="Terras Devastadas"', 'package/name="Terras Devastadas Teste 0.7"')
           tv = tv.replace('package/unique_name="com.bhsp.terrasdevastadas.tabuleiro"', 'package/unique_name="com.bhsp.terrasdevastadas.tabuleiro.preview.v07"')
@@ -91,27 +91,27 @@ jobs:
           set -euo pipefail
           mkdir -p builds
           Godot_v4.7.2-stable_linux.x86_64 --headless --path godot --editor --import --quit 2>&1 | tee builds/import.log
-          for SUITE in balance_smoke lan_session_smoke lan_campaign_smoke; do
+          for SUITE in balance_smoke combat_turns_smoke lan_session_smoke lan_campaign_smoke; do
             Godot_v4.7.2-stable_linux.x86_64 --headless --path godot --script "res://tests/$SUITE.gd" 2>&1 | tee "builds/$SUITE.log"
           done
-          Godot_v4.7.2-stable_linux.x86_64 --headless --path godot --export-debug Android "$GITHUB_WORKSPACE/builds/terras-devastadas-v0.0.4-ui-tv-android-arm64.apk" 2>&1 | tee builds/export.log
-          Godot_v4.7.2-stable_linux.x86_64 --headless --path godot --export-debug 'Android TV' "$GITHUB_WORKSPACE/builds/terras-devastadas-v0.0.4-ui-tv-tabuleiro-android.apk" 2>&1 | tee builds/export-tv.log
+          Godot_v4.7.2-stable_linux.x86_64 --headless --path godot --export-debug Android "$GITHUB_WORKSPACE/builds/terras-devastadas-v0.0.4-lan-flow-android-arm64.apk" 2>&1 | tee builds/export.log
+          Godot_v4.7.2-stable_linux.x86_64 --headless --path godot --export-debug 'Android TV' "$GITHUB_WORKSPACE/builds/terras-devastadas-v0.0.4-lan-flow-tabuleiro-android.apk" 2>&1 | tee builds/export-tv.log
           if grep -E 'SCRIPT ERROR:|Parse Error:|Failed to load script' builds/import.log builds/export.log builds/export-tv.log; then exit 1; fi
       - name: Verificar assinatura, pacote e permissões
         shell: bash
         run: |
           set -euo pipefail
           TOOLS="$ANDROID_HOME/build-tools/36.0.0"
-          APK=builds/terras-devastadas-v0.0.4-ui-tv-android-arm64.apk
+          APK=builds/terras-devastadas-v0.0.4-lan-flow-android-arm64.apk
           "$TOOLS/apksigner" verify --verbose "$APK" | tee builds/signature.txt
           "$TOOLS/aapt" dump badging "$APK" | tee builds/package.txt
           grep "package: name='com.bhsp.terrasdevastadas.preview.v07'" builds/package.txt
-          grep "versionName='0.0.4-ui-tv'" builds/package.txt
+          grep "versionName='0.0.4-lan-flow'" builds/package.txt
           grep "native-code: 'arm64-v8a'" builds/package.txt
           grep 'android.permission.INTERNET' builds/package.txt
           unzip -t "$APK" > builds/zip-check.txt
           sha256sum "$APK" > builds/SHA256SUMS.txt
-          TV_APK=builds/terras-devastadas-v0.0.4-ui-tv-tabuleiro-android.apk
+          TV_APK=builds/terras-devastadas-v0.0.4-lan-flow-tabuleiro-android.apk
           "$TOOLS/apksigner" verify --verbose "$TV_APK" | tee builds/signature-tv.txt
           "$TOOLS/aapt" dump badging "$TV_APK" | tee builds/package-tv.txt
           grep "package: name='com.bhsp.terrasdevastadas.tabuleiro.preview.v07'" builds/package-tv.txt
@@ -123,7 +123,7 @@ jobs:
       - uses: actions/upload-artifact@v4
         if: always()
         with:
-          name: terras-devastadas-v0.0.4-ui-tv-android-celular-e-tabuleiro
+          name: terras-devastadas-v0.0.4-lan-flow-android-celular-e-tabuleiro
           path: builds/
           if-no-files-found: error
           retention-days: 14
