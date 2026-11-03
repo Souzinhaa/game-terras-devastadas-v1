@@ -15,4 +15,4 @@ Estas regras nativas de recebimento/dano/carga permanecem na edição 0.7. Upgra
 
 `pvp_rewards.gd`: quatro modelos capturados, custo, recusa, falta de sucata, mesmo modelo, defensor vencedor, carta/instâncias, carga/tanque conservados, reload e repetição. `combat_smoke.gd`: 12 hostis e deltas reais. `campaign_ui_smoke.gd`: identificação do vencedor antes da carta e escolha de reparo acionável. Perfis de teste isolados; capturas em `.tools/pvp-vehicle-choice.png`. Testes Windows não comprovam Android físico.
 
-O runtime React permanece referência histórica e ainda usa as regras anteriores de destruição PvP e carga/dano da Moto. Os contratos compartilhados atuais não incluem essas regras; não declarar paridade integral. O contrato em `rules.md` foi atualizado para o pedido do usuário.
+O contrato vigente está em `rules.md`; regressões nativas 0.6 usam perfil explícito. Não inferir paridade entre edições.

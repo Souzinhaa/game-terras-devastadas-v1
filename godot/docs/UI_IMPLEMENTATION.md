@@ -1,5 +1,17 @@
 # Modernização da UI — implementação e validação
 
+Veículos por dono (03/11/2026): mapa, retrato, tela de detalhes, arena e corrida em local/LAN/TV usam as quatro pinturas. Ordem por ID estável: laranja, azul, preto (antes roxo), branco (antes verde). Paleta compartilhada e contorno claro para o jogador preto. Cópias de moto/caminhonete corrigidas visualmente; originais preservados. [Procedência, verificação e limites](vehicle-colors/README.md). Nenhuma mudança em regras, RNG, saves ou protocolo. Sem APK novo ou teste físico.
+
+Ajustes de 03/11/2026: **Viajar** passa a integrar os atalhos compartilhados local/LAN. Usa o seletor de rotas legais já existente; cancelar restaura o HUD LAN. A faixa cresce para dentro da tela ao ampliar texto. Toque de mouse/touch recebido pelo mapa recolhe a CARGA; interação dentro da gaveta permanece disponível.
+
+`card_activation.gd` apresenta cartas usadas/instaladas e equipamentos ativados no centro, durante quatro segundos por carta, com som de virada e fila para ativações seguidas. Cobre gerais, combate, saque e corrida. Local observa comandos aceitos; autoridade LAN publica apenas `card_id` e `player_name` após aceitação, inclusive para a TV. Não publica mãos, índices ou recursos; passar uma reação não gera apresentação. Evento LAN continua deduplicado pelo endpoint. Apresentação estática também com movimento reduzido; pausa suspende o tempo. Nenhuma animação determina resultado ou consome RNG.
+
+Verificação Windows/Godot 4.7.2: `premium_ui_smoke` cobre atalhos e cancelamento por input real, fechamento da CARGA em quatro resoluções, arte local/LAN/TV, quatro segundos, fila, som, uso recusado e projeção pública. Regressões de fluxo de turno, compartilhamento local, sessão LAN, layout compacto LAN, TV, leitura e som também executadas. Jornada ENet de quatro jogadores + TV passou em menu, combate e corrida. Os cenários não tiveram falhas de asserção; o runner geral acusa `ERROR: Failed to read the root certificate store.` no ambiente Windows restrito, portanto não há PASS integral desse runner. Capturas transitórias em `.tools/premium-ui/`, incluindo `card-activation-tv.png`. Sem novos APKs, teste auditivo ou validação Android/TV físicos.
+
+Tela inicial de 03/11: [START_SCREEN_BACKGROUND.md](START_SCREEN_BACKGROUND.md) registra a integração de `assets/tela_inicial/context.md`, ações preservadas, grade superior à direita, áudio único e fallback. A revisão V2 corrige o cenário/reenquadramento do carro e usa oito poses de caminhada do hostil. Originais preservados; validação desktop, sem APK novo ou teste físico.
+
+Direção vigente de 03/11/2026: **layout contextual, menos texto e identidade pós-apocalíptica**, mantendo veículos existentes por preferência do usuário. [UI_PREMIUM_IMPLEMENTATION.md](UI_PREMIUM_IMPLEMENTATION.md) registra atalhos locais/LAN, operações/setores compartilhados, inventário em cartões, folhas pela altura do conteúdo e tema grafite/areia também na TV. 40 suítes e jornadas de rede passaram em Windows. Relatos abaixo descrevem a evolução anterior. Sem homologação física ou novo APK.
+
 Viagem/combate/veículo (02/11/2026): Viajar usa o mapa livre com as estradas legais destacadas como na fuga; selecionar abre a prévia, cancelar restaura a câmera. Atacante e defensor têm nomes, rótulos e molduras nas cores dos participantes; o dado repete a cor/nome de quem ataca e mostra **?** antes da próxima rolagem. Cartas podem ser usadas diretamente na arena, com leitura ampliada opcional e privacidade hot-seat. O ciclo visual foi reduzido para 0,55 s de dado + 0,12 s de pausa + 0,3 s de dano; a mesma arena pública atende celulares LAN e TV.
 
 Hatch 0.7 agora carrega cinco (sete com E08), preservando quatro/seis nos perfis anteriores. Carga exatamente cheia não bloqueia fim de turno. Excesso apresenta **Liberar carga**, quantidade a liberar e comandos legais de guardar, abastecer e descartar. Tocar no carro do mapa ou no retrato abre `vehicle_details.gd` em tela cheia, com atributos e recursos organizados em colunas. Estoques e tanque atuais ficam restritos ao próprio jogador; consultas alheias e TV usam apenas dados públicos. Telas compactas mantêm rolagem e Voltar acessível.
@@ -32,13 +44,13 @@ Revisão após os prints físicos do Galaxy S23: [S23_LAYOUT_FIX.md](S23_LAYOUT_
 
 Mapa atualizado para o [alinhamento v3](MAP_ALIGNMENT_V3.md): novo terreno sem rodovias pintadas; camada física de estrada coincide com a seleção e a viagem. A arte panorâmica anterior foi substituída por margens rurais sem conexões decorativas. Acesso de terra Santa Cruz ↔ Rio Claro incluído por solicitação explícita.
 
-Aplicada a reformulação técnica do `update_ui.md`: HUD compacto em cenas, tema próprio, fontes licenciadas, gaveta de carga, cartas com leitura textual, menu e configurações, passagem privada de dispositivo, rotas editoriais e notificações contextuais.
+Aplicada a reformulação técnica da interface: HUD compacto em cenas, tema próprio, fontes licenciadas, gaveta de carga, cartas com leitura textual, menu e configurações, passagem privada de dispositivo, rotas editoriais e notificações contextuais.
 
 Atualização posterior: removido o seletor **Reduzir movimento** da aquisição de cartas; a preferência permanece apenas em Configurações. Nova partida abre uma caixa central de introdução breve antes da primeira identificação privada. `intro_guide.tscn` usa o tema compartilhado; o teste `onboarding_ui_smoke.gd` validou o fluxo em janelas 1280×720 e 960×720, sem alteração de cartas/RNG e sem substituir Android físico.
 
 A apresentação inicial foi acrescentada em `start_screen.tscn` / `start_screen.gd`, reutilizando mapa, arte lateral do Hatch e tema. Sempre abre antes de preparar ou retomar partida e oferece Continuar, Nova partida, Configurações, Como jogar e Sair. Retomada passa pela identificação; cancelamento de nova partida preserva o save e retorna ao menu. `start_screen_ui_smoke.gd` validou esses fluxos e os limites do painel em Windows 1280×720 e 960×720. Captura transitória: `.tools/start-screen.png`; Android físico continua pendente.
 
-Na modernização visual original não foram acrescentadas regras para preencher a interface. A implementação posterior da campanha está em [CAMPAIGN_IMPLEMENTATION.md](CAMPAIGN_IMPLEMENTATION.md): novos painéis usam a mesma folha/tema, e equipamentos/eventos/corridas são resolvidos pelo motor.
+Na modernização visual original não foram acrescentadas regras para preencher a interface. A implementação posterior da campanha está em [contexto técnico](../CONTEXT.md): novos painéis usam a mesma folha/tema, e equipamentos/eventos/corridas são resolvidos pelo motor.
 
 ## Comparação visual
 

@@ -7,7 +7,7 @@ var labels: Array[Label] = []
 func _ready() -> void:
 	mouse_filter = Control.MOUSE_FILTER_IGNORE
 	var background := StyleBoxFlat.new()
-	background.bg_color = Color("19221fee")
+	background.bg_color = preload("res://scripts/ui_style.gd").SECONDARY
 	background.set_corner_radius_all(12)
 	background.content_margin_left = 14
 	background.content_margin_right = 14
@@ -54,4 +54,4 @@ func update_state(state: Dictionary) -> void:
 	current = step
 	for i in range(labels.size()):
 		labels[i].text = ("✓ " if i < step else "● " if i == step else "○ ") + TITLES[i]
-		labels[i].add_theme_color_override("font_color", Color("a7c789") if i < step else Color("ffc477") if i == step else Color("919994"))
+		labels[i].add_theme_color_override("font_color", Color("abd1bd") if i < step else Color("e2bc82") if i == step else Color("b5b7af"))

@@ -2,13 +2,24 @@ extends TextureRect
 ## Frames aprovados: 6 × 4, 20 fps. Preserva o enquadramento e a transparência.
 const SIDES = {"hatch": "hatch", "sedan": "sedan", "suv": "suv", "pickup": "picape", "moto": "moto"}
 const FOLDERS = {"hatch": "hatch", "sedan": "sedan", "suv": "suv", "pickup": "caminhonete", "moto": "moto"}
+const PLAYER_COLORS = preload("res://scripts/player_palette.gd").NAMES
 var model_id: String = ""
+var player_id: int = -1
 var idle_texture: Texture2D
 var driving_frames: Array[AtlasTexture] = []
 var frame_elapsed: float = 0.0
 var stop_timer: Timer
 
-static func side_path(model: String) -> String:
+static func colored_path(model: String, owner_id: int, view: String) -> String:
+	var color: String = PLAYER_COLORS[owner_id]
+	return "res://assets/vehicles/players/%s/%s_%s_%s.png" % [color, FOLDERS.get(model, "hatch"), view, color]
+
+static func top_path(model: String, owner_id: int) -> String:
+	return colored_path(model, owner_id, "cima")
+
+static func side_path(model: String, owner_id: int = -1) -> String:
+	if owner_id >= 0 and owner_id < PLAYER_COLORS.size():
+		return colored_path(model, owner_id, "lateral")
 	return "res://assets/vehicles/%s-lateral.png" % SIDES.get(model, "hatch")
 
 func _ready() -> void:
@@ -21,15 +32,23 @@ func _ready() -> void:
 	stop_timer.timeout.connect(stop_driving)
 	set_process(false)
 
-func setup(model: String) -> void:
-	if model_id == model: return
+func setup(model: String, owner_id: int = -1) -> void:
+	if model_id == model and player_id == owner_id: return
 	model_id = model
-	idle_texture = load(side_path(model))
+	player_id = owner_id
+	idle_texture = load(side_path(model, owner_id))
 	texture = idle_texture
 	driving_frames.clear()
 	stop_driving()
 
 func drive(duration: float = 1.2, right: bool = false) -> void:
+	# As novas artes não têm spritesheets por cor. O deslocamento da pista
+	# mantém a pintura do dono em vez de alternar para a animação genérica.
+	if player_id >= 0:
+		flip_h = right
+		texture = idle_texture
+		stop_timer.start(duration)
+		return
 	if driving_frames.is_empty():
 		var folder: String = FOLDERS.get(model_id, "hatch")
 		var sheet: Texture2D = load("res://assets/vehicles/animacoes/%s/%s-spritesheet.png" % [folder, folder])

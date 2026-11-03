@@ -7,7 +7,7 @@ var confirm: Button
 func _ready() -> void:
 	set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 	var shade = ColorRect.new()
-	shade.color = Color(0.025, 0.035, 0.03, 0.96)
+	shade.color = preload("res://scripts/ui_style.gd").SURFACE
 	add_child(shade)
 	shade.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 	var center = CenterContainer.new()

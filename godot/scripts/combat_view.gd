@@ -85,7 +85,6 @@ func sync_public(encounter: Dictionary, status: String, reduced: bool) -> void:
 			if not encounter.last.is_empty(): dice.value = int(encounter.last.natural)
 		build_fighter(encounter.left if side == 0 else encounter.right, side, animate)
 	feedback = text(result_text(encounter.last) if not encounter.last.is_empty() and encounter.phase in ["result", "finished", "escape_result"] else public_status, body, 20)
-	text(public_status, body, 18)
 	last_token = token
 	public_initialized = true
 	if animate:
@@ -97,7 +96,7 @@ func _ready() -> void:
 	set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 	mouse_filter = Control.MOUSE_FILTER_STOP
 	var shade = ColorRect.new()
-	shade.color = Color(0.025, 0.035, 0.03, 0.96)
+	shade.color = preload("res://scripts/ui_style.gd").SURFACE
 	shade.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	add_child(shade)
 	shade.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
@@ -218,7 +217,6 @@ func sync() -> void:
 		"cards", "escape_cards": build_reactions()
 		"ready", "escape_ready":
 			var attacker = e.left if int(e.side) == 0 else e.right
-			text(attacker.name + (" · fuga" if e.phase == "escape_ready" else " · ataque"), controls, 20)
 			if e.has("weapon_damage"): text("%s · dano %d · acerto %+d · munição já paga" % [e.get("weapon_name", "Arma adicional"), e.weapon_damage, e.get("weapon_modifier", 0)], controls, 20)
 			button("Rolar fuga de " + str(game.combat_rules.player_by_id(int(e.escape_attempt.player_id)).name) if e.phase == "escape_ready" else "Rolar ataque de " + str(attacker.name), "combatEscapeRoll" if e.phase == "escape_ready" else "combatRoll", {}, controls)
 			if e.phase == "ready": equipment_controls(false)
@@ -250,7 +248,7 @@ func sync() -> void:
 			child.theme_type_variation = &"Primary"
 			var source: Dictionary = e.left if shown_side(e) == 0 else e.right
 			var color: Color = fighter_color(source)
-			child.add_theme_stylebox_override("normal", preload("res://scripts/ui_style.gd").box(color.darkened(0.72), color, 2))
+			child.add_theme_stylebox_override("normal", preload("res://scripts/ui_style.gd").box(preload("res://scripts/ui_style.gd").SECONDARY, color, 2))
 			break
 
 static func fighter_color(fighter: Dictionary) -> Color:
@@ -276,6 +274,8 @@ func build_attack_heading(encounter: Dictionary) -> void:
 	attack_heading = text(caption, body, 22 if public_only else 26)
 	attack_heading.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	attack_heading.add_theme_color_override("font_color", fighter_color(source))
+	preload("res://scripts/player_palette.gd").outline(attack_heading, fighter_color(source))
+	attack_heading.add_theme_stylebox_override("normal", preload("res://scripts/ui_style.gd").box(Color("253238"), Color.TRANSPARENT, 0))
 
 func style_die(encounter: Dictionary, parent: Node) -> void:
 	var source: Dictionary = encounter.left if shown_side(encounter) == 0 else encounter.right
@@ -284,6 +284,8 @@ func style_die(encounter: Dictionary, parent: Node) -> void:
 	var label := text(("PRÓXIMO DADO\n" if dice.pending else "DADO DE\n") + str(source.name), parent, 16 if public_only else 18)
 	label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	label.add_theme_color_override("font_color", fighter_color(source))
+	preload("res://scripts/player_palette.gd").outline(label, fighter_color(source))
+	label.add_theme_stylebox_override("normal", preload("res://scripts/ui_style.gd").box(Color("253238"), Color.TRANSPARENT, 0))
 
 func equipment_controls(weapons: bool) -> void:
 	var e = game.state.combat
@@ -314,7 +316,7 @@ func build_fighter(f: Dictionary, side: int, before: bool) -> void:
 	var encounter: Dictionary = public_combat if public_only else game.state.combat
 	var attacking: bool = side == shown_side(encounter)
 	var color: Color = fighter_color(f)
-	panel.add_theme_stylebox_override("panel", preload("res://scripts/ui_style.gd").box(color.darkened(0.88), color if attacking else color.darkened(0.45), 3 if attacking else 1))
+	panel.add_theme_stylebox_override("panel", preload("res://scripts/ui_style.gd").box(preload("res://scripts/ui_style.gd").SECONDARY, color if attacking else Color("536066"), 3 if attacking else 1))
 	panel.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	arena.add_child(panel)
 	var box = VBoxContainer.new()
@@ -322,11 +324,13 @@ func build_fighter(f: Dictionary, side: int, before: bool) -> void:
 	var title := text(("ATACA · " if attacking else "DEFENDE · ") + str(f.name), box, 20 if public_only else 26)
 	title.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	title.add_theme_color_override("font_color", color)
+	preload("res://scripts/player_palette.gd").outline(title, color)
+	title.add_theme_stylebox_override("normal", preload("res://scripts/ui_style.gd").box(Color("253238"), Color.TRANSPARENT, 0))
 	var art: Control
 	if int(f.player_id) >= 0:
 		art = VehicleArt.new()
 		box.add_child(art)
-		art.setup(f.model)
+		art.setup(f.model, int(f.player_id))
 		art.flip_h = side == 1
 	else:
 		art = TextureRect.new()
@@ -368,7 +372,6 @@ func build_reactions() -> void:
 		reaction_owner = int(p.id)
 		reaction_open = false
 	text("Reação de " + p.name + (" · fora do turno" if int(p.id) != int(game.player().id) else ""), controls)
-	text("Use uma carta ou passe.", controls, 18)
 	if not reaction_open:
 		var open = Button.new()
 		open.text = "Ver cartas de reação de " + p.name
@@ -418,7 +421,7 @@ func build_reactions() -> void:
 			card.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 			card.tooltip_text = str(definition.rulesText)
 			var color: Color = fighter_color({"player_id": int(p.id)})
-			card.add_theme_stylebox_override("normal", preload("res://scripts/ui_style.gd").box(color.darkened(0.8), color, 2))
+			card.add_theme_stylebox_override("normal", preload("res://scripts/ui_style.gd").box(preload("res://scripts/ui_style.gd").SECONDARY, color, 2))
 			card.icon = load("res://assets/cards/" + str(definition.image))
 			card.expand_icon = true
 			card.add_theme_constant_override("icon_max_width", 40)

@@ -1,0 +1,242 @@
+﻿[
+    {
+        "suite":  "data_validation",
+        "passed":  true,
+        "exit_code":  0,
+        "log":  ".tools/campaign-checks/data_validation.log"
+    },
+    {
+        "suite":  "smoke",
+        "passed":  true,
+        "exit_code":  0,
+        "log":  ".tools/campaign-checks/smoke.log"
+    },
+    {
+        "suite":  "combat_smoke",
+        "passed":  true,
+        "exit_code":  0,
+        "log":  ".tools/campaign-checks/combat_smoke.log"
+    },
+    {
+        "suite":  "combat_turns_smoke",
+        "passed":  true,
+        "exit_code":  0,
+        "log":  ".tools/campaign-checks/combat_turns_smoke.log"
+    },
+    {
+        "suite":  "campaign_smoke",
+        "passed":  true,
+        "exit_code":  0,
+        "log":  ".tools/campaign-checks/campaign_smoke.log"
+    },
+    {
+        "suite":  "campaign_edges",
+        "passed":  true,
+        "exit_code":  0,
+        "log":  ".tools/campaign-checks/campaign_edges.log"
+    },
+    {
+        "suite":  "shared_contracts",
+        "passed":  true,
+        "exit_code":  0,
+        "log":  ".tools/campaign-checks/shared_contracts.log"
+    },
+    {
+        "suite":  "pvp_rewards",
+        "passed":  true,
+        "exit_code":  0,
+        "log":  ".tools/campaign-checks/pvp_rewards.log"
+    },
+    {
+        "suite":  "balance_smoke",
+        "passed":  true,
+        "exit_code":  0,
+        "log":  ".tools/campaign-checks/balance_smoke.log"
+    },
+    {
+        "suite":  "lan_session_smoke",
+        "passed":  true,
+        "exit_code":  0,
+        "log":  ".tools/campaign-checks/lan_session_smoke.log"
+    },
+    {
+        "suite":  "lan_campaign_smoke",
+        "passed":  true,
+        "exit_code":  0,
+        "log":  ".tools/campaign-checks/lan_campaign_smoke.log"
+    },
+    {
+        "suite":  "scroll_touch_smoke",
+        "passed":  true,
+        "exit_code":  0,
+        "log":  ".tools/campaign-checks/scroll_touch_smoke.log"
+    },
+    {
+        "suite":  "ui_smoke",
+        "passed":  true,
+        "exit_code":  0,
+        "log":  ".tools/campaign-checks/ui_smoke.log"
+    },
+    {
+        "suite":  "reveal_smoke",
+        "passed":  true,
+        "exit_code":  0,
+        "log":  ".tools/campaign-checks/reveal_smoke.log"
+    },
+    {
+        "suite":  "combat_ui_smoke",
+        "passed":  true,
+        "exit_code":  0,
+        "log":  ".tools/campaign-checks/combat_ui_smoke.log"
+    },
+    {
+        "suite":  "transfers_smoke",
+        "passed":  true,
+        "exit_code":  0,
+        "log":  ".tools/campaign-checks/transfers_smoke.log"
+    },
+    {
+        "suite":  "modern_ui_smoke",
+        "passed":  true,
+        "exit_code":  0,
+        "log":  ".tools/campaign-checks/modern_ui_smoke.log"
+    },
+    {
+        "suite":  "exploration_ui_smoke",
+        "passed":  true,
+        "exit_code":  0,
+        "log":  ".tools/campaign-checks/exploration_ui_smoke.log"
+    },
+    {
+        "suite":  "campaign_ui_smoke",
+        "passed":  true,
+        "exit_code":  0,
+        "log":  ".tools/campaign-checks/campaign_ui_smoke.log"
+    },
+    {
+        "suite":  "onboarding_ui_smoke",
+        "passed":  true,
+        "exit_code":  0,
+        "log":  ".tools/campaign-checks/onboarding_ui_smoke.log"
+    },
+    {
+        "suite":  "start_screen_ui_smoke",
+        "passed":  true,
+        "exit_code":  0,
+        "log":  ".tools/campaign-checks/start_screen_ui_smoke.log"
+    },
+    {
+        "suite":  "mobile_layout_smoke",
+        "passed":  true,
+        "exit_code":  0,
+        "log":  ".tools/campaign-checks/mobile_layout_smoke.log"
+    },
+    {
+        "suite":  "mobile_layout_large",
+        "passed":  true,
+        "exit_code":  0,
+        "log":  ".tools/campaign-checks/mobile_layout_large.log"
+    },
+    {
+        "suite":  "lan_mobile_layout",
+        "passed":  true,
+        "exit_code":  0,
+        "log":  ".tools/campaign-checks/lan_mobile_layout.log"
+    },
+    {
+        "suite":  "lan_mobile_compact",
+        "passed":  true,
+        "exit_code":  0,
+        "log":  ".tools/campaign-checks/lan_mobile_compact.log"
+    },
+    {
+        "suite":  "lan_mobile_s23",
+        "passed":  true,
+        "exit_code":  0,
+        "log":  ".tools/campaign-checks/lan_mobile_s23.log"
+    },
+    {
+        "suite":  "lan_ui_smoke",
+        "passed":  true,
+        "exit_code":  0,
+        "log":  ".tools/campaign-checks/lan_ui_smoke.log"
+    },
+    {
+        "suite":  "tv_remote_smoke",
+        "passed":  true,
+        "exit_code":  0,
+        "log":  ".tools/campaign-checks/tv_remote_smoke.log"
+    },
+    {
+        "suite":  "tv_dashboard_smoke",
+        "passed":  true,
+        "exit_code":  0,
+        "log":  ".tools/campaign-checks/tv_dashboard_smoke.log"
+    },
+    {
+        "suite":  "public_encounters_ui_smoke",
+        "passed":  true,
+        "exit_code":  0,
+        "log":  ".tools/campaign-checks/public_encounters_ui_smoke.log"
+    },
+    {
+        "suite":  "lan_action_menu_ui_smoke",
+        "passed":  true,
+        "exit_code":  0,
+        "log":  ".tools/campaign-checks/lan_action_menu_ui_smoke.log"
+    },
+    {
+        "suite":  "hud_preparation_smoke",
+        "passed":  true,
+        "exit_code":  0,
+        "log":  ".tools/campaign-checks/hud_preparation_smoke.log"
+    },
+    {
+        "suite":  "travel_encounter_ui_smoke",
+        "passed":  true,
+        "exit_code":  0,
+        "log":  ".tools/campaign-checks/travel_encounter_ui_smoke.log"
+    },
+    {
+        "suite":  "encounter_flow_ui_smoke",
+        "passed":  true,
+        "exit_code":  0,
+        "log":  ".tools/campaign-checks/encounter_flow_ui_smoke.log"
+    },
+    {
+        "suite":  "turn_flow_ui_smoke",
+        "passed":  true,
+        "exit_code":  0,
+        "log":  ".tools/campaign-checks/turn_flow_ui_smoke.log"
+    },
+    {
+        "suite":  "music_smoke",
+        "passed":  true,
+        "exit_code":  0,
+        "log":  ".tools/campaign-checks/music_smoke.log"
+    },
+    {
+        "suite":  "card_reading_ui_smoke",
+        "passed":  true,
+        "exit_code":  0,
+        "log":  ".tools/campaign-checks/card_reading_ui_smoke.log"
+    },
+    {
+        "suite":  "combat_escape_sfx_smoke",
+        "passed":  true,
+        "exit_code":  0,
+        "log":  ".tools/campaign-checks/combat_escape_sfx_smoke.log"
+    },
+    {
+        "suite":  "local_board_ui_smoke",
+        "passed":  true,
+        "exit_code":  0,
+        "log":  ".tools/campaign-checks/local_board_ui_smoke.log"
+    },
+    {
+        "suite":  "premium_ui_smoke",
+        "passed":  true,
+        "exit_code":  0,
+        "log":  ".tools/campaign-checks/premium_ui_smoke.log"
+    }
+]

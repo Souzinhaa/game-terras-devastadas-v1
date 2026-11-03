@@ -1,0 +1,16 @@
+{
+  "width": 1280,
+  "height": 720,
+  "fps": 24,
+  "seconds": 18,
+  "road_direction": "right",
+  "car_facing": "left",
+  "max_relative_displacement_per_frame": 0.0,
+  "walk_frames": 8,
+  "walk_fps": 12,
+  "impact_times": [
+    6,
+    13
+  ],
+  "audio_source_sha256": "fe6b19b863bd71e64821910c7e049915790bbf9ea42e00e291b37320267995d1"
+}

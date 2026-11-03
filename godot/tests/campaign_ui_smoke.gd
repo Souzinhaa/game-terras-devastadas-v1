@@ -35,16 +35,16 @@ func run() -> void:
 	await process_frame
 	await process_frame
 	var before_menu: String = JSON.stringify(app.game.state)
-	check(app.popup.body.find_children("*", "Button", true, false).size() == 4, "Administration starts with four short categories")
-	find_button(app.popup, "Reparar / melhorar").pressed.emit()
+	check(app.popup.body.find_children("*", "Button", true, false).size() == 5, "Administration starts with five short categories")
+	find_button(app.popup, "Melhorar veículo").pressed.emit()
 	await process_frame
-	check(find_button(app.popup, "Comprar melhoria") != null, "Improvement purchase reachable")
-	check(find_button(app.popup, "Reparo complexo") != null, "Complex repair reachable")
+	check(find_button(app.popup, "Comprar equipamento") != null, "Improvement purchase reachable")
+	check(find_button(app.popup, "Reparo maior") == null, "Upgrade menu contains no repairs")
 	find_button(app.popup, "Trocar veículo").pressed.emit()
 	await process_frame
 	check(find_button(app.popup, "Moto") != null, "Upgrade choices reachable")
 	app.popup.back_button.pressed.emit()
-	check(app.popup.title == "REPARAR / MELHORAR", "Back returns one menu")
+	check(app.popup.title == "MELHORAR VEÍCULO", "Back returns one menu")
 	app.handle_back()
 	check(app.popup.title == "VEÍCULO E RECURSOS", "Android back returns to management")
 	check(before_menu == JSON.stringify(app.game.state), "Browsing and back preserve state and RNG")
@@ -155,7 +155,7 @@ func run() -> void:
 	app.refresh()
 	await process_frame
 	await process_frame
-	check(find_button(app.combat_view, "Rolar dado de ataque") != null and app.game.state.combat.weapon_damage == 3, "Equipped attack ready in UI with actual damage")
+	check(find_button(app.combat_view, "Rolar ataque de ") != null and app.game.state.combat.weapon_damage == 3, "Equipped attack identifies attacker and preserves actual damage")
 	root.get_texture().get_image().save_png("res://../.tools/campaign-equipped-combat.png")
 	app.game.new_game(["Ana", "Bruno", "Caio"], 42)
 	app.game.state.started = true

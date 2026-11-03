@@ -58,6 +58,7 @@ var catalog: Array = JSON.parse_string(FileAccess.get_file_as_string("res://data
 var private_locked: bool = false
 var player_hud: Control
 var tv_dashboard: Control
+var card_activation: Control
 var board_feedback: Control
 var vehicle_details: Control
 var vehicle_detail_owner: int = -1
@@ -111,8 +112,12 @@ func _ready() -> void:
 	board.size_flags_vertical = Control.SIZE_EXPAND_FILL
 	board.custom_minimum_size = Vector2(400, 260)
 	layout.add_child(board)
-	board.city_selected.connect(show_city)
-	board.route_selected.connect(preview_route)
+	board.city_selected.connect(func(id: String):
+		if is_instance_valid(escape_picker) and escape_picker.visible: escape_picker.select_city(id)
+		else: show_city(id))
+	board.route_selected.connect(func(id: String):
+		if is_instance_valid(escape_picker) and escape_picker.visible: escape_picker.select_route(id)
+		else: preview_route(id))
 	board.vehicle_selected.connect(show_vehicle_details)
 	panel = PanelContainer.new()
 	panel.custom_minimum_size.x = 360
@@ -204,6 +209,14 @@ func _ready() -> void:
 	escape_picker.z_index = 90
 	add_child(escape_picker)
 	escape_picker.route_chosen.connect(func(_actor: int, route: String):
+		if escape_picker.purpose in ["G17", "G18"]:
+			player_hud.hud.show()
+			player_hud.refresh()
+			for option: Dictionary in endpoint.view.get("options", []):
+				if option.action == "playGeneral" and option.get("card_id", "") == escape_picker.purpose and option.get("route", "") == route:
+					select_option(option)
+					return
+			return
 		if escape_picker.purpose == "travel":
 			player_hud.refresh()
 			preview_route(route)
@@ -214,8 +227,10 @@ func _ready() -> void:
 				return)
 	escape_picker.cancelled.connect(func():
 		if not is_instance_valid(player_hud): return
+		player_hud.hud.show()
 		player_hud.refresh()
-		if escape_picker.purpose == "travel": player_hud.show_groups()
+		if escape_picker.purpose in ["G17", "G18"]: player_hud.show_card_actions(escape_picker.purpose, false)
+		elif escape_picker.purpose == "travel": player_hud.show_groups()
 		else: player_hud.show_group("Combate"))
 	vehicle_details = preload("res://scripts/vehicle_details.gd").new()
 	vehicle_details.z_index = 120
@@ -226,6 +241,11 @@ func _ready() -> void:
 	var scroll_input: Node = preload("res://scripts/ui_scroll_input.gd").new()
 	scroll_input.root_control = self
 	add_child(scroll_input)
+	var activation_layer := CanvasLayer.new()
+	activation_layer.layer = 26
+	add_child(activation_layer)
+	card_activation = preload("res://scripts/card_activation.gd").new()
+	activation_layer.add_child(card_activation)
 	board_feedback = preload("res://scripts/board_feedback.gd").new()
 	board_feedback.board = board
 	board_feedback.z_index = 1
@@ -341,7 +361,8 @@ func ensure_tv_dashboard() -> void:
 	tv_dashboard.show()
 
 func create_host(resume: bool, from_backup: bool = false) -> void:
-	var error: String = endpoint.host(name_input.text if not name_input.text.strip_edges().is_empty() else "Anfitrião", int(count_input.value), resume, int(port_input.value), from_backup)
+	if is_instance_valid(connection_menu): preload("res://scripts/setup_preferences.gd").remember_lan(name_input.text, connection_menu.room_name.text)
+	var error: String = endpoint.host(name_input.text if not name_input.text.strip_edges().is_empty() else "Anfitrião", int(count_input.value), resume, int(port_input.value), from_backup, connection_menu.room_name.text if is_instance_valid(connection_menu) else "", connection_menu.room_password.text if is_instance_valid(connection_menu) else "")
 	if not error.is_empty(): show_feedback(error)
 
 func receive_snapshot() -> void:
@@ -527,6 +548,7 @@ func render_actions() -> void:
 		if option.action == "acknowledgeCard" or group != "Todas" and option.group != group: continue
 		count += 1
 		var control: Button = button(option.label, func(): select_option(option), actions)
+		preload("res://scripts/turn_action_style.gd").apply(control, option.get("consumes_action", false))
 		control.disabled = not endpoint.pending_command.is_empty()
 	if count == 0: label("Nenhuma ação nesta janela. Aguarde o turno ou uma decisão sua.", actions)
 	present_encounter()
@@ -550,12 +572,34 @@ func show_vehicle_details(player_id: int) -> void:
 		vehicle_details.present(p, p.vehicle_info, own, catalog)
 		return
 
+func show_barricade_map(card_id: String) -> void:
+	if tv_mode or private_locked or not endpoint.connected or escape_picker.visible: return
+	var routes: Array[String] = []
+	for option: Dictionary in endpoint.view.get("options", []):
+		if option.action == "playGeneral" and option.get("card_id", "") == card_id and option.has("route"):
+			if str(option.route) not in routes: routes.append(str(option.route))
+	if routes.is_empty():
+		show_feedback("Nenhuma estrada disponível nesta janela.")
+		return
+	for p: Dictionary in endpoint.view.public.players:
+		if int(p.id) != int(endpoint.local_player_id): continue
+		escape_revision = int(endpoint.view.revision)
+		card_reader.hide()
+		player_hud.hud.hide()
+		player_hud.sheet.hide()
+		player_hud.notifications.hide()
+		escape_picker.safe_insets = LanLayout.insets(self, device_profile)
+		escape_picker.present({str(int(p.id)): {"name": p.name, "city": p.city, "routes": routes}}, endpoint.reduced_motion, card_id)
+		break
+
 func show_travel_map() -> void:
 	if tv_mode or private_locked or not endpoint.connected or escape_picker.visible: return
 	var routes: Array[String] = []
 	for option: Dictionary in endpoint.view.get("options", []):
 		if option.action == "move": routes.append(str(option.route))
-	if routes.is_empty(): return
+	if routes.is_empty():
+		show_feedback("Não há viagem disponível agora. Viaje antes de usar a ação.")
+		return
 	for p: Dictionary in endpoint.view.public.players:
 		if int(p.id) != int(endpoint.local_player_id): continue
 		escape_revision = int(endpoint.view.revision)
@@ -735,6 +779,9 @@ func show_city(id: String) -> void:
 	modal.popup_centered(Vector2i(640, 300))
 
 func present_event(event: Dictionary) -> void:
+	if event.has("card_activation"):
+		var activation: Dictionary = event.card_activation
+		card_activation.present(activation, card_definition(str(activation.card_id)), endpoint.reduced_motion)
 	get_node("/root/GameSFX").play_sequence(event.get("sounds", []))
 	var text: String = str(event.get("message", ""))
 	var captions: Dictionary = {"salvageSupply": "reaproveitou suprimentos", "buyImprovement": "comprou uma melhoria", "install": "instalou uma melhoria", "playGeneral": "jogou uma carta"}

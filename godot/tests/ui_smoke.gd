@@ -37,9 +37,8 @@ func run() -> void:
 	await process_frame
 	check(app.status.get_global_rect().end.y <= root.get_visible_rect().end.y, "Status cabe na tela")
 	check("Viaje" in app.action_hint.text, "Orientação antes da ação")
-	var cargo = app.hud.get_node("CargoGrid")
 	for resource in app.Game.RESOURCES:
-		check(cargo.get_node(resource).text == str(app.game.player().stock[resource]), "Inventário: " + resource)
+		check(app.cargo_amounts[resource].text == str(app.game.player().stock[resource]), "Inventário: " + resource)
 	check(app.hand.clip_contents and app.hand.get_child(0).size.y > app.hand.size.y, "Cartas parcialmente recolhidas")
 	var first_card = app.hand.get_child(0).get_rect()
 	var last_card = app.hand.get_child(app.hand.get_child_count() - 1).get_rect()
@@ -53,7 +52,8 @@ func run() -> void:
 	board._gui_input(touch)
 	touch.pressed = false
 	board._gui_input(touch)
-	check(board.selected == app.game.player().city and app.popup.visible, "Toque seleciona cidade")
+	check(app.vehicle_details.visible, "Toque no veículo abre detalhes, sem acionar viagem")
+	app.vehicle_details.hide()
 	app.popup.hide()
 	board.change_zoom(100, board.size / 2)
 	check(board.zoom_level == 3.0, "Limite superior de zoom")
@@ -63,12 +63,15 @@ func run() -> void:
 	await RenderingServer.frame_post_draw
 	var screenshot = root.get_texture().get_image()
 	screenshot.save_png("res://../.tools/godot-preview.png")
-	app.show_sectors()
+	app.hud_margin.get_node("SafeArea/Layout/Actions/QuickActions/explore").pressed.emit()
 	await process_frame
 	var own = ""
 	for id in app.game.state.territories:
 		var t = app.game.state.territories[id]
 		if t.city == app.game.player().city and int(t.owner) == int(app.game.player().id): own = id
+	var sector_button: Button = app.popup.find_child("Sector_" + own, true, false)
+	check(sector_button != null, "Atalho oferece setor próprio")
+	if sector_button: sector_button.pressed.emit()
 	var explore = app.popup.find_child("Explore_" + own, true, false) as Button
 	check(explore != null and not explore.disabled, "Exploração encontrada pela ação principal")
 	if explore != null: explore.pressed.emit()
@@ -76,6 +79,7 @@ func run() -> void:
 	check(app.exploration_result.visible, "Exploração apresenta resultado central")
 	app.exploration_result.dismiss()
 	check(app.game.state.actions == 0 and "Ação utilizada" in app.action_hint.text, "Exploração atualiza orientação")
+	app.city_actions.show_sector(own, "explore")
 	explore = app.popup.find_child("Explore_" + own, true, false) as Button
 	check(explore != null and explore.disabled, "Exploração bloqueada após consumir ação")
 	var t = app.game.state.territories[own]
@@ -83,20 +87,23 @@ func run() -> void:
 		if int(t.stock[resource]) > 0:
 			var before = int(app.game.player().stock[resource])
 			app.dispatch("withdraw", {"territory": own, "resource": resource})
-			check(app.hud.get_node("CargoGrid").get_node(resource).text == str(before + 1), "Retirada atualiza carga")
+			check(app.cargo_amounts[resource].text == str(before + 1), "Retirada atualiza carga")
 			break
 	for c in app.game.cities:
-		app.show_sectors(c.id)
-		await process_frame
 		var count = 0
-		for id in app.game.state.territories:
-			var sector = app.game.state.territories[id]
-			if sector.city != c.id: continue
-			var sector_node = app.popup.find_child("Sector_" + id, true, false)
-			check(sector_node != null, "Setor visível: " + id)
-			if sector_node != null:
-				check(app.owner_name(int(sector.owner)) in all_text(sector_node), "Dono identificado: " + id)
-				count += 1
+		for activity: String in ["explore", "attack"]:
+			app.city_actions.show_sectors(c.id, activity)
+			await process_frame
+			for id in app.game.state.territories:
+				var sector = app.game.state.territories[id]
+				if sector.city != c.id: continue
+				var own_sector: bool = int(sector.owner) == int(app.game.player().id)
+				if own_sector == (activity == "attack"): continue
+				var sector_node = app.popup.find_child("Sector_" + id, true, false)
+				check(sector_node != null, "Setor visível: " + id)
+				if sector_node != null:
+					check(app.owner_name(int(sector.owner)) in all_text(sector_node), "Dono identificado: " + id)
+					count += 1
 		check(count == int(c.regions), "Todos os setores de " + c.name)
 	app.popup.hide()
 	app.show_card(0)

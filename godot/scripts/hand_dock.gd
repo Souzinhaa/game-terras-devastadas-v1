@@ -13,6 +13,7 @@ func _ready() -> void:
 
 func render(entries: Array, definitions: Array, concealed: Array, back_resolver: Callable, identities: Array = [], initial_ids: Array = [], context: String = "", reduced_motion: bool = false) -> void:
 	reading_context = context.sha256_text()
+	$Caption.text = "MÃO · %d" % entries.size()
 	instance_ids = identities.duplicate()
 	var next = JSON.stringify([entries, concealed, identities, initial_ids, context, reduced_motion])
 	if signature == next: return

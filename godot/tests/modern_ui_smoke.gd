@@ -43,8 +43,14 @@ func run() -> void:
 		var element = layout.get_node(path) as Control
 		covered += element.size.x * element.size.y
 	for element in [app.action_button, app.turn_button]:
-		covered += element.size.x * element.size.y
-		check(element.get_global_rect().end.y <= app.size.y, "Ação cabe na tela")
+		if element.visible:
+			covered += element.size.x * element.size.y
+			check(element.get_global_rect().end.y <= app.size.y, "Ação cabe na tela")
+	var quick_actions: Control = layout.get_node("Actions/QuickActions")
+	if quick_actions.visible:
+		for element: Control in quick_actions.get_children():
+			covered += element.size.x * element.size.y
+			check(Rect2(Vector2.ZERO, app.size).encloses(element.get_global_rect()), "Atalho cabe na tela")
 	for element in layout.get_node("MapTools").get_children(): covered += element.size.x * element.size.y
 	metrics.uncovered_ratio = 1 - covered / (app.size.x * app.size.y)
 	check(metrics.uncovered_ratio >= 0.65, "Ao menos 65% sem HUD opaco")
@@ -59,7 +65,7 @@ func run() -> void:
 	await capture("ui-after-" + suffix)
 	app.show_menu()
 	await process_frame
-	check(app.popup.visible and "PAUSA" in app.popup.title, "Menu acessível")
+	check(app.popup.visible and "MENU DA PARTIDA" in app.popup.title, "Menu acessível")
 	app.show_settings()
 	await process_frame
 	check(JSON.stringify(app.game.state) == original, "Menu/configurações não alteram RNG ou regras")
@@ -84,7 +90,14 @@ func run() -> void:
 	await capture("ui-city-" + suffix)
 	app.handle_back()
 	check(not app.popup.visible, "Voltar fecha o detalhe")
-	var point = app.board.city_position(app.game.city(app.game.player().city))
+	# O centro da cidade ocupada agora abre o veículo (contrato existente).
+	# Exercitar o gesto em cidade desocupada isola seleção de cidade de seleção de carro.
+	var empty_city: Dictionary = {}
+	for city: Dictionary in app.game.cities:
+		if not app.game.state.players.any(func(p: Dictionary) -> bool: return p.city == city.id):
+			empty_city = city
+			break
+	var point = app.board.city_position(empty_city)
 	var touch = InputEventScreenTouch.new()
 	touch.index = 0
 	touch.position = point

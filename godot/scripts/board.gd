@@ -6,12 +6,13 @@ signal vehicle_selected(player_id: int)
 var focused_route: bool = false
 var game: RefCounted # Motor local ou fachada de apresentação LAN sem estado secreto.
 var fit_width: bool = false
-var map_texture = preload("res://assets/mapa-terreno-alinhado-v3.png")
-var panoramic_texture = preload("res://assets/mapa-margens-sem-rotas-v3.png")
+var map_texture = preload("res://assets/premium/terrain.png")
+const MAP_ASPECT: float = 1448.0 / 1086.0 # geometria original independente da resolução da arte
+var panoramic_texture = preload("res://assets/premium/margins.png")
 var backdrop: Sprite2D
 var map_core: Sprite2D
-var car_texture = preload("res://assets/hatch-cima.png")
-var vehicle_textures = {"hatch": preload("res://assets/hatch-cima.png"), "sedan": preload("res://assets/sedan-cima.png"), "suv": preload("res://assets/suv-cima.png"), "pickup": preload("res://assets/caminhonete-cima.png"), "moto": preload("res://assets/moto-cima.png")}
+const VehicleArt = preload("res://scripts/vehicle_art.gd")
+var vehicle_textures: Dictionary = {}
 var zoom_level = 1.0
 var pan = Vector2.ZERO
 var fingers: Dictionary = {}
@@ -31,6 +32,7 @@ var content_insets: Vector2 = Vector2.ZERO # topo e base reservados ao HUD
 var traveled_route: String = ""
 var route_tween: Tween
 var escape_routes: Array[String] = []
+var route_pick_only: bool = false
 var escape_tween: Tween
 var escape_alpha: float = 1.0:
 	set(value):
@@ -40,7 +42,7 @@ var route_emphasis: float = 0.4:
 	set(value):
 		route_emphasis = value
 		queue_redraw()
-const COLORS = [Color("ed8e42"), Color("51c9ef"), Color("b68be2"), Color("c4d27b")]
+const COLORS = preload("res://scripts/player_palette.gd").COLORS
 
 func _ready() -> void:
 	clip_contents = true
@@ -71,8 +73,8 @@ func backdrop_rect() -> Rect2:
 func map_rect() -> Rect2:
 	# O núcleo original conserva proporção e coordenadas; só as margens são novas.
 	var height = maxf(240, size.y - content_insets.x - content_insets.y) * zoom_level
-	if fit_width: height = minf(height, size.x * float(map_texture.get_height()) / map_texture.get_width() * zoom_level)
-	var dimensions = Vector2(height * float(map_texture.get_width()) / map_texture.get_height(), height)
+	if fit_width: height = minf(height, size.x / MAP_ASPECT * zoom_level)
+	var dimensions = Vector2(height * MAP_ASPECT, height)
 	var center = Vector2(size.x / 2.0, (size.y + content_insets.x - content_insets.y) / 2.0)
 	return Rect2(center - dimensions / 2.0 + pan, dimensions)
 
@@ -133,6 +135,39 @@ func travel_position(progress: float) -> Vector2:
 		remaining -= segment
 	return destination
 
+func blocked_route_ids() -> Array[String]:
+	var ids: Array[String] = []
+	for id: Variant in game.state.get("blocked_routes", []): ids.append(str(id))
+	for block: Dictionary in game.state.get("blocks", []):
+		if str(block.route) not in ids: ids.append(str(block.route))
+	return ids
+
+func barricade_position(route_id: String) -> Vector2:
+	var points: PackedVector2Array = route_points(route_id)
+	var length: float = 0.0
+	for i: int in range(points.size() - 1): length += points[i].distance_to(points[i + 1])
+	var remaining: float = length / 2.0
+	for i: int in range(points.size() - 1):
+		var segment: float = points[i].distance_to(points[i + 1])
+		if segment > 0.001 and remaining <= segment: return points[i].lerp(points[i + 1], remaining / segment)
+		remaining -= segment
+	return points[0] if not points.is_empty() else Vector2.ZERO
+
+func draw_barricades() -> void:
+	for id: String in blocked_route_ids():
+		var points: PackedVector2Array = route_points(id)
+		if points.size() < 2: continue
+		for i: int in range(points.size() - 1):
+			draw_dashed_line(points[i], points[i + 1], Color("230d10"), 8, 9, true, true)
+			draw_dashed_line(points[i], points[i + 1], Color("ff514c"), 4, 9, true, true)
+		var center: Vector2 = barricade_position(id)
+		draw_circle(center, 18, Color("260e12"))
+		draw_arc(center, 18, 0, TAU, 32, Color("ff6257"), 3, true)
+		# Travessa e pés deixam o bloqueio reconhecível também sem distinguir cores.
+		draw_rect(Rect2(center - Vector2(15, 7), Vector2(30, 12)), Color("ff514c"))
+		for x: float in [-10.0, 0.0, 10.0]: draw_line(center + Vector2(x - 3, 4), center + Vector2(x + 3, -6), Color("fff0d4"), 3, true)
+		for x: float in [-10.0, 10.0]: draw_line(center + Vector2(x, 4), center + Vector2(x, 13), Color("fff0d4"), 3, true)
+
 func set_escape_routes(routes: Array, reduced_motion: bool = false) -> void:
 	if escape_tween: escape_tween.kill()
 	escape_routes.clear()
@@ -188,7 +223,7 @@ func pick(at: Vector2) -> void:
 			vehicle_selected.emit(vehicle_id)
 			return
 	var closest = ""
-	var distance = 38.0
+	var distance = 0.0 if route_pick_only else 38.0
 	for c in game.cities:
 		var d = at.distance_to(city_position(c))
 		if d < distance:
@@ -296,59 +331,100 @@ func _draw() -> void:
 		if r.terrain == "rural":
 			for i in range(points.size() - 1): draw_dashed_line(points[i], points[i + 1], color, 2, 7, true, true)
 		else: draw_polyline(points, color, 3 if chosen else 1.8 if available else 1.2, true)
+	draw_barricades()
 	var placed_labels: Array[Rect2] = []
+	var barricade_bounds: Array[Rect2] = []
+	for id: String in blocked_route_ids():
+		var bounds := Rect2(barricade_position(id) - Vector2(22, 22), Vector2(44, 44))
+		barricade_bounds.append(bounds)
+		placed_labels.append(bounds)
 	for c in game.cities:
 		var at = city_position(c)
 		var active = c.id == game.player().city
 		var color = COLORS[int(game.player().id)] if active else Color("dccba6")
 		if c.id == selected:
-			draw_circle(at, 33, Color(0.4, 0.9, 1.0, 0.18))
-			draw_arc(at, 34, 0, TAU, 48, Color("71d4d8"), 3, true)
-		draw_circle(at, 23 if active else 12, Color("171e1c"))
-		draw_arc(at, 24 if active else 13, 0, TAU, 40, color, 3, true)
+			draw_circle(at, 33, Color(0.83, 0.61, 0.25, 0.20))
+			draw_arc(at, 34, 0, TAU, 48, Color("d49b41"), 3, true)
+			# Quatro marcas distinguem seleção de propriedade, mesmo sem cor.
+			for direction in [Vector2.LEFT, Vector2.RIGHT, Vector2.UP, Vector2.DOWN]:
+				draw_line(at + direction * 36, at + direction * 42, Color("f2ebdd"), 3, true)
+		draw_circle(at + Vector2(0, 2), 17 if active else 10, Color(0.1, 0.12, 0.10, 0.25))
+		draw_circle(at, 15 if active else 8, Color("253238"))
+		draw_arc(at, 16 if active else 9, 0, TAU, 40, color, 2, true)
 		var font = preload("res://assets/ui/fonts/Barlow-SemiBold.ttf")
 		var font_size = roundi(18 * label_scale)
 		var label_width = font.get_string_size(c.name, HORIZONTAL_ALIGNMENT_LEFT, -1, font_size).x
 		var label_at = at + Vector2(-label_width / 2.0, -44)
-		for candidate in [Vector2(-label_width / 2, -44), Vector2(34, 5), Vector2(-label_width - 34, 5), Vector2(-label_width / 2, 78)]:
+		var best_score: float = INF
+		for candidate in [Vector2(-label_width / 2, -44), Vector2(34, 5), Vector2(-label_width - 34, 5), Vector2(-label_width / 2, 78), Vector2(-label_width / 2, -70), Vector2(-label_width / 2, 100), Vector2(38, -24), Vector2(-label_width - 38, -24), Vector2(38, 62), Vector2(-label_width - 38, 62)]:
 			var point = at + candidate
 			var bounds = Rect2(point - Vector2(8, 20), Vector2(label_width + 16, 29))
 			if bounds.position.y < 90 or bounds.position.x < 8 or bounds.end.x > size.x - 8 or bounds.end.y > size.y - 8: continue
-			var collision = false
+			var score: float = 0.0
 			for other in game.cities:
 				var marker_at = city_position(other)
-				if Rect2(marker_at - Vector2(26, 26), Vector2(52, 52)).intersects(bounds): collision = true; break
+				score += Rect2(marker_at - Vector2(26, 26), Vector2(52, 52)).intersection(bounds).get_area() * 4
 				var sectors_width = int(other.regions) * 24
-				if Rect2(marker_at + Vector2(-sectors_width / 2.0, 30), Vector2(sectors_width, 24)).intersects(bounds): collision = true; break
+				score += Rect2(marker_at + Vector2(-sectors_width / 2.0, 30), Vector2(sectors_width, 24)).intersection(bounds).get_area()
 			for occupied in occlusions:
-				if occupied.grow(4).intersects(bounds): collision = true; break
+				score += occupied.grow(4).intersection(bounds).get_area() * 50
 			for previous in placed_labels:
-				if previous.grow(3).intersects(bounds): collision = true; break
-			if not collision:
+				score += previous.grow(3).intersection(bounds).get_area() * 20
+			if score < best_score:
 				label_at = point
-				break
+				best_score = score
+			if is_zero_approx(score): break
 		var label_bounds = Rect2(label_at - Vector2(8, 20), Vector2(label_width + 16, 29))
 		placed_labels.append(label_bounds)
 		draw_style_box(label_style(), label_bounds)
-		draw_string(font, label_at, c.name, HORIZONTAL_ALIGNMENT_LEFT, -1, font_size, Color("eedfbd"))
+		draw_string(font, label_at, c.name, HORIZONTAL_ALIGNMENT_LEFT, -1, font_size, Color("253238"))
+		# A lista contextual mantém todos os setores acessíveis no zoom amplo.
+		if zoom_level < 1.35 and c.id != selected and not active:
+			var summary = "%d setores" % int(c.regions)
+			var width = font.get_string_size(summary, HORIZONTAL_ALIGNMENT_LEFT, -1, 14).x
+			var point = at + Vector2(-width / 2.0, 46)
+			for candidate: Vector2 in [Vector2(-width / 2.0, 46), Vector2(30, 24), Vector2(-width - 30, 24)]:
+				var candidate_bounds := Rect2(at + candidate - Vector2(5, 15), Vector2(width + 10, 22))
+				if not barricade_bounds.any(func(bounds: Rect2): return bounds.intersects(candidate_bounds)):
+					point = at + candidate
+					break
+			draw_style_box(label_style(), Rect2(point - Vector2(5, 15), Vector2(width + 10, 22)))
+			draw_string(font, point, summary, HORIZONTAL_ALIGNMENT_LEFT, -1, 14, Color("566167"))
+			continue
 		# Um marcador numerado por setor; a cor usa o ID estável do dono.
+		var sector_offset := Vector2(0, 42)
+		var row_size := Vector2(int(c.regions) * 24, 24)
+		var row_bounds := Rect2(at + sector_offset - row_size / 2, row_size)
+		if barricade_bounds.any(func(bounds: Rect2): return bounds.intersects(row_bounds)):
+			for candidate: Vector2 in [Vector2(-60, 0), Vector2(60, 0), Vector2(0, -42), Vector2(0, 68)]:
+				var candidate_bounds := Rect2(at + candidate - row_size / 2, row_size)
+				if not placed_labels.any(func(bounds: Rect2): return bounds.intersects(candidate_bounds)):
+					sector_offset = candidate
+					break
 		for i in range(int(c.regions)):
 			var sector_id = "%s-%d" % [c.id, i + 1]
 			var owner = int(game.state.territories[sector_id].owner)
 			var sector_color: Color = COLORS[owner] if owner >= 0 and owner < COLORS.size() else Color("92958a")
-			var marker = at + Vector2((i - (int(c.regions) - 1) / 2.0) * 24, 42)
-			draw_circle(marker, 11, Color("171e1c"))
-			draw_arc(marker, 11, 0, TAU, 24, sector_color, 2, true)
+			var marker = at + sector_offset + Vector2((i - (int(c.regions) - 1) / 2.0) * 24, 0)
+			var tile = preload("res://scripts/ui_style.gd").box(Color("253238"), sector_color, 2)
+			if owner == 2: tile.bg_color = Color("eee8db")
+			tile.set_corner_radius_all(5)
+			tile.shadow_size = 2
+			draw_style_box(tile, Rect2(marker - Vector2(11, 11), Vector2(22, 22)))
 			draw_string(font, marker + Vector2(-4, 5), str(i + 1), HORIZONTAL_ALIGNMENT_LEFT, -1, 14, sector_color)
 	for p in game.state.players:
 		var offset = Vector2((int(p.id) - 1) * 12, 0)
 		var at = city_position(game.city(p.city)) + offset
 		var moving: bool = int(p.id) == travel_actor and travel_progress < 1.0
 		if moving: at = travel_position(travel_progress)
+		if int(p.id) == 2: draw_circle(at + Vector2(0, 23), 7, Color("eee8db"))
 		draw_circle(at + Vector2(0, 23), 5, COLORS[int(p.id)])
-		var texture = vehicle_textures.get(p.model, car_texture)
+		var texture_path: String = VehicleArt.top_path(str(p.model), int(p.id))
+		if not vehicle_textures.has(texture_path): vehicle_textures[texture_path] = load(texture_path)
+		var texture: Texture2D = vehicle_textures[texture_path]
 		if moving:
 			var direction: Vector2 = travel_position(minf(1.0, travel_progress + 0.01)) - travel_position(maxf(0.0, travel_progress - 0.01))
+			if int(p.id) == 2: draw_arc(at, 35, 0, TAU, 32, Color("eee8db"), 5, true)
 			draw_arc(at, 35, 0, TAU, 32, COLORS[int(p.id)], 2, true)
 			draw_set_transform(at, direction.angle() + PI / 2.0)
 			draw_texture_rect(texture, Rect2(Vector2(-18, -31), Vector2(36, 62)), false)
@@ -358,8 +434,8 @@ func _draw() -> void:
 
 func label_style() -> StyleBoxFlat:
 	var style = StyleBoxFlat.new()
-	style.bg_color = Color(0.055, 0.075, 0.065, 0.94)
-	style.border_color = Color("8f7449")
+	style.bg_color = Color(0.95, 0.92, 0.87, 0.97)
+	style.border_color = Color("b9b3a6")
 	style.set_border_width_all(1)
-	style.set_corner_radius_all(3)
+	style.set_corner_radius_all(6)
 	return style

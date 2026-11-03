@@ -17,6 +17,6 @@ func _ready() -> void:
 
 func notify(message: String, error: bool = false) -> void:
 	text.text = message
-	add_theme_stylebox_override("panel", preload("res://scripts/ui_style.gd").box(Color("#19221d"), Color("#d86454") if error else Color("#8c6c43")))
+	add_theme_stylebox_override("panel", preload("res://scripts/ui_style.gd").box(preload("res://scripts/ui_style.gd").SURFACE, Color("#d86454") if error else Color("#34717a")))
 	show()
 	timer.start(8 if error else 4)

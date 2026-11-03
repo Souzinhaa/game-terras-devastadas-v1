@@ -13,6 +13,7 @@ var safe_insets: Vector4 = Vector4.ZERO
 var bar: PanelContainer
 var purpose: String = "escape"
 var cancel_button: Button
+var action_icon: TextureRect
 
 func _ready() -> void:
 	set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
@@ -27,6 +28,13 @@ func _ready() -> void:
 	panel.offset_bottom = -24
 	var row := HBoxContainer.new()
 	panel.add_child(row)
+	action_icon = TextureRect.new()
+	action_icon.texture = load("res://assets/ui/turn_action.svg")
+	action_icon.custom_minimum_size = Vector2(28, 28)
+	action_icon.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
+	action_icon.modulate = preload("res://scripts/ui_style.gd").SELECTION
+	action_icon.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	row.add_child(action_icon)
 	caption = Label.new()
 	caption.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	caption.size_flags_horizontal = Control.SIZE_EXPAND_FILL
@@ -46,7 +54,9 @@ func _ready() -> void:
 func present(entries: Dictionary, reduced: bool, mode: String = "escape") -> void:
 	if entries.is_empty(): return
 	purpose = mode
-	cancel_button.text = "Cancelar viagem" if purpose == "travel" else "Cancelar fuga"
+	action_icon.visible = purpose == "G17"
+	caption.modulate = preload("res://scripts/ui_style.gd").SELECTION if purpose == "G17" else Color.WHITE
+	cancel_button.text = "Cancelar viagem" if purpose == "travel" else "Cancelar fuga" if purpose == "escape" else "Cancelar"
 	actors = entries.duplicate(true)
 	reduced_motion = reduced
 	camera = {"zoom": board.zoom_level, "pan": board.pan, "insets": board.content_insets, "occlusions": board.occlusions.duplicate(), "selected": board.selected, "route": board.selected_route, "focused": board.focused_route}
@@ -55,6 +65,7 @@ func present(entries: Dictionary, reduced: bool, mode: String = "escape") -> voi
 	bar.offset_top = -112 - safe_insets.w
 	bar.offset_bottom = -24 - safe_insets.w
 	board.zoom_level = 1.0
+	board.route_pick_only = purpose in ["G17", "G18"]
 	board.pan = Vector2.ZERO
 	board.content_insets = Vector2(24 + safe_insets.y, 120 + safe_insets.w)
 	board.clear_selection()
@@ -71,11 +82,13 @@ func present(entries: Dictionary, reduced: bool, mode: String = "escape") -> voi
 func select_actor(id: int) -> void:
 	actor = id
 	var entry: Dictionary = actors[str(id)]
-	caption.text = str(entry.name) + " · escolha uma estrada " + ("destacada" if reduced_motion else "piscando") + (" para viajar" if purpose == "travel" else " para tentar fugir")
+	var instruction: String = {"travel": "viajar", "escape": "tentar fugir", "G17": "construir barricada", "G18": "destruir barricada"}.get(purpose, "selecionar")
+	caption.text = str(entry.name) + " · toque numa estrada destacada para " + instruction
 	board.set_escape_routes(entry.routes, reduced_motion)
 
 func select_city(city: String) -> void:
 	if not visible: return
+	if purpose in ["G17", "G18"]: return
 	var entry: Dictionary = actors[str(actor)]
 	for route: Dictionary in board.game.routes:
 		if route.id not in entry.routes: continue
@@ -94,6 +107,7 @@ func suspend() -> void:
 	if not visible: return
 	hide()
 	board.set_escape_routes([])
+	board.route_pick_only = false
 	board.zoom_level = camera.zoom
 	board.pan = camera.pan
 	board.content_insets = camera.insets

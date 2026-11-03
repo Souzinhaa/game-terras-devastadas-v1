@@ -2,7 +2,7 @@
 
 Contrato das **novas partidas Godot/Android**, atualizado em 31/10/2026. Perfil `campaign-v07`, regras `0.7`, conteúdo `0.7.0`; build de teste `0.0.4-ui-tv`.
 
-Guia prático: [Como jogar](docs/COMO_JOGAR.md). Cartas: [rules-cards.md](rules-cards.md). Diferenças e compatibilidade: [REBALANCEAMENTO_V07.md](godot/docs/REBALANCEAMENTO_V07.md). O motor React continua em sua edição 0.6. Saves nativos antigos não são convertidos ao carregar; ver seção 14.
+Guia prático: [Como jogar](docs/COMO_JOGAR.md). Cartas: [rules-cards.md](rules-cards.md). Diferenças e compatibilidade: [REBALANCEAMENTO_V07.md](godot/docs/REBALANCEAMENTO_V07.md). Saves nativos antigos não são convertidos ao carregar; ver seção 14.
 
 ## 1. Objetivo
 
@@ -38,7 +38,7 @@ Há 12 cidades, 35 setores, 19 rotas e oito pontos territoriais possíveis.
 
 A ordem e os setores iniciais são sorteados com a seed da partida, priorizando cidades iniciais distintas. Cada jogador recebe um setor próprio íntegro, depósito vazio e um **Hatch** com integridade 6, três combustíveis no tanque, uma sucata na carga, duas gerais e duas vidas. Não recebe cidade completa, equipamentos adicionais ou kit de modelo superior.
 
-As duas gerais iniciais já ficam na mão, sem animação de compra. Ao tocar em **Comprar Carta**, o jogador inicia seu turno e compra uma geral, inclusive no primeiro turno próprio; essa carta usa a revelação normal. Saves existentes conservam suas mãos e revelações pendentes, sem redistribuição. Seed e decisões tornam novas partidas reproduzíveis na mesma versão do motor/edição, sem prometer sequência igual ao React ou ao setup anterior.
+As duas gerais iniciais já ficam na mão, sem animação de compra. Ao tocar em **Comprar Carta**, o jogador inicia seu turno e compra uma geral, inclusive no primeiro turno próprio; essa carta usa a revelação normal. Saves existentes conservam suas mãos e revelações pendentes, sem redistribuição. Seed e decisões tornam novas partidas reproduzíveis na mesma versão do motor/edição, sem prometer sequência igual ao setup anterior.
 
 Nos setores neutros da edição 0.7, o primeiro setor neutro ordenado de cada cidade tem faixa fácil; os demais, média; o último de uma cidade de quatro setores tem faixa difícil. Um dos quatro hostis da faixa é atribuído deterministicamente pela seed/setor. A faixa de risco é pública; identidade e atributos permanecem ocultos até a descoberta. Retomar não rerrola ameaças.
 
@@ -48,8 +48,8 @@ Valores básicos, antes de cartas:
 
 | Modelo | Integridade máxima | Defesa | Dano fixo | Agilidade de fuga | Carga | Tanque | Consumo por rota | Terra |
 | --- | ---: | ---: | ---: | ---: | ---: | ---: | ---: | --- |
-| Hatch | 6 | 4+ | 1 | +1 | 5 | 8 | 1 | Não |
-| Moto | 6 | 4+ | 2 | +1 | 2 | 10 | 1 | Sim |
+| Hatch | 6 | 3+ | 1 | +1 | 5 | 8 | 1 | Não |
+| Moto | 6 | 5+ | 2 | +1 | 2 | 10 | 1 | Sim |
 | Sedã | 8 | 4+ | 1 | 0 | 7 | 12 | 2 | Não |
 | SUV | 10 | 4+ | 1 | 0 | 6 | 12 | 2 | Sim |
 | Caminhonete | 10 | 4+ | 1 | 0 | 10 | 15 | 3 | Sim |
@@ -201,6 +201,6 @@ Testes automáticos e APK exportado comprovam os cenários testados. Não demons
 | Revelador da corrida | Inscrição opcional | Entra quando apto e com combustível |
 | E11/V16 | Fora dos novos baralhos | Cópias antigas preservadas |
 
-Carregar preserva perfil, conteúdo, RNG, identidades e escolhas. O controle de combate rápido não troca a edição. Replays usam o perfil registrado. Perfil `stage1` conserva seu conjunto legado limitado, sem ligar campanha por inferência. React usa outro formato e suas regras 0.6; não importar/converter silenciosamente.
+Carregar preserva perfil, conteúdo, RNG, identidades e escolhas. O controle de combate rápido não troca a edição. Replays usam o perfil registrado. Perfil `stage1` conserva seu conjunto legado limitado, sem ligar campanha por inferência. Não importar formatos externos silenciosamente.
 
-[Snapshot anterior de regras](docs/historico/REGRAS_REFERENCIA_V06.md), [contexto React anterior](docs/historico/CONTEXTO_REACT_V06.md) e [decisões v0.6](docs/REGRAS_V06.md) são registros históricos. Este documento e os contratos 0.7 prevalecem para novas partidas Godot.
+O código e as fixtures nativas preservam a compatibilidade dos saves antigos. Este documento e os contratos 0.7 prevalecem para novas partidas Godot.

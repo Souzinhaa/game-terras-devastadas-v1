@@ -93,7 +93,7 @@ func new_game(names: Array, seed_value: int, profile: String = "campaign-v07") -
 	if profile == "campaign-v07":
 		for participant: Dictionary in state.players:
 			state.initial_card_instances[str(int(participant.id))] = participant.hand_instances.map(func(item: Dictionary): return str(item.instance_id))
-	note("Partida nativa v" + str(state.rules_version) + " iniciada. Duas vidas; vitória por sobrevivência ou cidades completas.")
+	note("Partida iniciada. Duas vidas; vitória por sobrevivência ou cidades completas.")
 	return ""
 
 func draw_card(p: Dictionary, reveal_received: bool = true) -> void:

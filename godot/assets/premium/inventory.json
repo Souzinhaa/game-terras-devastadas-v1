@@ -1,0 +1,1263 @@
+﻿[
+    {
+        "value":  [
+                      {
+                          "value":  [
+                                        {
+                                            "id":  "G01",
+                                            "path":  "assets/cards/gerais/G01.png",
+                                            "usage":  "Frente existente, leitura e aquisição local/LAN",
+                                            "origin":  "Acervo do projeto; direitos existentes preservados",
+                                            "decision":  "Manter arte e ID; renovar apresentação compartilhada",
+                                            "bytes":  3148673,
+                                            "dimensions":  [
+                                                               1024,
+                                                               1536
+                                                           ]
+                                        },
+                                        {
+                                            "id":  "G02",
+                                            "path":  "assets/cards/gerais/G02.png",
+                                            "usage":  "Frente existente, leitura e aquisição local/LAN",
+                                            "origin":  "Acervo do projeto; direitos existentes preservados",
+                                            "decision":  "Manter arte e ID; renovar apresentação compartilhada",
+                                            "bytes":  3122654,
+                                            "dimensions":  [
+                                                               1024,
+                                                               1536
+                                                           ]
+                                        },
+                                        {
+                                            "id":  "G03",
+                                            "path":  "assets/cards/gerais/G03.png",
+                                            "usage":  "Frente existente, leitura e aquisição local/LAN",
+                                            "origin":  "Acervo do projeto; direitos existentes preservados",
+                                            "decision":  "Manter arte e ID; renovar apresentação compartilhada",
+                                            "bytes":  3172389,
+                                            "dimensions":  [
+                                                               1024,
+                                                               1536
+                                                           ]
+                                        },
+                                        {
+                                            "id":  "G04",
+                                            "path":  "assets/cards/gerais/G04.png",
+                                            "usage":  "Frente existente, leitura e aquisição local/LAN",
+                                            "origin":  "Acervo do projeto; direitos existentes preservados",
+                                            "decision":  "Manter arte e ID; renovar apresentação compartilhada",
+                                            "bytes":  3166095,
+                                            "dimensions":  [
+                                                               1024,
+                                                               1536
+                                                           ]
+                                        },
+                                        {
+                                            "id":  "G05",
+                                            "path":  "assets/cards/gerais/G05.png",
+                                            "usage":  "Frente existente, leitura e aquisição local/LAN",
+                                            "origin":  "Acervo do projeto; direitos existentes preservados",
+                                            "decision":  "Manter arte e ID; renovar apresentação compartilhada",
+                                            "bytes":  3083540,
+                                            "dimensions":  [
+                                                               1024,
+                                                               1536
+                                                           ]
+                                        },
+                                        {
+                                            "id":  "G06",
+                                            "path":  "assets/cards/gerais/G06.png",
+                                            "usage":  "Frente existente, leitura e aquisição local/LAN",
+                                            "origin":  "Acervo do projeto; direitos existentes preservados",
+                                            "decision":  "Manter arte e ID; renovar apresentação compartilhada",
+                                            "bytes":  3019539,
+                                            "dimensions":  [
+                                                               1024,
+                                                               1536
+                                                           ]
+                                        },
+                                        {
+                                            "id":  "G07",
+                                            "path":  "assets/cards/gerais/G07.png",
+                                            "usage":  "Frente existente, leitura e aquisição local/LAN",
+                                            "origin":  "Acervo do projeto; direitos existentes preservados",
+                                            "decision":  "Manter arte e ID; renovar apresentação compartilhada",
+                                            "bytes":  3122108,
+                                            "dimensions":  [
+                                                               1024,
+                                                               1536
+                                                           ]
+                                        },
+                                        {
+                                            "id":  "G08",
+                                            "path":  "assets/cards/gerais/G08.png",
+                                            "usage":  "Frente existente, leitura e aquisição local/LAN",
+                                            "origin":  "Acervo do projeto; direitos existentes preservados",
+                                            "decision":  "Manter arte e ID; renovar apresentação compartilhada",
+                                            "bytes":  3128422,
+                                            "dimensions":  [
+                                                               1024,
+                                                               1536
+                                                           ]
+                                        },
+                                        {
+                                            "id":  "G09",
+                                            "path":  "assets/cards/gerais/G09.png",
+                                            "usage":  "Frente existente, leitura e aquisição local/LAN",
+                                            "origin":  "Acervo do projeto; direitos existentes preservados",
+                                            "decision":  "Manter arte e ID; renovar apresentação compartilhada",
+                                            "bytes":  3175890,
+                                            "dimensions":  [
+                                                               1024,
+                                                               1536
+                                                           ]
+                                        },
+                                        {
+                                            "id":  "G10",
+                                            "path":  "assets/cards/gerais/G10.png",
+                                            "usage":  "Frente existente, leitura e aquisição local/LAN",
+                                            "origin":  "Acervo do projeto; direitos existentes preservados",
+                                            "decision":  "Manter arte e ID; renovar apresentação compartilhada",
+                                            "bytes":  3091191,
+                                            "dimensions":  [
+                                                               1024,
+                                                               1536
+                                                           ]
+                                        },
+                                        {
+                                            "id":  "G11",
+                                            "path":  "assets/cards/gerais/G11.png",
+                                            "usage":  "Frente existente, leitura e aquisição local/LAN",
+                                            "origin":  "Acervo do projeto; direitos existentes preservados",
+                                            "decision":  "Manter arte e ID; renovar apresentação compartilhada",
+                                            "bytes":  3203915,
+                                            "dimensions":  [
+                                                               1024,
+                                                               1536
+                                                           ]
+                                        },
+                                        {
+                                            "id":  "G12",
+                                            "path":  "assets/cards/gerais/G12.png",
+                                            "usage":  "Frente existente, leitura e aquisição local/LAN",
+                                            "origin":  "Acervo do projeto; direitos existentes preservados",
+                                            "decision":  "Manter arte e ID; renovar apresentação compartilhada",
+                                            "bytes":  3232044,
+                                            "dimensions":  [
+                                                               1024,
+                                                               1536
+                                                           ]
+                                        },
+                                        {
+                                            "id":  "G13",
+                                            "path":  "assets/cards/gerais/G13.png",
+                                            "usage":  "Frente existente, leitura e aquisição local/LAN",
+                                            "origin":  "Acervo do projeto; direitos existentes preservados",
+                                            "decision":  "Manter arte e ID; renovar apresentação compartilhada",
+                                            "bytes":  3125734,
+                                            "dimensions":  [
+                                                               1024,
+                                                               1536
+                                                           ]
+                                        },
+                                        {
+                                            "id":  "G14",
+                                            "path":  "assets/cards/gerais/G14.png",
+                                            "usage":  "Frente existente, leitura e aquisição local/LAN",
+                                            "origin":  "Acervo do projeto; direitos existentes preservados",
+                                            "decision":  "Manter arte e ID; renovar apresentação compartilhada",
+                                            "bytes":  3073405,
+                                            "dimensions":  [
+                                                               1024,
+                                                               1536
+                                                           ]
+                                        },
+                                        {
+                                            "id":  "G15",
+                                            "path":  "assets/cards/gerais/G15.png",
+                                            "usage":  "Frente existente, leitura e aquisição local/LAN",
+                                            "origin":  "Acervo do projeto; direitos existentes preservados",
+                                            "decision":  "Manter arte e ID; renovar apresentação compartilhada",
+                                            "bytes":  3064850,
+                                            "dimensions":  [
+                                                               1024,
+                                                               1536
+                                                           ]
+                                        },
+                                        {
+                                            "id":  "G16",
+                                            "path":  "assets/cards/gerais/G16.png",
+                                            "usage":  "Frente existente, leitura e aquisição local/LAN",
+                                            "origin":  "Acervo do projeto; direitos existentes preservados",
+                                            "decision":  "Manter arte e ID; renovar apresentação compartilhada",
+                                            "bytes":  3053825,
+                                            "dimensions":  [
+                                                               1024,
+                                                               1536
+                                                           ]
+                                        },
+                                        {
+                                            "id":  "G17",
+                                            "path":  "assets/cards/gerais/G17.png",
+                                            "usage":  "Frente existente, leitura e aquisição local/LAN",
+                                            "origin":  "Acervo do projeto; direitos existentes preservados",
+                                            "decision":  "Manter arte e ID; renovar apresentação compartilhada",
+                                            "bytes":  3339401,
+                                            "dimensions":  [
+                                                               1024,
+                                                               1536
+                                                           ]
+                                        },
+                                        {
+                                            "id":  "G18",
+                                            "path":  "assets/cards/gerais/G18.png",
+                                            "usage":  "Frente existente, leitura e aquisição local/LAN",
+                                            "origin":  "Acervo do projeto; direitos existentes preservados",
+                                            "decision":  "Manter arte e ID; renovar apresentação compartilhada",
+                                            "bytes":  3191731,
+                                            "dimensions":  [
+                                                               1024,
+                                                               1536
+                                                           ]
+                                        },
+                                        {
+                                            "id":  "G19",
+                                            "path":  "assets/cards/gerais/G19.png",
+                                            "usage":  "Frente existente, leitura e aquisição local/LAN",
+                                            "origin":  "Acervo do projeto; direitos existentes preservados",
+                                            "decision":  "Manter arte e ID; renovar apresentação compartilhada",
+                                            "bytes":  3116723,
+                                            "dimensions":  [
+                                                               1024,
+                                                               1536
+                                                           ]
+                                        },
+                                        {
+                                            "id":  "G20",
+                                            "path":  "assets/cards/gerais/G20.png",
+                                            "usage":  "Frente existente, leitura e aquisição local/LAN",
+                                            "origin":  "Acervo do projeto; direitos existentes preservados",
+                                            "decision":  "Manter arte e ID; renovar apresentação compartilhada",
+                                            "bytes":  3054124,
+                                            "dimensions":  [
+                                                               1024,
+                                                               1536
+                                                           ]
+                                        },
+                                        {
+                                            "id":  "G21",
+                                            "path":  "assets/cards/gerais/G21.png",
+                                            "usage":  "Frente existente, leitura e aquisição local/LAN",
+                                            "origin":  "Acervo do projeto; direitos existentes preservados",
+                                            "decision":  "Manter arte e ID; renovar apresentação compartilhada",
+                                            "bytes":  3420160,
+                                            "dimensions":  [
+                                                               1024,
+                                                               1536
+                                                           ]
+                                        },
+                                        {
+                                            "id":  "G22",
+                                            "path":  "assets/cards/gerais/G22.png",
+                                            "usage":  "Frente existente, leitura e aquisição local/LAN",
+                                            "origin":  "Acervo do projeto; direitos existentes preservados",
+                                            "decision":  "Manter arte e ID; renovar apresentação compartilhada",
+                                            "bytes":  3295058,
+                                            "dimensions":  [
+                                                               1024,
+                                                               1536
+                                                           ]
+                                        },
+                                        {
+                                            "id":  "G23",
+                                            "path":  "assets/cards/gerais/G23.png",
+                                            "usage":  "Frente existente, leitura e aquisição local/LAN",
+                                            "origin":  "Acervo do projeto; direitos existentes preservados",
+                                            "decision":  "Manter arte e ID; renovar apresentação compartilhada",
+                                            "bytes":  3236184,
+                                            "dimensions":  [
+                                                               1024,
+                                                               1536
+                                                           ]
+                                        },
+                                        {
+                                            "id":  "G24",
+                                            "path":  "assets/cards/gerais/G24.png",
+                                            "usage":  "Frente existente, leitura e aquisição local/LAN",
+                                            "origin":  "Acervo do projeto; direitos existentes preservados",
+                                            "decision":  "Manter arte e ID; renovar apresentação compartilhada",
+                                            "bytes":  3104496,
+                                            "dimensions":  [
+                                                               1024,
+                                                               1536
+                                                           ]
+                                        },
+                                        {
+                                            "id":  "E01",
+                                            "path":  "assets/cards/equipamentos/E01.png",
+                                            "usage":  "Frente existente, leitura e aquisição local/LAN",
+                                            "origin":  "Acervo do projeto; direitos existentes preservados",
+                                            "decision":  "Manter arte e ID; renovar apresentação compartilhada",
+                                            "bytes":  3187845,
+                                            "dimensions":  [
+                                                               1024,
+                                                               1536
+                                                           ]
+                                        },
+                                        {
+                                            "id":  "E02",
+                                            "path":  "assets/cards/equipamentos/E02.png",
+                                            "usage":  "Frente existente, leitura e aquisição local/LAN",
+                                            "origin":  "Acervo do projeto; direitos existentes preservados",
+                                            "decision":  "Manter arte e ID; renovar apresentação compartilhada",
+                                            "bytes":  3311341,
+                                            "dimensions":  [
+                                                               1024,
+                                                               1536
+                                                           ]
+                                        },
+                                        {
+                                            "id":  "E03",
+                                            "path":  "assets/cards/equipamentos/E03.png",
+                                            "usage":  "Frente existente, leitura e aquisição local/LAN",
+                                            "origin":  "Acervo do projeto; direitos existentes preservados",
+                                            "decision":  "Manter arte e ID; renovar apresentação compartilhada",
+                                            "bytes":  3227724,
+                                            "dimensions":  [
+                                                               1024,
+                                                               1536
+                                                           ]
+                                        },
+                                        {
+                                            "id":  "E04",
+                                            "path":  "assets/cards/equipamentos/E04.png",
+                                            "usage":  "Frente existente, leitura e aquisição local/LAN",
+                                            "origin":  "Acervo do projeto; direitos existentes preservados",
+                                            "decision":  "Manter arte e ID; renovar apresentação compartilhada",
+                                            "bytes":  3476808,
+                                            "dimensions":  [
+                                                               1024,
+                                                               1536
+                                                           ]
+                                        },
+                                        {
+                                            "id":  "E05",
+                                            "path":  "assets/cards/equipamentos/E05.png",
+                                            "usage":  "Frente existente, leitura e aquisição local/LAN",
+                                            "origin":  "Acervo do projeto; direitos existentes preservados",
+                                            "decision":  "Manter arte e ID; renovar apresentação compartilhada",
+                                            "bytes":  3124452,
+                                            "dimensions":  [
+                                                               1024,
+                                                               1536
+                                                           ]
+                                        },
+                                        {
+                                            "id":  "E06",
+                                            "path":  "assets/cards/equipamentos/E06.png",
+                                            "usage":  "Frente existente, leitura e aquisição local/LAN",
+                                            "origin":  "Acervo do projeto; direitos existentes preservados",
+                                            "decision":  "Manter arte e ID; renovar apresentação compartilhada",
+                                            "bytes":  3160655,
+                                            "dimensions":  [
+                                                               1024,
+                                                               1536
+                                                           ]
+                                        },
+                                        {
+                                            "id":  "E07",
+                                            "path":  "assets/cards/equipamentos/E07.png",
+                                            "usage":  "Frente existente, leitura e aquisição local/LAN",
+                                            "origin":  "Acervo do projeto; direitos existentes preservados",
+                                            "decision":  "Manter arte e ID; renovar apresentação compartilhada",
+                                            "bytes":  3171651,
+                                            "dimensions":  [
+                                                               1024,
+                                                               1536
+                                                           ]
+                                        },
+                                        {
+                                            "id":  "E08",
+                                            "path":  "assets/cards/equipamentos/E08.png",
+                                            "usage":  "Frente existente, leitura e aquisição local/LAN",
+                                            "origin":  "Acervo do projeto; direitos existentes preservados",
+                                            "decision":  "Manter arte e ID; renovar apresentação compartilhada",
+                                            "bytes":  3220465,
+                                            "dimensions":  [
+                                                               1024,
+                                                               1536
+                                                           ]
+                                        },
+                                        {
+                                            "id":  "E09",
+                                            "path":  "assets/cards/equipamentos/E09.png",
+                                            "usage":  "Frente existente, leitura e aquisição local/LAN",
+                                            "origin":  "Acervo do projeto; direitos existentes preservados",
+                                            "decision":  "Manter arte e ID; renovar apresentação compartilhada",
+                                            "bytes":  3332769,
+                                            "dimensions":  [
+                                                               1024,
+                                                               1536
+                                                           ]
+                                        },
+                                        {
+                                            "id":  "E10",
+                                            "path":  "assets/cards/equipamentos/E10.png",
+                                            "usage":  "Frente existente, leitura e aquisição local/LAN",
+                                            "origin":  "Acervo do projeto; direitos existentes preservados",
+                                            "decision":  "Manter arte e ID; renovar apresentação compartilhada",
+                                            "bytes":  3125734,
+                                            "dimensions":  [
+                                                               1024,
+                                                               1536
+                                                           ]
+                                        },
+                                        {
+                                            "id":  "E11",
+                                            "path":  "assets/cards/equipamentos/E11.png",
+                                            "usage":  "Frente existente, leitura e aquisição local/LAN",
+                                            "origin":  "Acervo do projeto; direitos existentes preservados",
+                                            "decision":  "Manter arte e ID; renovar apresentação compartilhada",
+                                            "bytes":  3130202,
+                                            "dimensions":  [
+                                                               1024,
+                                                               1536
+                                                           ]
+                                        },
+                                        {
+                                            "id":  "E12",
+                                            "path":  "assets/cards/equipamentos/E12.png",
+                                            "usage":  "Frente existente, leitura e aquisição local/LAN",
+                                            "origin":  "Acervo do projeto; direitos existentes preservados",
+                                            "decision":  "Manter arte e ID; renovar apresentação compartilhada",
+                                            "bytes":  3228671,
+                                            "dimensions":  [
+                                                               1024,
+                                                               1536
+                                                           ]
+                                        },
+                                        {
+                                            "id":  "T01",
+                                            "path":  "assets/cards/territoriais/T01.png",
+                                            "usage":  "Frente existente, leitura e aquisição local/LAN",
+                                            "origin":  "Acervo do projeto; direitos existentes preservados",
+                                            "decision":  "Manter arte e ID; renovar apresentação compartilhada",
+                                            "bytes":  3213278,
+                                            "dimensions":  [
+                                                               1024,
+                                                               1536
+                                                           ]
+                                        },
+                                        {
+                                            "id":  "T02",
+                                            "path":  "assets/cards/territoriais/T02.png",
+                                            "usage":  "Frente existente, leitura e aquisição local/LAN",
+                                            "origin":  "Acervo do projeto; direitos existentes preservados",
+                                            "decision":  "Manter arte e ID; renovar apresentação compartilhada",
+                                            "bytes":  3103937,
+                                            "dimensions":  [
+                                                               1024,
+                                                               1536
+                                                           ]
+                                        },
+                                        {
+                                            "id":  "T03",
+                                            "path":  "assets/cards/territoriais/T03.png",
+                                            "usage":  "Frente existente, leitura e aquisição local/LAN",
+                                            "origin":  "Acervo do projeto; direitos existentes preservados",
+                                            "decision":  "Manter arte e ID; renovar apresentação compartilhada",
+                                            "bytes":  3069018,
+                                            "dimensions":  [
+                                                               1024,
+                                                               1536
+                                                           ]
+                                        },
+                                        {
+                                            "id":  "T04",
+                                            "path":  "assets/cards/territoriais/T04.png",
+                                            "usage":  "Frente existente, leitura e aquisição local/LAN",
+                                            "origin":  "Acervo do projeto; direitos existentes preservados",
+                                            "decision":  "Manter arte e ID; renovar apresentação compartilhada",
+                                            "bytes":  3222561,
+                                            "dimensions":  [
+                                                               1024,
+                                                               1536
+                                                           ]
+                                        },
+                                        {
+                                            "id":  "T05",
+                                            "path":  "assets/cards/territoriais/T05.png",
+                                            "usage":  "Frente existente, leitura e aquisição local/LAN",
+                                            "origin":  "Acervo do projeto; direitos existentes preservados",
+                                            "decision":  "Manter arte e ID; renovar apresentação compartilhada",
+                                            "bytes":  3182549,
+                                            "dimensions":  [
+                                                               1024,
+                                                               1536
+                                                           ]
+                                        },
+                                        {
+                                            "id":  "T06",
+                                            "path":  "assets/cards/territoriais/T06.png",
+                                            "usage":  "Frente existente, leitura e aquisição local/LAN",
+                                            "origin":  "Acervo do projeto; direitos existentes preservados",
+                                            "decision":  "Manter arte e ID; renovar apresentação compartilhada",
+                                            "bytes":  3222544,
+                                            "dimensions":  [
+                                                               1024,
+                                                               1536
+                                                           ]
+                                        },
+                                        {
+                                            "id":  "R01",
+                                            "path":  "assets/cards/corrida/R01.png",
+                                            "usage":  "Frente existente, leitura e aquisição local/LAN",
+                                            "origin":  "Acervo do projeto; direitos existentes preservados",
+                                            "decision":  "Manter arte e ID; renovar apresentação compartilhada",
+                                            "bytes":  3095023,
+                                            "dimensions":  [
+                                                               1024,
+                                                               1536
+                                                           ]
+                                        },
+                                        {
+                                            "id":  "R02",
+                                            "path":  "assets/cards/corrida/R02.png",
+                                            "usage":  "Frente existente, leitura e aquisição local/LAN",
+                                            "origin":  "Acervo do projeto; direitos existentes preservados",
+                                            "decision":  "Manter arte e ID; renovar apresentação compartilhada",
+                                            "bytes":  3156939,
+                                            "dimensions":  [
+                                                               1024,
+                                                               1536
+                                                           ]
+                                        },
+                                        {
+                                            "id":  "R03",
+                                            "path":  "assets/cards/corrida/R03.png",
+                                            "usage":  "Frente existente, leitura e aquisição local/LAN",
+                                            "origin":  "Acervo do projeto; direitos existentes preservados",
+                                            "decision":  "Manter arte e ID; renovar apresentação compartilhada",
+                                            "bytes":  3065809,
+                                            "dimensions":  [
+                                                               1024,
+                                                               1536
+                                                           ]
+                                        },
+                                        {
+                                            "id":  "R04",
+                                            "path":  "assets/cards/corrida/R04.png",
+                                            "usage":  "Frente existente, leitura e aquisição local/LAN",
+                                            "origin":  "Acervo do projeto; direitos existentes preservados",
+                                            "decision":  "Manter arte e ID; renovar apresentação compartilhada",
+                                            "bytes":  3209712,
+                                            "dimensions":  [
+                                                               1024,
+                                                               1536
+                                                           ]
+                                        },
+                                        {
+                                            "id":  "R05",
+                                            "path":  "assets/cards/corrida/R05.png",
+                                            "usage":  "Frente existente, leitura e aquisição local/LAN",
+                                            "origin":  "Acervo do projeto; direitos existentes preservados",
+                                            "decision":  "Manter arte e ID; renovar apresentação compartilhada",
+                                            "bytes":  3287723,
+                                            "dimensions":  [
+                                                               1024,
+                                                               1536
+                                                           ]
+                                        },
+                                        {
+                                            "id":  "R06",
+                                            "path":  "assets/cards/corrida/R06.png",
+                                            "usage":  "Frente existente, leitura e aquisição local/LAN",
+                                            "origin":  "Acervo do projeto; direitos existentes preservados",
+                                            "decision":  "Manter arte e ID; renovar apresentação compartilhada",
+                                            "bytes":  3073528,
+                                            "dimensions":  [
+                                                               1024,
+                                                               1536
+                                                           ]
+                                        },
+                                        {
+                                            "id":  "R07",
+                                            "path":  "assets/cards/corrida/R07.png",
+                                            "usage":  "Frente existente, leitura e aquisição local/LAN",
+                                            "origin":  "Acervo do projeto; direitos existentes preservados",
+                                            "decision":  "Manter arte e ID; renovar apresentação compartilhada",
+                                            "bytes":  3127050,
+                                            "dimensions":  [
+                                                               1024,
+                                                               1536
+                                                           ]
+                                        },
+                                        {
+                                            "id":  "R08",
+                                            "path":  "assets/cards/corrida/R08.png",
+                                            "usage":  "Frente existente, leitura e aquisição local/LAN",
+                                            "origin":  "Acervo do projeto; direitos existentes preservados",
+                                            "decision":  "Manter arte e ID; renovar apresentação compartilhada",
+                                            "bytes":  3158508,
+                                            "dimensions":  [
+                                                               1024,
+                                                               1536
+                                                           ]
+                                        },
+                                        {
+                                            "id":  "R09",
+                                            "path":  "assets/cards/corrida/R09.png",
+                                            "usage":  "Frente existente, leitura e aquisição local/LAN",
+                                            "origin":  "Acervo do projeto; direitos existentes preservados",
+                                            "decision":  "Manter arte e ID; renovar apresentação compartilhada",
+                                            "bytes":  3165248,
+                                            "dimensions":  [
+                                                               1024,
+                                                               1536
+                                                           ]
+                                        },
+                                        {
+                                            "id":  "R10",
+                                            "path":  "assets/cards/corrida/R10.png",
+                                            "usage":  "Frente existente, leitura e aquisição local/LAN",
+                                            "origin":  "Acervo do projeto; direitos existentes preservados",
+                                            "decision":  "Manter arte e ID; renovar apresentação compartilhada",
+                                            "bytes":  3115102,
+                                            "dimensions":  [
+                                                               1024,
+                                                               1536
+                                                           ]
+                                        },
+                                        {
+                                            "id":  "R11",
+                                            "path":  "assets/cards/corrida/R11.png",
+                                            "usage":  "Frente existente, leitura e aquisição local/LAN",
+                                            "origin":  "Acervo do projeto; direitos existentes preservados",
+                                            "decision":  "Manter arte e ID; renovar apresentação compartilhada",
+                                            "bytes":  3209101,
+                                            "dimensions":  [
+                                                               1024,
+                                                               1536
+                                                           ]
+                                        },
+                                        {
+                                            "id":  "R12",
+                                            "path":  "assets/cards/corrida/R12.png",
+                                            "usage":  "Frente existente, leitura e aquisição local/LAN",
+                                            "origin":  "Acervo do projeto; direitos existentes preservados",
+                                            "decision":  "Manter arte e ID; renovar apresentação compartilhada",
+                                            "bytes":  3176244,
+                                            "dimensions":  [
+                                                               1024,
+                                                               1536
+                                                           ]
+                                        },
+                                        {
+                                            "id":  "R13",
+                                            "path":  "assets/cards/corrida/R13.png",
+                                            "usage":  "Frente existente, leitura e aquisição local/LAN",
+                                            "origin":  "Acervo do projeto; direitos existentes preservados",
+                                            "decision":  "Manter arte e ID; renovar apresentação compartilhada",
+                                            "bytes":  3065521,
+                                            "dimensions":  [
+                                                               1024,
+                                                               1536
+                                                           ]
+                                        },
+                                        {
+                                            "id":  "R14",
+                                            "path":  "assets/cards/corrida/R14.png",
+                                            "usage":  "Frente existente, leitura e aquisição local/LAN",
+                                            "origin":  "Acervo do projeto; direitos existentes preservados",
+                                            "decision":  "Manter arte e ID; renovar apresentação compartilhada",
+                                            "bytes":  3130626,
+                                            "dimensions":  [
+                                                               1024,
+                                                               1536
+                                                           ]
+                                        },
+                                        {
+                                            "id":  "R15",
+                                            "path":  "assets/cards/corrida/R15.png",
+                                            "usage":  "Frente existente, leitura e aquisição local/LAN",
+                                            "origin":  "Acervo do projeto; direitos existentes preservados",
+                                            "decision":  "Manter arte e ID; renovar apresentação compartilhada",
+                                            "bytes":  3093949,
+                                            "dimensions":  [
+                                                               1024,
+                                                               1536
+                                                           ]
+                                        },
+                                        {
+                                            "id":  "R16",
+                                            "path":  "assets/cards/corrida/R16.png",
+                                            "usage":  "Frente existente, leitura e aquisição local/LAN",
+                                            "origin":  "Acervo do projeto; direitos existentes preservados",
+                                            "decision":  "Manter arte e ID; renovar apresentação compartilhada",
+                                            "bytes":  3151378,
+                                            "dimensions":  [
+                                                               1024,
+                                                               1536
+                                                           ]
+                                        },
+                                        {
+                                            "id":  "V01",
+                                            "path":  "assets/cards/eventos/V01.png",
+                                            "usage":  "Frente existente, leitura e aquisição local/LAN",
+                                            "origin":  "Acervo do projeto; direitos existentes preservados",
+                                            "decision":  "Manter arte e ID; renovar apresentação compartilhada",
+                                            "bytes":  3106921,
+                                            "dimensions":  [
+                                                               1024,
+                                                               1536
+                                                           ]
+                                        },
+                                        {
+                                            "id":  "V02",
+                                            "path":  "assets/cards/eventos/V02.png",
+                                            "usage":  "Frente existente, leitura e aquisição local/LAN",
+                                            "origin":  "Acervo do projeto; direitos existentes preservados",
+                                            "decision":  "Manter arte e ID; renovar apresentação compartilhada",
+                                            "bytes":  3133852,
+                                            "dimensions":  [
+                                                               1024,
+                                                               1536
+                                                           ]
+                                        },
+                                        {
+                                            "id":  "V03",
+                                            "path":  "assets/cards/eventos/V03.png",
+                                            "usage":  "Frente existente, leitura e aquisição local/LAN",
+                                            "origin":  "Acervo do projeto; direitos existentes preservados",
+                                            "decision":  "Manter arte e ID; renovar apresentação compartilhada",
+                                            "bytes":  3203411,
+                                            "dimensions":  [
+                                                               1024,
+                                                               1536
+                                                           ]
+                                        },
+                                        {
+                                            "id":  "V04",
+                                            "path":  "assets/cards/eventos/V04.png",
+                                            "usage":  "Frente existente, leitura e aquisição local/LAN",
+                                            "origin":  "Acervo do projeto; direitos existentes preservados",
+                                            "decision":  "Manter arte e ID; renovar apresentação compartilhada",
+                                            "bytes":  3166148,
+                                            "dimensions":  [
+                                                               1024,
+                                                               1536
+                                                           ]
+                                        },
+                                        {
+                                            "id":  "V05",
+                                            "path":  "assets/cards/eventos/V05.png",
+                                            "usage":  "Frente existente, leitura e aquisição local/LAN",
+                                            "origin":  "Acervo do projeto; direitos existentes preservados",
+                                            "decision":  "Manter arte e ID; renovar apresentação compartilhada",
+                                            "bytes":  3122660,
+                                            "dimensions":  [
+                                                               1024,
+                                                               1536
+                                                           ]
+                                        },
+                                        {
+                                            "id":  "V06",
+                                            "path":  "assets/cards/eventos/V06.png",
+                                            "usage":  "Frente existente, leitura e aquisição local/LAN",
+                                            "origin":  "Acervo do projeto; direitos existentes preservados",
+                                            "decision":  "Manter arte e ID; renovar apresentação compartilhada",
+                                            "bytes":  3294173,
+                                            "dimensions":  [
+                                                               1024,
+                                                               1536
+                                                           ]
+                                        },
+                                        {
+                                            "id":  "V07",
+                                            "path":  "assets/cards/eventos/V07.png",
+                                            "usage":  "Frente existente, leitura e aquisição local/LAN",
+                                            "origin":  "Acervo do projeto; direitos existentes preservados",
+                                            "decision":  "Manter arte e ID; renovar apresentação compartilhada",
+                                            "bytes":  3238031,
+                                            "dimensions":  [
+                                                               1024,
+                                                               1536
+                                                           ]
+                                        },
+                                        {
+                                            "id":  "V08",
+                                            "path":  "assets/cards/eventos/V08.png",
+                                            "usage":  "Frente existente, leitura e aquisição local/LAN",
+                                            "origin":  "Acervo do projeto; direitos existentes preservados",
+                                            "decision":  "Manter arte e ID; renovar apresentação compartilhada",
+                                            "bytes":  3056544,
+                                            "dimensions":  [
+                                                               1024,
+                                                               1536
+                                                           ]
+                                        },
+                                        {
+                                            "id":  "V09",
+                                            "path":  "assets/cards/eventos/V09.png",
+                                            "usage":  "Frente existente, leitura e aquisição local/LAN",
+                                            "origin":  "Acervo do projeto; direitos existentes preservados",
+                                            "decision":  "Manter arte e ID; renovar apresentação compartilhada",
+                                            "bytes":  3158574,
+                                            "dimensions":  [
+                                                               1024,
+                                                               1536
+                                                           ]
+                                        },
+                                        {
+                                            "id":  "V10",
+                                            "path":  "assets/cards/eventos/V10.png",
+                                            "usage":  "Frente existente, leitura e aquisição local/LAN",
+                                            "origin":  "Acervo do projeto; direitos existentes preservados",
+                                            "decision":  "Manter arte e ID; renovar apresentação compartilhada",
+                                            "bytes":  3243867,
+                                            "dimensions":  [
+                                                               1024,
+                                                               1536
+                                                           ]
+                                        },
+                                        {
+                                            "id":  "V11",
+                                            "path":  "assets/cards/eventos/V11.png",
+                                            "usage":  "Frente existente, leitura e aquisição local/LAN",
+                                            "origin":  "Acervo do projeto; direitos existentes preservados",
+                                            "decision":  "Manter arte e ID; renovar apresentação compartilhada",
+                                            "bytes":  3123887,
+                                            "dimensions":  [
+                                                               1024,
+                                                               1536
+                                                           ]
+                                        },
+                                        {
+                                            "id":  "V12",
+                                            "path":  "assets/cards/eventos/V12.png",
+                                            "usage":  "Frente existente, leitura e aquisição local/LAN",
+                                            "origin":  "Acervo do projeto; direitos existentes preservados",
+                                            "decision":  "Manter arte e ID; renovar apresentação compartilhada",
+                                            "bytes":  3091930,
+                                            "dimensions":  [
+                                                               1024,
+                                                               1536
+                                                           ]
+                                        },
+                                        {
+                                            "id":  "V13",
+                                            "path":  "assets/cards/eventos/V13.png",
+                                            "usage":  "Frente existente, leitura e aquisição local/LAN",
+                                            "origin":  "Acervo do projeto; direitos existentes preservados",
+                                            "decision":  "Manter arte e ID; renovar apresentação compartilhada",
+                                            "bytes":  3139511,
+                                            "dimensions":  [
+                                                               1024,
+                                                               1536
+                                                           ]
+                                        },
+                                        {
+                                            "id":  "V14",
+                                            "path":  "assets/cards/eventos/V14.png",
+                                            "usage":  "Frente existente, leitura e aquisição local/LAN",
+                                            "origin":  "Acervo do projeto; direitos existentes preservados",
+                                            "decision":  "Manter arte e ID; renovar apresentação compartilhada",
+                                            "bytes":  3240221,
+                                            "dimensions":  [
+                                                               1024,
+                                                               1536
+                                                           ]
+                                        },
+                                        {
+                                            "id":  "V15",
+                                            "path":  "assets/cards/eventos/V15.png",
+                                            "usage":  "Frente existente, leitura e aquisição local/LAN",
+                                            "origin":  "Acervo do projeto; direitos existentes preservados",
+                                            "decision":  "Manter arte e ID; renovar apresentação compartilhada",
+                                            "bytes":  3160320,
+                                            "dimensions":  [
+                                                               1024,
+                                                               1536
+                                                           ]
+                                        },
+                                        {
+                                            "id":  "V16",
+                                            "path":  "assets/cards/eventos/V16.png",
+                                            "usage":  "Frente existente, leitura e aquisição local/LAN",
+                                            "origin":  "Acervo do projeto; direitos existentes preservados",
+                                            "decision":  "Manter arte e ID; renovar apresentação compartilhada",
+                                            "bytes":  3253481,
+                                            "dimensions":  [
+                                                               1024,
+                                                               1536
+                                                           ]
+                                        },
+                                        {
+                                            "id":  "vehicle-hatch",
+                                            "path":  "assets/vehicles/hatch-lateral.png",
+                                            "usage":  "Resumo, detalhes, combate e corrida",
+                                            "origin":  "Acervo do projeto",
+                                            "decision":  "Manter por preferência explícita do usuário, incluindo spritesheets existentes",
+                                            "bytes":  2170819,
+                                            "dimensions":  [
+                                                               1774,
+                                                               887
+                                                           ]
+                                        },
+                                        {
+                                            "id":  "vehicle-sedan",
+                                            "path":  "assets/vehicles/sedan-lateral.png",
+                                            "usage":  "Resumo, detalhes, combate e corrida",
+                                            "origin":  "Acervo do projeto",
+                                            "decision":  "Manter por preferência explícita do usuário, incluindo spritesheets existentes",
+                                            "bytes":  1773141,
+                                            "dimensions":  [
+                                                               1774,
+                                                               887
+                                                           ]
+                                        },
+                                        {
+                                            "id":  "vehicle-suv",
+                                            "path":  "assets/vehicles/suv-lateral.png",
+                                            "usage":  "Resumo, detalhes, combate e corrida",
+                                            "origin":  "Acervo do projeto",
+                                            "decision":  "Manter por preferência explícita do usuário, incluindo spritesheets existentes",
+                                            "bytes":  2468501,
+                                            "dimensions":  [
+                                                               1536,
+                                                               1024
+                                                           ]
+                                        },
+                                        {
+                                            "id":  "vehicle-picape",
+                                            "path":  "assets/vehicles/picape-lateral.png",
+                                            "usage":  "Resumo, detalhes, combate e corrida",
+                                            "origin":  "Acervo do projeto",
+                                            "decision":  "Manter por preferência explícita do usuário, incluindo spritesheets existentes",
+                                            "bytes":  2037620,
+                                            "dimensions":  [
+                                                               1774,
+                                                               887
+                                                           ]
+                                        },
+                                        {
+                                            "id":  "vehicle-moto",
+                                            "path":  "assets/vehicles/moto-lateral.png",
+                                            "usage":  "Resumo, detalhes, combate e corrida",
+                                            "origin":  "Acervo do projeto",
+                                            "decision":  "Manter por preferência explícita do usuário, incluindo spritesheets existentes",
+                                            "bytes":  2584406,
+                                            "dimensions":  [
+                                                               1536,
+                                                               1024
+                                                           ]
+                                        },
+                                        {
+                                            "id":  "terrain-premium",
+                                            "path":  "assets/premium/terrain.png",
+                                            "usage":  "Núcleo do tabuleiro local/LAN/TV",
+                                            "origin":  "image_gen integrado; revisão da arte original do projeto; CREDITS.md",
+                                            "decision":  "Integrado; original preservado",
+                                            "bytes":  3443761,
+                                            "dimensions":  [
+                                                               1448,
+                                                               1086
+                                                           ]
+                                        },
+                                        {
+                                            "id":  "margins-premium",
+                                            "path":  "assets/premium/margins.png",
+                                            "usage":  "Margens sem cidades ou conexões",
+                                            "origin":  "image_gen integrado; CREDITS.md",
+                                            "decision":  "Integrado",
+                                            "bytes":  2958003,
+                                            "dimensions":  [
+                                                               1536,
+                                                               1024
+                                                           ]
+                                        },
+                                        {
+                                            "id":  "icon-attack",
+                                            "path":  "assets/premium/icons/attack.svg",
+                                            "usage":  "Controles e operações",
+                                            "origin":  "Código vetorial do projeto; derivados preservam originais",
+                                            "decision":  "Integrado como família compartilhada; sem texto funcional embutido",
+                                            "bytes":  257,
+                                            "dimensions":  null
+                                        },
+                                        {
+                                            "id":  "icon-cargo",
+                                            "path":  "assets/premium/icons/cargo.svg",
+                                            "usage":  "Controles e operações",
+                                            "origin":  "Código vetorial do projeto; derivados preservam originais",
+                                            "decision":  "Integrado como família compartilhada; sem texto funcional embutido",
+                                            "bytes":  242,
+                                            "dimensions":  null
+                                        },
+                                        {
+                                            "id":  "icon-close",
+                                            "path":  "assets/premium/icons/close.svg",
+                                            "usage":  "Controles e operações",
+                                            "origin":  "Código vetorial do projeto; derivados preservam originais",
+                                            "decision":  "Integrado como família compartilhada; sem texto funcional embutido",
+                                            "bytes":  216,
+                                            "dimensions":  null
+                                        },
+                                        {
+                                            "id":  "icon-depot",
+                                            "path":  "assets/premium/icons/depot.svg",
+                                            "usage":  "Controles e operações",
+                                            "origin":  "Código vetorial do projeto; derivados preservam originais",
+                                            "decision":  "Integrado como família compartilhada; sem texto funcional embutido",
+                                            "bytes":  269,
+                                            "dimensions":  null
+                                        },
+                                        {
+                                            "id":  "icon-explore",
+                                            "path":  "assets/premium/icons/explore.svg",
+                                            "usage":  "Controles e operações",
+                                            "origin":  "Código vetorial do projeto; derivados preservam originais",
+                                            "decision":  "Integrado como família compartilhada; sem texto funcional embutido",
+                                            "bytes":  279,
+                                            "dimensions":  null
+                                        },
+                                        {
+                                            "id":  "icon-history",
+                                            "path":  "assets/premium/icons/history.svg",
+                                            "usage":  "Controles e operações",
+                                            "origin":  "Código vetorial do projeto; derivados preservam originais",
+                                            "decision":  "Integrado como família compartilhada; sem texto funcional embutido",
+                                            "bytes":  233,
+                                            "dimensions":  null
+                                        },
+                                        {
+                                            "id":  "icon-locate",
+                                            "path":  "assets/premium/icons/locate.svg",
+                                            "usage":  "Controles e operações",
+                                            "origin":  "Código vetorial do projeto; derivados preservam originais",
+                                            "decision":  "Integrado como família compartilhada; sem texto funcional embutido",
+                                            "bytes":  288,
+                                            "dimensions":  null
+                                        },
+                                        {
+                                            "id":  "icon-map",
+                                            "path":  "assets/premium/icons/map.svg",
+                                            "usage":  "Controles e operações",
+                                            "origin":  "Código vetorial do projeto; derivados preservam originais",
+                                            "decision":  "Integrado como família compartilhada; sem texto funcional embutido",
+                                            "bytes":  244,
+                                            "dimensions":  null
+                                        },
+                                        {
+                                            "id":  "icon-menu",
+                                            "path":  "assets/premium/icons/menu.svg",
+                                            "usage":  "Controles e operações",
+                                            "origin":  "Código vetorial do projeto; derivados preservam originais",
+                                            "decision":  "Integrado como família compartilhada; sem texto funcional embutido",
+                                            "bytes":  219,
+                                            "dimensions":  null
+                                        }
+                                    ],
+                          "Count":  90
+                      },
+                      {
+                          "id":  "assets/ui/fonts/Barlow-Regular.ttf",
+                          "path":  "assets/ui/fonts/Barlow-Regular.ttf",
+                          "usage":  "Acervo original; fonte de geometria, tipografia ou peça mantida",
+                          "origin":  "Projeto existente; licença de fonte SIL OFL quando aplicável",
+                          "decision":  "Preservar original",
+                          "bytes":  104068,
+                          "dimensions":  null
+                      },
+                      {
+                          "id":  "assets/ui/fonts/Barlow-SemiBold.ttf",
+                          "path":  "assets/ui/fonts/Barlow-SemiBold.ttf",
+                          "usage":  "Acervo original; fonte de geometria, tipografia ou peça mantida",
+                          "origin":  "Projeto existente; licença de fonte SIL OFL quando aplicável",
+                          "decision":  "Preservar original",
+                          "bytes":  108348,
+                          "dimensions":  null
+                      },
+                      {
+                          "id":  "assets/ui/fonts/Barlow-OFL.txt",
+                          "path":  "assets/ui/fonts/Barlow-OFL.txt",
+                          "usage":  "Acervo original; fonte de geometria, tipografia ou peça mantida",
+                          "origin":  "Projeto existente; licença de fonte SIL OFL quando aplicável",
+                          "decision":  "Preservar original",
+                          "bytes":  4377,
+                          "dimensions":  null
+                      },
+                      {
+                          "id":  "assets/mapa-terreno-alinhado-v3.png",
+                          "path":  "assets/mapa-terreno-alinhado-v3.png",
+                          "usage":  "Acervo original; fonte de geometria, tipografia ou peça mantida",
+                          "origin":  "Projeto existente; licença de fonte SIL OFL quando aplicável",
+                          "decision":  "Preservar original",
+                          "bytes":  4187556,
+                          "dimensions":  null
+                      },
+                      {
+                          "id":  "assets/mapa-margens-sem-rotas-v3.png",
+                          "path":  "assets/mapa-margens-sem-rotas-v3.png",
+                          "usage":  "Acervo original; fonte de geometria, tipografia ou peça mantida",
+                          "origin":  "Projeto existente; licença de fonte SIL OFL quando aplicável",
+                          "decision":  "Preservar original",
+                          "bytes":  4026446,
+                          "dimensions":  null
+                      },
+                      {
+                          "id":  "assets/hatch-cima.png",
+                          "path":  "assets/hatch-cima.png",
+                          "usage":  "Acervo original; fonte de geometria, tipografia ou peça mantida",
+                          "origin":  "Projeto existente; licença de fonte SIL OFL quando aplicável",
+                          "decision":  "Preservar original",
+                          "bytes":  3081237,
+                          "dimensions":  null
+                      },
+                      {
+                          "id":  "assets/sedan-cima.png",
+                          "path":  "assets/sedan-cima.png",
+                          "usage":  "Acervo original; fonte de geometria, tipografia ou peça mantida",
+                          "origin":  "Projeto existente; licença de fonte SIL OFL quando aplicável",
+                          "decision":  "Preservar original",
+                          "bytes":  2855558,
+                          "dimensions":  null
+                      },
+                      {
+                          "id":  "assets/suv-cima.png",
+                          "path":  "assets/suv-cima.png",
+                          "usage":  "Acervo original; fonte de geometria, tipografia ou peça mantida",
+                          "origin":  "Projeto existente; licença de fonte SIL OFL quando aplicável",
+                          "decision":  "Preservar original",
+                          "bytes":  3025631,
+                          "dimensions":  null
+                      },
+                      {
+                          "id":  "assets/caminhonete-cima.png",
+                          "path":  "assets/caminhonete-cima.png",
+                          "usage":  "Acervo original; fonte de geometria, tipografia ou peça mantida",
+                          "origin":  "Projeto existente; licença de fonte SIL OFL quando aplicável",
+                          "decision":  "Preservar original",
+                          "bytes":  2886464,
+                          "dimensions":  null
+                      },
+                      {
+                          "id":  "assets/moto-cima.png",
+                          "path":  "assets/moto-cima.png",
+                          "usage":  "Acervo original; fonte de geometria, tipografia ou peça mantida",
+                          "origin":  "Projeto existente; licença de fonte SIL OFL quando aplicável",
+                          "decision":  "Preservar original",
+                          "bytes":  2487310,
+                          "dimensions":  null
+                      }
+                  ],
+        "Count":  11
+    },
+    {
+        "id":  "assets/cards/versos/geral.png",
+        "path":  "assets/cards/versos/geral.png",
+        "usage":  "Verso autorizado ou animação original",
+        "origin":  "Acervo do projeto",
+        "decision":  "Manter",
+        "bytes":  3926588,
+        "dimensions":  [
+                           1024,
+                           1536
+                       ]
+    },
+    {
+        "id":  "assets/cards/versos/evento-estrada.png",
+        "path":  "assets/cards/versos/evento-estrada.png",
+        "usage":  "Verso autorizado ou animação original",
+        "origin":  "Acervo do projeto",
+        "decision":  "Manter",
+        "bytes":  3979883,
+        "dimensions":  [
+                           1024,
+                           1536
+                       ]
+    },
+    {
+        "id":  "assets/cards/versos/equipamentos-melhorias.png",
+        "path":  "assets/cards/versos/equipamentos-melhorias.png",
+        "usage":  "Verso autorizado ou animação original",
+        "origin":  "Acervo do projeto",
+        "decision":  "Manter",
+        "bytes":  3998425,
+        "dimensions":  [
+                           1024,
+                           1536
+                       ]
+    },
+    {
+        "id":  "assets/cards/versos/surpresa-corrida.png",
+        "path":  "assets/cards/versos/surpresa-corrida.png",
+        "usage":  "Verso autorizado ou animação original",
+        "origin":  "Acervo do projeto",
+        "decision":  "Manter",
+        "bytes":  3526013,
+        "dimensions":  [
+                           1024,
+                           1536
+                       ]
+    },
+    {
+        "id":  "assets/vehicles/animacoes/hatch/hatch-spritesheet.png",
+        "path":  "assets/vehicles/animacoes/hatch/hatch-spritesheet.png",
+        "usage":  "Verso autorizado ou animação original",
+        "origin":  "Acervo do projeto",
+        "decision":  "Manter",
+        "bytes":  2698824,
+        "dimensions":  [
+                           5760,
+                           2560
+                       ]
+    },
+    {
+        "id":  "assets/vehicles/animacoes/sedan/sedan-spritesheet.png",
+        "path":  "assets/vehicles/animacoes/sedan/sedan-spritesheet.png",
+        "usage":  "Verso autorizado ou animação original",
+        "origin":  "Acervo do projeto",
+        "decision":  "Manter",
+        "bytes":  2345490,
+        "dimensions":  [
+                           5760,
+                           2560
+                       ]
+    },
+    {
+        "id":  "assets/vehicles/animacoes/suv/suv-spritesheet.png",
+        "path":  "assets/vehicles/animacoes/suv/suv-spritesheet.png",
+        "usage":  "Verso autorizado ou animação original",
+        "origin":  "Acervo do projeto",
+        "decision":  "Manter",
+        "bytes":  3342246,
+        "dimensions":  [
+                           5760,
+                           2560
+                       ]
+    },
+    {
+        "id":  "assets/vehicles/animacoes/caminhonete/caminhonete-spritesheet.png",
+        "path":  "assets/vehicles/animacoes/caminhonete/caminhonete-spritesheet.png",
+        "usage":  "Verso autorizado ou animação original",
+        "origin":  "Acervo do projeto",
+        "decision":  "Manter",
+        "bytes":  2706555,
+        "dimensions":  [
+                           5760,
+                           2560
+                       ]
+    },
+    {
+        "id":  "assets/vehicles/animacoes/moto/moto-spritesheet.png",
+        "path":  "assets/vehicles/animacoes/moto/moto-spritesheet.png",
+        "usage":  "Verso autorizado ou animação original",
+        "origin":  "Acervo do projeto",
+        "decision":  "Manter",
+        "bytes":  3474073,
+        "dimensions":  [
+                           5760,
+                           2560
+                       ]
+    }
+]

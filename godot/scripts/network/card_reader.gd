@@ -9,6 +9,8 @@ var text: Label
 var action: Button
 var close_button: Button
 var text_scroll: ScrollContainer
+var column: VBoxContainer
+var reading_row: HBoxContainer
 
 func _ready() -> void:
 	set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
@@ -24,10 +26,11 @@ func _ready() -> void:
 	panel = PanelContainer.new()
 	panel.set_script(preload("res://scripts/metal_panel.gd"))
 	center.add_child(panel)
-	var column: VBoxContainer = VBoxContainer.new()
+	column = VBoxContainer.new()
 	column.add_theme_constant_override("separation", 12)
 	panel.add_child(column)
 	var row: HBoxContainer = HBoxContainer.new()
+	reading_row = row
 	row.size_flags_vertical = Control.SIZE_EXPAND_FILL
 	row.add_theme_constant_override("separation", 20)
 	column.add_child(row)
@@ -55,6 +58,8 @@ func _ready() -> void:
 		if is_instance_valid(app.player_hud): app.player_hud.show_card_actions(app.inspected_card), buttons)
 	action.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	action.theme_type_variation = &"Primary"
+	close_button.theme_type_variation = &"Quiet"
+	preload("res://scripts/card_reader_layout.gd").footer(buttons)
 	resized.connect(fit)
 	fit()
 	hide()
@@ -70,9 +75,12 @@ func fit() -> void:
 	panel.custom_minimum_size = desired
 	panel.custom_maximum_size = desired
 	art.custom_minimum_size.x = clampf(desired.x * 0.34, 100, 300)
+	preload("res://scripts/card_reader_layout.gd").reserve_body(panel, column, reading_row)
 
 func popup_centered(_desired_size: Vector2i = Vector2i.ZERO) -> void:
 	app.card_zoom.dismiss()
+	# A ordem da árvore também determina o input; z_index só cobre o desenho.
+	get_parent().move_child(self, get_parent().get_child_count() - 1)
 	app.card_zoom.safe_insets = Layout.insets(self, app.device_profile)
 	fit()
 	text_scroll.scroll_vertical = 0

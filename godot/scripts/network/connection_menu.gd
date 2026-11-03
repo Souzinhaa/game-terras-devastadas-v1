@@ -6,6 +6,12 @@ var panel: PanelContainer
 var rooms: VBoxContainer
 var lobby_content: VBoxContainer
 var form: VBoxContainer
+var room_name: LineEdit
+var room_password: LineEdit
+var manual_password: LineEdit
+var password_dialog: ConfirmationDialog
+var password_input: LineEdit
+var password_target: Dictionary = {}
 var player_name: LineEdit
 var manual_ip: LineEdit
 var manual_port: SpinBox
@@ -28,10 +34,10 @@ var search_button: Button
 func _ready() -> void:
 	set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 	var background: TextureRect = TextureRect.new()
-	background.texture = preload("res://assets/mapa-expandido-v2.png")
+	background.texture = preload("res://assets/premium/terrain.png")
 	background.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
 	background.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_COVERED
-	background.modulate = Color(0.22, 0.26, 0.21)
+	background.modulate = Color(0.48, 0.48, 0.48)
 	background.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	add_child(background)
 	background.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
@@ -70,7 +76,7 @@ func _ready() -> void:
 	player_name.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	player_name.max_length = 32
 	player_name.placeholder_text = "Como você quer aparecer na sala?"
-	player_name.text = "Tabuleiro" if app.tv_mode else ""
+	player_name.text = "Tabuleiro" if app.tv_mode else str(preload("res://scripts/setup_preferences.gd").read().get_value("lan", "player", ""))
 	name_row.add_child(player_name)
 	player_name.text_submitted.connect(func(_text: String): DisplayServer.virtual_keyboard_hide(); player_name.release_focus())
 	var row: BoxContainer = BoxContainer.new()
@@ -84,7 +90,19 @@ func _ready() -> void:
 		host.add_theme_constant_override("separation", 12)
 		row.add_child(host)
 		app.label("CRIAR PARTIDA", host, 27).theme_type_variation = &"Heading"
-		app.label("Seu aparelho reúne os jogadores.\nA TV é opcional.", host, 20)
+		app.label("Seu aparelho reúne os jogadores. A TV é opcional.", host, 20)
+		room_name = LineEdit.new()
+		room_name.placeholder_text = "Nome da sala (opcional)"
+		room_name.max_length = 32
+		room_name.custom_minimum_size.y = 60
+		room_name.text = str(preload("res://scripts/setup_preferences.gd").read().get_value("lan", "room", ""))
+		host.add_child(room_name)
+		room_password = LineEdit.new()
+		room_password.placeholder_text = "Senha da sala (opcional)"
+		room_password.secret = true
+		room_password.max_length = 64
+		room_password.custom_minimum_size.y = 60
+		host.add_child(room_password)
 		var count_row: HBoxContainer = HBoxContainer.new()
 		host.add_child(count_row)
 		app.label("Jogadores", count_row, 20)
@@ -131,7 +149,23 @@ func _ready() -> void:
 	manual_port.max_value = 65535
 	manual_port.value = app.endpoint.PORT
 	fields.add_child(manual_port)
-	manual_dialog.confirmed.connect(func(): connect_room(manual_ip.text, int(manual_port.value)))
+	manual_password = LineEdit.new()
+	manual_password.placeholder_text = "Senha da sala (se houver)"
+	manual_password.secret = true
+	manual_password.max_length = 64
+	manual_password.custom_minimum_size.y = 60
+	fields.add_child(manual_password)
+	manual_dialog.confirmed.connect(func(): connect_room(manual_ip.text, int(manual_port.value), manual_password.text))
+	password_dialog = ConfirmationDialog.new()
+	password_dialog.title = "Senha da sala"
+	password_input = LineEdit.new()
+	password_input.secret = true
+	password_input.max_length = 64
+	password_input.placeholder_text = "Digite a senha"
+	password_input.custom_minimum_size = Vector2(320, 64)
+	password_dialog.add_child(password_input)
+	add_child(password_dialog)
+	password_dialog.confirmed.connect(func(): connect_room(password_target.ip, int(password_target.port), password_input.text))
 	resized.connect(fit)
 	fit()
 	assign_fields()
@@ -184,15 +218,17 @@ func show_connection() -> void:
 	app.endpoint.start_discovery()
 	refresh_rooms(true)
 
-func connect_room(ip: String, server_port: int) -> void:
+func connect_room(ip: String, server_port: int, password: String = "") -> void:
 	if player_name.text.strip_edges().is_empty():
 		status.text = "Informe seu nome antes de entrar."
 		player_name.grab_focus()
 		return
-	var error: String = app.endpoint.join(ip, player_name.text, app.tv_mode, server_port)
+	preload("res://scripts/setup_preferences.gd").remember_lan(player_name.text, room_name.text if is_instance_valid(room_name) else "")
+	var error: String = app.endpoint.join(ip, player_name.text, app.tv_mode, server_port, password)
 	status.text = "Conectando à sala…" if error.is_empty() else error
 
 func request_host(resume: bool) -> void:
+	preload("res://scripts/setup_preferences.gd").remember_lan(player_name.text, room_name.text)
 	assign_fields()
 	if not resume and FileAccess.file_exists("user://campaign-lan-v1.json"):
 		var prompt: ConfirmationDialog = ConfirmationDialog.new()
@@ -207,7 +243,7 @@ func refresh_rooms(force: bool = false) -> void:
 	var items: Array = app.endpoint.discovered.values()
 	items.sort_custom(func(a: Dictionary, b: Dictionary): return str(a.name) < str(b.name))
 	var descriptors: Array = []
-	for item: Dictionary in items: descriptors.append([item.ip, item.port, item.name, item.started])
+	for item: Dictionary in items: descriptors.append([item.ip, item.port, item.name, item.started, item.get("password_required", false)])
 	var signature: String = JSON.stringify(descriptors)
 	if not force and signature == room_signature: return
 	room_signature = signature
@@ -220,8 +256,8 @@ func refresh_rooms(force: bool = false) -> void:
 	if items.is_empty():
 		app.label("Buscando automaticamente…\nCrie uma sala em outro aparelho conectado à mesma rede.", rooms, 20)
 	for item: Dictionary in items.slice(room_page * 2, room_page * 2 + 2):
-		var caption: String = str(item.name) + (" · em andamento" if item.started else " · entrar")
-		app.button(caption, func(): connect_room(item.ip, int(item.port)), rooms).theme_type_variation = &"Primary"
+		var caption: String = str(item.name) + (" · com senha" if item.get("password_required", false) else "") + (" · em andamento" if item.started else " · entrar")
+		app.button(caption, func(): request_connection(item), rooms).theme_type_variation = &"Primary"
 	if page_count > 1:
 		var nav: HBoxContainer = HBoxContainer.new()
 		rooms.add_child(nav)
@@ -233,6 +269,14 @@ func refresh_rooms(force: bool = false) -> void:
 			for item: Node in rooms.get_children():
 				if item is Button and item.text == focused_caption: item.grab_focus(); break
 		wire_remote_focus()
+
+func request_connection(item: Dictionary) -> void:
+	if item.get("password_required", false):
+		password_target = item
+		password_input.clear()
+		password_dialog.popup_centered(Vector2i(460, 180))
+		password_input.grab_focus()
+	else: connect_room(item.ip, int(item.port))
 
 func wire_remote_focus() -> void:
 	# Uma lista circular previsível para o controle; não inclui campos do popup oculto.
@@ -261,7 +305,7 @@ func show_lobby() -> void:
 	if signature == lobby_signature: return
 	lobby_signature = signature
 	app.clear(lobby_content)
-	status.text = "SALA LAN · aguardando jogadores"
+	status.text = str(app.endpoint.lobby.get("name", "SALA LAN")) + " · aguardando jogadores"
 	for p: Dictionary in app.endpoint.lobby.get("players", []):
 		app.label("%s · %s%s" % [p.name, "pronto" if p.ready else "aguardando", " · ausente" if not p.connected else ""], lobby_content, 22)
 	if app.endpoint.mode == "host":

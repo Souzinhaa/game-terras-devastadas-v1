@@ -47,6 +47,7 @@ func build(authority: RefCounted, player_id: int) -> Dictionary:
 	public.race = {}
 	if not s.race.is_empty():
 		public.race = fields(s.race, ["track", "phase", "cursor", "final_round"])
+		public.race.merge(preload("res://scripts/race_board.gd").turn_state(g))
 		public.race.entrants = []
 		for entry: Dictionary in s.race.entrants: public.race.entrants.append(fields(entry, ["player_id", "progress", "withdrawn"]))
 		public.race.last = fields(s.race.get("last", {}), ["player_id", "natural", "modifier", "advance"])
@@ -83,17 +84,20 @@ func build(authority: RefCounted, player_id: int) -> Dictionary:
 		for id: String in s.territories:
 			var t: Dictionary = s.territories[id]
 			if int(t.owner) == player_id: own.depots[id] = fields(t.stock, g.RESOURCES)
+		own.vehicle_models = g.campaign.vehicle_models(p)
+		own.vehicle_model = str(p.model)
 		view.private = own
 		for option: Dictionary in authority.options(player_id):
 			# Somente metadados de apresentação. Argumentos e índices ficam na autoridade.
 			var presented: Dictionary = fields(option, ["id", "label", "group", "confirm", "action"])
-			if option.action == "combatCard" and int(option.args.get("index", -1)) >= 0:
+			presented.consumes_action = preload("res://scripts/turn_action_style.gd").costs_action(g, option.action, option.args)
+			if option.action in ["combatCard", "playGeneral"] and int(option.args.get("index", -1)) >= 0:
 				presented.card_id = str(p.hand[int(option.args.index)])
 			if option.action == "cardChoice" and option.args.is_empty() and s.choice.get("revealed", false) and s.choice.get("kind", "") in ["event", "surprise"]:
 				presented.automatic = true
-			if option.action in ["move", "combatEscape"]: presented.route = str(option.args.route)
+			if option.action in ["move", "combatEscape", "playGeneral"] and option.args.has("route"): presented.route = str(option.args.route)
 			if option.args.has("territory"): presented.territory = str(option.args.territory)
-			for key: String in ["resource", "supply"]:
+			for key: String in ["resource", "supply", "model"]:
 				if option.args.has(key): presented[key] = str(option.args[key])
 			view.options.append(presented)
 	return view

@@ -31,7 +31,7 @@ func run() -> void:
 	for p in app.game.state.players: p.hand.clear()
 	app.refresh()
 	await process_frame
-	check(app.vehicle_portrait.texture.resource_path.ends_with("-lateral.png"), "Imagem lateral no resumo")
+	check(app.vehicle_portrait.texture.resource_path == preload("res://scripts/vehicle_art.gd").side_path(str(app.game.player().model), int(app.game.player().id)), "Imagem lateral na cor do dono no resumo")
 	check(not app.vehicle_panel.visible, "Painel grande começa recolhido")
 	app.toggle_map_mode()
 	check(not app.hud_margin.visible, "Mapa livre remove HUD")
@@ -47,7 +47,7 @@ func run() -> void:
 	root.get_texture().get_image().save_png("res://../.tools/map-free-preview.png")
 	app.toggle_map_mode()
 	app.vehicle_portrait.drive(0.2, true)
-	check(app.vehicle_portrait.texture is AtlasTexture and app.vehicle_portrait.driving_frames.size() == 24, "24 quadros andando, com recorte individual")
+	check(app.vehicle_portrait.texture == app.vehicle_portrait.idle_texture and app.vehicle_portrait.flip_h, "Movimento preserva a pintura do jogador e a orientação")
 	await create_timer(0.3).timeout
 	check(app.vehicle_portrait.texture == app.vehicle_portrait.idle_texture, "Retorna ao repouso")
 	var territory = ""

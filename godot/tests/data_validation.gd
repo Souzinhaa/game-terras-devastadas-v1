@@ -40,9 +40,6 @@ func _initialize() -> void:
 				g.player().model = model
 				var allowed = "rural" in g.vehicle().allowedSurfaces
 				if g.route_reason(dirt_access).is_empty() != allowed: failures.append("Dirt access vehicle restriction " + model + " / " + endpoint)
-	for name in ["cards", "catalog", "cities", "effect-markers", "hostiles", "map-view", "marker-shapes", "rebalance", "resources", "routes", "vehicles"]:
-		var source = "res://../src/data/%s.json" % name
-		if FileAccess.file_exists(source) and Game.read_data(name) != JSON.parse_string(FileAccess.get_file_as_string(source)): failures.append("Data drift " + name)
 	var report = FileAccess.open("res://../.tools/card-support.json", FileAccess.WRITE)
 	if report: report.store_string(JSON.stringify(support, "\t"))
 	for failure in failures: push_error(failure)

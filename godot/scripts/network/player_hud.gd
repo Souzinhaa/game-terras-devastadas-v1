@@ -21,7 +21,7 @@ var depot_operation: String = ""
 const VEHICLE_SECTIONS = {
 	"Abastecer / recursos": ["refuel", "refuelExcess", "unloadFuel", "salvageSupply", "collectScrap", "winch"],
 	"Reparar": ["repair", "repairComplex", "repairFound"],
-	"Melhorar / trocar": ["buyImprovement", "upgradeVehicle", "swap"],
+	"Melhorar Veículo": ["buyImprovement", "upgradeVehicle", "swap"],
 }
 var page_index: int = 0
 var menu_signature: String = ""
@@ -50,9 +50,10 @@ func _ready() -> void:
 	preload("res://scripts/vehicle_details.gd").bind(layout.get_node("VehicleSummary/Body/Portrait"), func(): app.show_vehicle_details(int(app.endpoint.local_player_id)))
 	hand = layout.get_node("HandDock")
 	hand.card_selected.connect(func(index: int): app.show_card(app.endpoint.view.private.hand[index].card_id))
-	layout.get_node("TopBar/Row/Menu").icon = load("res://assets/ui/icons/menu.svg")
+	layout.get_node("TopBar/Row/Menu").icon = load("res://assets/premium/icons/menu.svg")
 	layout.get_node("TopBar/Row/Menu").pressed.connect(show_menu)
 	layout.get_node("Actions/Local").pressed.connect(show_groups)
+	preload("res://scripts/ui_operations.gd").quick_actions(layout, [app.show_travel_map, func(): show_city_activity("explore"), func(): show_city_activity("attack"), func(): show_city_activity("depot")])
 	layout.get_node("Actions/Turn").pressed.connect(turn_action)
 	layout.get_node("VehicleSummary/Body/Cargo").pressed.connect(func(): drawer.visible = not drawer.visible)
 	for key: String in ["Health", "Fuel"]:
@@ -61,34 +62,32 @@ func _ready() -> void:
 		fill.set_corner_radius_all(3)
 		layout.get_node("VehicleSummary/Body/" + key).add_theme_stylebox_override("fill", fill)
 	var tools: Control = layout.get_node("MapTools")
-	tools.get_node("Fit").icon = load("res://assets/ui/icons/map.svg")
+	tools.get_node("Fit").icon = load("res://assets/premium/icons/map.svg")
 	tools.get_node("Fit").pressed.connect(func(): map_only = not map_only; fit())
-	tools.get_node("Locate").icon = load("res://assets/ui/icons/locate.svg")
+	tools.get_node("Locate").icon = load("res://assets/premium/icons/locate.svg")
 	tools.get_node("Locate").pressed.connect(locate_self)
 	tools.get_node("ZoomIn").pressed.connect(func(): app.board.change_zoom(1.2, size / 2))
 	tools.get_node("ZoomOut").pressed.connect(func(): app.board.change_zoom(1 / 1.2, size / 2))
 	drawer = layout.get_node("CargoDrawer")
+	preload("res://scripts/ui_operations.gd").dismiss_cargo_on_map(app.board, drawer)
 	var content: VBoxContainer = drawer.get_node("Scroll/Content")
-	app.label("CARGA DO VEÍCULO", content, 25)
+	app.label("CARGA", content, 25)
 	app.button("Fechar", drawer.hide, content)
 	var grid: GridContainer = GridContainer.new()
-	grid.columns = 3
+	grid.columns = 2
+	grid.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	grid.add_theme_constant_override("h_separation", 12)
+	grid.add_theme_constant_override("v_separation", 12)
 	content.add_child(grid)
 	var icon_names: Dictionary = {"fuel": "combustivel", "scrap": "sucata", "ammo": "municao", "tire": "pneu", "battery": "bateria", "water": "agua"}
 	for key: String in RESOURCE_NAMES:
-		var icon: TextureRect = TextureRect.new()
-		icon.texture = load("res://assets/ui/resources/" + icon_names[key] + ".png")
-		icon.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
-		icon.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
-		icon.custom_minimum_size = Vector2(36, 36)
-		grid.add_child(icon)
-		var caption: Label = app.label(RESOURCE_NAMES[key], grid, 20)
-		caption.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-		resources[key] = app.label("0", grid, 20)
-		resources[key].custom_minimum_size.x = 64
-		resources[key].horizontal_alignment = HORIZONTAL_ALIGNMENT_RIGHT
-	app.button("Abastecer / reparar", func(): show_group("Veículo"), content)
-	app.button("Depósitos da cidade", func(): show_group("Depósitos"), content)
+		resources[key] = preload("res://scripts/ui_resource_tile.gd").create(grid, key, RESOURCE_NAMES[key], load("res://assets/ui/resources/" + icon_names[key] + ".png"))
+	app.button("Abastecer", func(): open_vehicle_section("Abastecer / recursos"), content)
+	app.button("Reparar", func(): open_vehicle_section("Reparar"), content)
+	app.button("Melhorar veículo", func(): open_vehicle_section("Melhorar Veículo"), content)
+	app.button("Depósitos", func(): show_city_activity("depot"), content)
+	app.button("Descartar", func(): show_group("Descartar"), content)
+
 	sheet = preload("res://scenes/ui/city_panel.tscn").instantiate()
 	add_child(sheet)
 	sheet.z_index = 20
@@ -104,7 +103,7 @@ func _ready() -> void:
 	notifications.offset_right = 330
 	notifications.offset_top = 88
 	lock_screen = ColorRect.new()
-	lock_screen.color = Color("131c18")
+	lock_screen.color = preload("res://scripts/ui_style.gd").SURFACE
 	lock_screen.z_index = 90
 	add_child(lock_screen)
 	lock_screen.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
@@ -147,7 +146,7 @@ func _ready() -> void:
 	add_child(match_activity)
 	match_activity.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	match_activity_text = app.label("", match_activity, 18)
-	match_activity_text.max_lines_visible = 3
+	match_activity_text.max_lines_visible = 2
 	match_activity_text.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	resized.connect(fit)
 	fit()
@@ -187,9 +186,8 @@ func refresh() -> void:
 	public_panel.size = Vector2(maxf(300, size.x * 0.57), minf(400, size.y - public_top - 90))
 	activity.text = str(public.get("waiting", ""))
 	var recent: Array = public.get("activity", [])
-	match_activity_text.text = str(public.get("waiting", ""))
-	if not recent.is_empty(): match_activity_text.text += "\nÚltima ação: " + str(recent.back().message)
-	match_activity.visible = not public_panel.visible
+	match_activity_text.text = str(recent.back().message) if not recent.is_empty() else ""
+	match_activity.visible = not public_panel.visible and not recent.is_empty()
 	public_arena.sync_public(public.combat, activity.text, app.endpoint.reduced_motion)
 	race_board.sync(public.race, public.players, app.endpoint.reduced_motion, str(view.match_id) + ":" + str(view.epoch))
 	if public_panel.visible:
@@ -202,7 +200,7 @@ func refresh() -> void:
 	preload("res://scripts/hud_presentation.gd").header(layout, active, int(public.turn))
 	layout.get_node("TopBar/Row/Turn").tooltip_text = "Você: " + p.name + (" · reconectando" if not app.endpoint.connected else "")
 	var body: Control = layout.get_node("VehicleSummary/Body")
-	body.get_node("Portrait").setup(p.model)
+	body.get_node("Portrait").setup(p.model, int(p.id))
 	body.get_node("Model").text = str(p.model).to_upper()
 	body.get_node("Stats").text = "Estrutura %d/%d · tanque %d/%d" % [int(p.integrity), int(STATS[p.model]), int(own.fuel), int(own.tank)]
 	body.get_node("Health").max_value = STATS[p.model]
@@ -252,6 +250,9 @@ func refresh() -> void:
 	layout.get_node("Actions/Local").text = "Escolher ação" if int(active.id) == int(p.id) else "Acompanhar / minhas ações"
 	if not public.combat.is_empty(): layout.get_node("Actions/Local").text = "Opções do combate"
 	elif not public.race.is_empty(): layout.get_node("Actions/Local").text = "Opções da corrida"
+	var quick: bool = not preparing and int(active.id) == int(p.id) and public.combat.is_empty() and public.race.is_empty() and public.loot.is_empty() and own.choice.is_empty() and not own.get("hand_excess", false)
+	preload("res://scripts/ui_operations.gd").update_quick_actions(layout, quick)
+	layout.get_node("Actions/Hint").visible = not preparing and (int(own.cargo) > int(own.capacity) or own.get("hand_excess", false) or not quick)
 	if app.travel_presentation.visible or app.encounter_reveal.visible or app.escape_picker.visible:
 		public_panel.hide()
 		match_activity.hide()
@@ -275,6 +276,7 @@ func refresh() -> void:
 		elif screen_mode == "depot_resources": show_depot_resources(city_sector, depot_operation)
 		elif screen_mode == "management": show_management()
 		elif screen_mode == "vehicle_menu": show_vehicle_menu()
+		elif screen_mode == "equipment": show_equipment()
 		elif screen_mode == "extra_actions": show_extra_actions()
 		elif screen_mode == "activity": show_activity()
 	if not public.loot.is_empty() or not own.choice.is_empty():
@@ -300,6 +302,8 @@ func render_encounter_commands() -> void:
 		var source: Dictionary = combat.left if preload("res://scripts/combat_view.gd").shown_side(combat) == 0 else combat.right
 		var hint: Label = app.label("Dado de " + str(source.name), encounter_commands, 21)
 		hint.add_theme_color_override("font_color", preload("res://scripts/combat_view.gd").fighter_color(source))
+	if not view.public.race.is_empty():
+		app.label(preload("res://scripts/race_board.gd").turn_caption(view.public.race, view.public.players), encounter_commands, 22)
 	var choices: Array = []
 	var extras: Array = []
 	var has_escape: bool = false
@@ -332,6 +336,13 @@ func encounter_button(option: Dictionary, parent: Node) -> void:
 		button.expand_icon = true
 		button.add_theme_constant_override("icon_max_width", 44)
 		button.tooltip_text = str(definition.rulesText)
+	preload("res://scripts/turn_action_style.gd").apply(button, option.get("consumes_action", false))
+	if option.action in ["raceRoll", "racePass", "raceGeneral"]:
+		var own: Dictionary = own_player()
+		var color: Color = preload("res://scripts/player_palette.gd").COLORS[int(own.id)]
+		button.add_theme_stylebox_override("normal", preload("res://scripts/ui_style.gd").box(color.darkened(0.82), Color("eee8db") if color.get_luminance() < 0.2 else color, 3))
+		if option.action == "raceRoll": button.text = "Rolar dado · " + str(own.name)
+		elif option.action == "racePass": button.text = "Passar efeitos · " + str(own.name)
 	if option.action in ["combatRoll", "combatCard"]:
 		var own: Dictionary = own_player()
 		var color: Color = preload("res://scripts/board.gd").COLORS[int(own.id)]
@@ -396,23 +407,34 @@ func show_cargo_resolution() -> void:
 func show_menu() -> void:
 	screen_mode = "menu"
 	var body: VBoxContainer = sheet.reset("MENU DA PARTIDA")
+	app.button("Retomar partida", sheet.dismiss, body)
 	app.button("Minhas ações", show_groups, body)
-	app.button("Administrar / instalar", func(): show_group("Instalar"), body)
-	app.button("Placar", show_scoreboard, body)
-	app.button("Acontecimentos da partida", show_activity, body)
-	app.label("Versão " + str(ProjectSettings.get_setting("application/config/version", "desenvolvimento")), body, 16)
+	app.button("Partida", show_match_menu, body)
 	app.button("Como jogar", show_help, body)
 	app.button("Música e créditos", app.show_music_settings, body)
-	app.button("Sair da sala", app.leave_screen, body)
 	if app.endpoint.mode == "host" and app.endpoint.view.save_pending: app.button("Tentar salvar", app.endpoint.retry_save, body)
 	sheet.popup_centered()
 
-func show_help() -> void:
+func show_match_menu() -> void:
+	screen_mode = "match_menu"
+	var body: VBoxContainer = sheet.reset("PARTIDA", show_menu)
+	app.button("Placar", show_scoreboard, body)
+	app.button("Acontecimentos da partida", show_activity, body)
+	app.button("Cartas / instalar", show_extra_actions, body)
+	app.button("Sair da sala", app.leave_screen, body)
+	sheet.popup_centered()
+
+func show_help(topic: int = -1) -> void:
 	screen_mode = "help"
-	var body: VBoxContainer = sheet.reset("COMO JOGAR · LAN", show_menu)
 	var modern: bool = str(app.endpoint.view.public.get("rules_version", "0.6")) == "0.7"
-	for entry: String in preload("res://scripts/how_to_play.gd").paragraphs(modern, true):
-		app.label(entry, body)
+	var sections: Array = preload("res://scripts/how_to_play.gd").sections(modern, true)
+	var body: VBoxContainer = sheet.reset("COMO JOGAR" if topic < 0 else str(sections[topic].title).to_upper(), show_menu if topic < 0 else func(): show_help())
+	if topic < 0:
+		app.label("Manual rápido · escolha um assunto", body, 20)
+		for i in range(sections.size()):
+			var index: int = i
+			app.button(str(sections[i].title), func(): show_help(index), body)
+	else: preload("res://scripts/how_to_play.gd").render_topic(body, sections[topic])
 	sheet.popup_centered()
 
 func show_groups() -> void:
@@ -440,7 +462,6 @@ func show_groups() -> void:
 		if option.action == "start": encounter_button(option, body)
 	if local_action:
 		app.button("Agir aqui · " + str(app.board_view.city(own_player().city).name), show_local_actions, body).theme_type_variation = &"Primary"
-		app.label("Escolha um setor para explorar, conquistar ou saquear. Uma ação principal por turno.", body, 18)
 	if travel: app.button("Viajar antes de agir · ver destinos", func(): show_group("Viajar"), body)
 	if management: app.button("Cuidar do veículo / depósitos", show_management, body)
 	app.button("Cartas e equipamentos", show_extra_actions, body)
@@ -455,9 +476,7 @@ func show_groups() -> void:
 func show_local_actions() -> void:
 	screen_mode = "local_actions"
 	var body: VBoxContainer = sheet.reset("AGIR NA MINHA CIDADE", show_groups)
-	app.button("Explorar", func(): show_city_activity("explore"), body)
-	app.button("Conquistar / saquear", func(): show_city_activity("attack"), body)
-	app.button("Depósitos", func(): show_city_activity("depot"), body)
+	preload("res://scripts/ui_operations.gd").choices(body, [func(): show_city_activity("explore"), func(): show_city_activity("attack"), func(): show_city_activity("depot")])
 	sheet.popup_centered()
 
 func show_city_activity(activity_kind: String) -> void:
@@ -466,6 +485,7 @@ func show_city_activity(activity_kind: String) -> void:
 	var titles := {"explore": "EXPLORAR", "attack": "CONQUISTAR / SAQUEAR", "depot": "DEPÓSITOS"}
 	var body: VBoxContainer = sheet.reset(titles[activity_kind], show_local_actions)
 	var own: Dictionary = own_player()
+	var grid = preload("res://scripts/ui_operations.gd").sector_grid(body)
 	var count := 0
 	for id: String in app.endpoint.view.public.territories:
 		var t: Dictionary = app.endpoint.view.public.territories[id]
@@ -473,9 +493,12 @@ func show_city_activity(activity_kind: String) -> void:
 		var is_own: bool = int(t.owner) == int(own.id)
 		if is_own == (activity_kind == "attack"): continue
 		count += 1
-		var caption := "Setor " + id.get_slice("-", 1)
-		if activity_kind == "explore": caption += " · %d/3 explorações" % int(t.explorations)
-		app.button(caption, func(): show_city_sector(id, activity_kind), body)
+		var caption := "Setor " + id.get_slice("-", id.get_slice_count("-") - 1)
+		var detail := "Sem dono"
+		for player: Dictionary in app.endpoint.view.public.players:
+			if int(player.id) == int(t.owner): detail = str(player.name)
+		if activity_kind == "explore": detail += " · %d/3" % int(t.explorations)
+		preload("res://scripts/ui_operations.gd").tile(grid, caption, detail, activity_kind, func(): show_city_sector(id, activity_kind)).name = "Sector_" + id
 	if activity_kind == "attack":
 		for option: Dictionary in app.endpoint.view.options:
 			if option.action == "duel": encounter_button(option, body); count += 1
@@ -486,11 +509,11 @@ func show_city_sector(id: String, activity_kind: String) -> void:
 	screen_mode = "city_sector"
 	city_sector = id
 	city_activity = activity_kind
-	var body: VBoxContainer = sheet.reset("SETOR " + id.get_slice("-", 1), func(): show_city_activity(activity_kind))
+	var body: VBoxContainer = sheet.reset("SETOR " + id.get_slice("-", id.get_slice_count("-") - 1), func(): show_city_activity(activity_kind))
 	if activity_kind == "depot":
-		app.button("Retirar recursos", func(): show_depot_resources(id, "withdraw"), body)
-		app.button("Guardar recursos", func(): show_depot_resources(id, "deposit"), body)
-	elif activity_kind == "explore": app.label("1 ação · escolha o recurso garantido", body, 18)
+		preload("res://scripts/ui_operations.gd").tile(body, "Retirar recursos", "Depósito → carga", "cargo", func(): show_depot_resources(id, "withdraw"))
+		preload("res://scripts/ui_operations.gd").tile(body, "Guardar recursos", "Carga → depósito", "depot", func(): show_depot_resources(id, "deposit"))
+	elif activity_kind == "explore": app.label("Escolha o recurso garantido", body, 18)
 	var count := 0
 	for option: Dictionary in app.endpoint.view.options:
 		if str(option.get("territory", "")) != id: continue
@@ -499,8 +522,8 @@ func show_city_sector(id: String, activity_kind: String) -> void:
 			if option.action == "explore":
 				shown.label = RESOURCE_NAMES.get(str(option.get("supply", "scrap")), "Explorar")
 				shown.confirm = false
-			elif option.action == "conquer": shown.label = "Conquistar · 1 ação"
-			elif option.action == "loot": shown.label = "Saquear · 1 ação + 1 combustível"
+			elif option.action == "conquer": shown.label = "Conquistar"
+			elif option.action == "loot": shown.label = "Saquear · 1 combustível"
 			else: shown.label = "Abastecer tanque"
 			encounter_button(shown, body)
 			count += 1
@@ -512,14 +535,14 @@ func show_depot_resources(id: String, operation: String) -> void:
 	city_sector = id
 	depot_operation = operation
 	var body: VBoxContainer = sheet.reset("RETIRAR" if operation == "withdraw" else "GUARDAR", func(): show_city_sector(id, "depot"))
-	app.label("Setor " + id.get_slice("-", 1) + " · 1 recurso por toque", body, 18)
+	app.label("Setor " + id.get_slice("-", id.get_slice_count("-") - 1) + " · 1 recurso por toque", body, 18)
 	var count := 0
 	for option: Dictionary in app.endpoint.view.options:
 		if str(option.get("territory", "")) != id or option.action != operation: continue
 		var shown: Dictionary = option.duplicate()
 		var resource: String = str(option.get("resource", ""))
 		var stock: Dictionary = app.endpoint.view.private.depots.get(id, {}) if operation == "withdraw" else app.endpoint.view.private.stock
-		shown.label = "%s · %d disponível" % [RESOURCE_NAMES.get(resource, "Recurso"), int(stock.get(resource, 0))]
+		shown.label = "%s · %d" % [RESOURCE_NAMES.get(resource, "Recurso"), int(stock.get(resource, 0))]
 		shown.confirm = false
 		encounter_button(shown, body)
 		count += 1
@@ -529,7 +552,6 @@ func show_depot_resources(id: String, operation: String) -> void:
 func show_management() -> void:
 	screen_mode = "management"
 	var body: VBoxContainer = sheet.reset("VEÍCULO E DEPÓSITOS", show_groups)
-	app.label("Cuidar do carro e guardar ou retirar recursos.", body, 19)
 	for group: String in ["Veículo", "Depósitos"]:
 		if app.endpoint.view.options.any(func(option: Dictionary): return option.group == group):
 			app.button("Abastecer, reparar ou melhorar" if group == "Veículo" else "Guardar / retirar dos depósitos", func():
@@ -571,6 +593,11 @@ func show_group(group: String) -> void:
 	render_group()
 	sheet.popup_centered()
 
+func open_vehicle_section(section: String) -> void:
+	show_group("Veículo")
+	vehicle_filter = section
+	render_group()
+
 func show_vehicle_menu() -> void:
 	screen_mode = "vehicle_menu"
 	var body: VBoxContainer = sheet.reset("CUIDAR DO VEÍCULO", show_management)
@@ -582,7 +609,25 @@ func show_vehicle_menu() -> void:
 				render_group(), body)
 	sheet.popup_centered()
 
-func show_card_actions(card_id: String) -> void:
+func show_equipment() -> void:
+	drawer.hide()
+	screen_mode = "equipment"
+	var body: VBoxContainer = sheet.reset("EQUIPAMENTOS", show_management)
+	for p: Dictionary in app.endpoint.view.public.players:
+		if int(p.id) != int(app.endpoint.local_player_id): continue
+		app.label("Instalados: %d/2" % p.installed.size(), body, 22)
+		for id: String in p.installed:
+			app.button(str(app.card_definition(id).get("name", id)), func(): app.show_card(id), body)
+	for option: Dictionary in app.endpoint.view.get("options", []):
+		if option.group == "Instalar":
+			var install_button: Button = app.button(option.label, func(): sheet.hide(); app.select_option(option), body)
+			preload("res://scripts/turn_action_style.gd").apply(install_button, option.get("consumes_action", false))
+	sheet.popup_centered()
+
+func show_card_actions(card_id: String, open_map: bool = true) -> void:
+	if open_map and card_id in ["G17", "G18"]:
+		app.show_barricade_map(card_id)
+		return
 	vehicle_filter = ""
 	screen_mode = "card"
 	card_filter = str(app.card_definition(card_id).get("name", card_id))
@@ -593,14 +638,19 @@ func show_card_actions(card_id: String) -> void:
 
 func render_group() -> void:
 	var choices: Array = []
+	var barricade_cards: Array[String] = []
 	var has_escape: bool = false
 	for option: Dictionary in app.endpoint.view.options:
 		if option.action == "acknowledgeCard": continue
+		if vehicle_filter == "Melhorar Veículo" and option.action in ["buyImprovement", "upgradeVehicle"]: continue
 		if not vehicle_filter.is_empty() and option.action not in VEHICLE_SECTIONS[vehicle_filter]: continue
 		if option.action == "combatEscape" and option.group == active_group:
 			has_escape = true
 			continue
-		if (not card_filter.is_empty() and str(option.label).contains(card_filter)) or (card_filter.is_empty() and option.group == active_group): choices.append(option)
+		if (not card_filter.is_empty() and str(option.label).contains(card_filter)) or (card_filter.is_empty() and option.group == active_group):
+			if option.action == "playGeneral" and option.get("card_id", "") in ["G17", "G18"]:
+				if str(option.card_id) not in barricade_cards: barricade_cards.append(str(option.card_id))
+			else: choices.append(option)
 	var encounter: Dictionary = app.endpoint.view.public.combat
 	var priorities: Dictionary = {"combatRoll": 0, "combatEscapeRoll": 0, "combatContinue": 1, "combatNext": 1, "combatClose": 2, "combatFast": 9}
 	if not encounter.is_empty(): choices.sort_custom(func(a: Dictionary, b: Dictionary): return int(priorities.get(a.action, 4)) < int(priorities.get(b.action, 4)))
@@ -610,6 +660,10 @@ func render_group() -> void:
 	var body: VBoxContainer = sheet.reset(active_group.to_upper(), show_management if active_group in ["Veículo", "Depósitos"] else show_extra_actions if active_group in ["Instalar", "Gerais", "Descartar", "Preferências de reação"] else show_groups)
 	if not vehicle_filter.is_empty():
 		body = sheet.reset(vehicle_filter.to_upper(), show_vehicle_menu)
+	if vehicle_filter == "Melhorar Veículo":
+		app.button("Comprar equipamento", confirm_equipment_purchase, body)
+		app.button("Equipamentos / instalar cartas", show_equipment, body)
+		if app.endpoint.view.private.get("vehicle_model", "") == "hatch": app.button("Trocar veículo", show_vehicle_models, body)
 	for option: Dictionary in choices.slice(page_index * page_size, (page_index + 1) * page_size):
 		var control: Button = app.button(option.label, func(): sheet.hide(); app.select_option(option), body)
 		control.tooltip_text = preload("res://scripts/ui_feedback.gd").hint(str(option.action))
@@ -624,7 +678,11 @@ func render_group() -> void:
 				control.add_theme_constant_override("icon_max_width", 56)
 				control.expand_icon = true
 				break
-	if choices.is_empty(): app.label("Nenhuma opção disponível nesta janela.", body)
+		preload("res://scripts/turn_action_style.gd").apply(control, option.get("consumes_action", false))
+	for id: String in barricade_cards:
+		var route_button: Button = app.button(str(app.card_definition(id).get("name", id)) + " · escolher estrada", func(): app.show_barricade_map(id), body)
+		preload("res://scripts/turn_action_style.gd").apply(route_button, id == "G17")
+	if choices.is_empty() and barricade_cards.is_empty(): app.label("Nenhuma opção disponível nesta janela.", body)
 	if has_escape: app.button("Fugir", app.show_escape_map, body)
 	if not encounter.is_empty(): app.label(str(app.endpoint.view.public.get("waiting", "")), body, 20)
 	var row: HBoxContainer = HBoxContainer.new()
@@ -633,6 +691,37 @@ func render_group() -> void:
 	app.label("%d / %d" % [page_index + 1, page_count], row, 18)
 	app.button("Próxima", func(): page_index += 1; render_group(), row).disabled = page_index + 1 >= page_count
 	row.visible = page_count > 1
+
+func confirm_equipment_purchase() -> void:
+	var body = sheet.reset("COMPRAR EQUIPAMENTO", func(): open_vehicle_section("Melhorar Veículo"))
+	app.label("Custo: 3 sucatas da carga. Receba uma carta de equipamento ou melhoria territorial. Uma compra por turno, sem usar a ação principal.", body, 20)
+	if int(app.endpoint.view.private.get("stock", {}).get("scrap", 0)) < 3:
+		app.label("Sucata insuficiente. Você precisa de 3 sucatas na carga.", body, 20)
+		return
+	for option: Dictionary in app.endpoint.view.options:
+		if option.action == "buyImprovement":
+			var shown := option.duplicate(true)
+			shown.confirm = false
+			app.button("Confirmar compra", func(): sheet.hide(); app.select_option(shown), body)
+			return
+	app.label("Compra indisponível neste momento. Uma compra por turno.", body, 20)
+
+func show_vehicle_models() -> void:
+	var body = sheet.reset("TROCAR VEÍCULO", func(): open_vehicle_section("Melhorar Veículo"))
+	preload("res://scripts/vehicle_shop.gd").grid(body, app.endpoint.view.private.get("vehicle_models", []), int(app.endpoint.local_player_id), show_vehicle_model)
+
+func show_vehicle_model(model: Dictionary) -> void:
+	var body = sheet.reset(str(model.name).to_upper(), show_vehicle_models)
+	preload("res://scripts/vehicle_shop.gd").details(body, model, int(app.endpoint.local_player_id))
+	app.label("Custo: 5 sucatas próprias locais. Preserva estrutura, combustível e vidas.", body, 20)
+	for option: Dictionary in app.endpoint.view.options:
+		if option.action == "upgradeVehicle" and option.get("model") == model.id:
+			var shown := option.duplicate(true)
+			shown.confirm = false
+			var control: Button = app.button("Trocar veículo", func(): sheet.hide(); app.select_option(shown), body)
+			preload("res://scripts/turn_action_style.gd").apply(control, true)
+			return
+	app.label("Troca indisponível: requer Hatch, ação disponível e 5 sucatas próprias locais.", body, 20)
 
 func combat_summary(encounter: Dictionary, parent: Node) -> void:
 	var arena: HBoxContainer = HBoxContainer.new()
@@ -647,7 +736,7 @@ func combat_summary(encounter: Dictionary, parent: Node) -> void:
 		if int(fighter.player_id) >= 0:
 			art = preload("res://scripts/vehicle_art.gd").new()
 			column.add_child(art)
-			art.setup(fighter.model)
+			art.setup(fighter.model, int(fighter.player_id))
 		else:
 			art = TextureRect.new()
 			column.add_child(art)
@@ -695,7 +784,7 @@ func show_city(id: String) -> void:
 		var owner_name: String = "Neutro"
 		for p: Dictionary in app.endpoint.view.public.players:
 			if int(p.id) == int(t.owner): owner_name = p.name
-		app.label("Setor %s · %s" % [key.get_slice("-", 1), owner_name], body, 22)
+		app.label("Setor %s · %s" % [key.get_slice("-", key.get_slice_count("-") - 1), owner_name], body, 22)
 		if t.has("threat_band"):
 			app.label("Risco: " + ["fácil", "médio", "difícil"][int(t.threat_band)], body, 18)
 	app.button("Viajar / explorar / conquistar", show_groups, body)

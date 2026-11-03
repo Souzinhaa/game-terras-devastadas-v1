@@ -1,10 +1,5 @@
-node_modules/
 *.apk
-dist/
-*.tsbuildinfo
-.npm-cache/
-test-results/
-playwright-report/
+*.apk.idsig
 .tools/
 godot/.godot/
 godot/builds/

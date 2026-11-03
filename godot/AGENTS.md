@@ -1,3 +1,8 @@
+
+## Caveman Mode
+
+Sempre usar a skill `caveman`.
+
 # Instruções para agentes — Terras Devastadas / Godot
 
 Escopo: projeto nativo em `godot/`. Atualizado em 31/10/2026.
@@ -9,10 +14,10 @@ Novas partidas usam `campaign-v07`; consultar `docs/REBALANCEAMENTO_V07.md`. Sav
 1. `CONTEXT.md`: estado real e limites da migração.
 2. `README.md`: execução, regras disponíveis e testes.
 3. `../rules.md`, `../rules-cards.md`, `../docs/COMO_JOGAR.md` e JSON relevantes: contratos 0.7 e guia. Ajuda local/LAN: `scripts/how_to_play.gd`, com perfil real.
-4. `../update_ui.md` e `docs/UI_IMPLEMENTATION.md`: direção e implementação da interface.
+4. `docs/UI_IMPLEMENTATION.md` e `docs/UI_PREMIUM_IMPLEMENTATION.md`: direção e implementação da interface.
 5. Código e testes do sistema a alterar.
 
-O contexto da raiz descreve o desenvolvimento Android atual. A referência React anterior está em `../docs/historico/CONTEXTO_REACT_V06.md`; não presumir paridade entre motores nem usar relatórios históricos como estado atual. Em conflito entre documentação e código, verificar e registrar a divergência antes de declarar uma função pronta.
+O contexto único de desenvolvimento está em `CONTEXT.md`. O repositório mantém os apps de celular e TV, sem website; não usar relatórios históricos como estado atual. Em conflito entre documentação e código, verificar e registrar a divergência antes de declarar uma função pronta.
 
 ## GodotPrompter
 

@@ -73,7 +73,7 @@ func run() -> void:
 	var unchanged: String = JSON.stringify(app.game.state)
 	app.show_sectors()
 	await settle()
-	check(app.popup.body.get_children().filter(func(node: Node): return node is Button and not node is OptionButton).size() == 3, "Agir aqui starts with three functions")
+	check(app.popup.body.find_children("*", "Button", true, false).filter(func(node: Node): return not node is OptionButton).size() == 3, "Agir aqui keeps exactly three operations in shared cards")
 	find_button(app.popup, "Explorar").pressed.emit()
 	await settle()
 	var sector: Button = find_button(app.popup, "Setor ")

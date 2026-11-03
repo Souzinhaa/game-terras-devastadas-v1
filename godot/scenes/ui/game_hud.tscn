@@ -69,7 +69,7 @@ alignment = 2
 text = "Inicie seu turno"
 theme_type_variation = &"Caption"
 autowrap_mode = 3
-theme_override_colors/font_outline_color = Color(0.04, 0.06, 0.04, 1)
+theme_override_colors/font_outline_color = Color(0.95, 0.92, 0.87, 1)
 theme_override_constants/outline_size = 6
 
 [node name="Local" type="Button" parent="SafeArea/Layout/Actions"]

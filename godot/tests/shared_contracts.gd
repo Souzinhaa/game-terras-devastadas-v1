@@ -7,7 +7,7 @@ func _initialize() -> void:
 	var failures = 0
 	for fixture in fixtures:
 		var g = Game.new()
-		# A referência TypeScript continua no contrato v0.6.
+		# Fixtures legadas preservam o contrato dos saves campaign-v06.
 		g.new_game(["A", "B"], 42, "campaign-v06")
 		g.state.started = true
 		g.state.pending_reveals.clear()

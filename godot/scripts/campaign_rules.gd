@@ -122,11 +122,22 @@ func extra_cargo(p: Dictionary) -> int:
 func depot_capacity(t: Dictionary) -> int:
 	return 10 + count(t, "T04") * 5
 
+func vehicle_models(p: Dictionary) -> Array:
+	var models: Array = []
+	for vehicle: Dictionary in game.vehicles:
+		if vehicle.id == "hatch": continue
+		var preview: Dictionary = p.duplicate(true)
+		preview.model = vehicle.id
+		var info: Dictionary = vehicle_info(preview)
+		info.id = vehicle.id
+		models.append(info)
+	return models
+
 func defense_max(t: Dictionary) -> int:
 	return 4 + count(t, "T01") * 2
 
 func vehicle_defense(p: Dictionary) -> int:
-	var base: int = 4 if modern() and p.model in ["suv", "pickup"] else int(game.combat_rules.STATS[p.model][1])
+	var base: int = {"hatch": 3, "sedan": 4, "suv": 4, "pickup": 4, "moto": 5}[p.model] if modern() else int(game.combat_rules.STATS[p.model][1])
 	return mini(6, base + count(p, "E04"))
 
 func hand_excess(p: Dictionary) -> bool:

@@ -1,6 +1,6 @@
 # Regras nativas 0.7 — ritmo e decisões
 
-Implementação autorizada após a revisão de design, em 31/10/2026. Escopo: Godot local/LAN; não altera o motor React.
+Implementação autorizada após a revisão de design, em 31/10/2026. Escopo: Godot local/LAN e apresentação pública na TV.
 
 ## Edição e saves
 
@@ -46,7 +46,7 @@ As ações novas usam as folhas, tema, área segura, paginação e rolagem exist
 
 - `tests/balance_smoke.gd`: economia nova/antiga, ameaças, vitória, recuperação, saque, corrida, RNG manual versus rápido, interrupções para decisões, comandos inválidos atômicos, save/reconexão, privacidade e recibos.
 - `tests/lan_mobile_layout.gd`: conexão, HUD, compras e botões novos de exploração/troca em 892×445, 1280×720 e 2340×1080 com recorte simulado.
-- Regressões de campanha/combate v0.6 e contratos TypeScript usam perfil antigo explícito; não foram reescritos como regras novas.
+- Regressões de campanha/combate v0.6 e fixtures nativas usam perfil antigo explícito; não foram reescritos como regras novas.
 - Regressões de LAN, combate visual, campanha visual, exploração e revelação também são executadas.
 - `tools/run_checks.ps1` inclui as suítes novas e permite `-OnlySuites`. Perfis de teste temporários curtos evitam a falha de cache OpenGL em caminhos longos do Windows.
 
@@ -57,3 +57,5 @@ Testes e capturas de Windows não substituem testes de toque, rede, desempenho o
 O workflow Android exporta a variante `com.bhsp.terrasdevastadas.preview.v07`, chamada **Terras Devastadas Teste 0.7**, versão `0.0.4-ui-tv`. Ela instala ao lado do APK anterior, preservando seus dados. Todas as pessoas da sala LAN devem usar esta edição. Começar uma partida nova para jogar com as regras 0.7; carregar uma partida 0.6 preserva as regras anteriores.
 
 A chave de debug do CI é temporária por execução. Builds futuros com o mesmo pacote podem exigir reinstalar essa variante de teste; não usar este workflow para substituir a assinatura de distribuição.
+
+Ajuste solicitado em 03/11/2026: limiares atuais da edição 0.7 — Hatch 3+, Sedã/SUV/Caminhonete 4+, Moto 5+. A regra de 1 natural errar e 6 natural acertar permanece. Edição 0.6 e snapshots de combates já iniciados permanecem preservados. Atributos públicos, prévia de troca e combate consultam o mesmo motor.

@@ -1,10 +1,10 @@
 # Terras Devastadas — catálogo de cartas / regras Godot 0.7
 
-Contrato das novas partidas Godot/Android, atualizado em 31/10/2026. Consultar [regras completas](rules.md), [Como jogar](docs/COMO_JOGAR.md) e [compatibilidade 0.7](godot/docs/REBALANCEAMENTO_V07.md). React e saves nativos `campaign-v06` preservam suas respectivas edições; não inferir paridade integral.
+Contrato das novas partidas Godot/Android, atualizado em 31/10/2026. Consultar [regras completas](rules.md), [Como jogar](docs/COMO_JOGAR.md) e [compatibilidade 0.7](godot/docs/REBALANCEAMENTO_V07.md). Saves nativos `campaign-v06` preservam sua edição.
 
 O catálogo mantém **74 definições e 148 identidades registradas**. Na preparação 0.7, **72 definições/144 cópias** estão disponíveis nos baralhos; E11 e V16 têm duas cópias cada, registradas como indisponíveis. Não são compradas/reveladas em partidas novas. Cópias de saves antigos não são apagadas. Hostis são conteúdo separado em `godot/data/hostiles.json`. Não houve balanceamento empírico com pessoas.
 
-Precedência nativa: `rules.md`, este catálogo, `godot/data/catalog.json` e execução em `campaign_rules.gd`/`combat_rules.gd`/`world_rules.gd`. Regras não são interpretadas da arte. Divergências devem ser registradas; não alterar o motor React ou o perfil de saves por inferência.
+Precedência nativa: `rules.md`, este catálogo, `godot/data/catalog.json` e execução em `campaign_rules.gd`/`combat_rules.gd`/`world_rules.gd`. Regras não são interpretadas da arte. Divergências devem ser registradas; não alterar o perfil de saves por inferência.
 
 ### Regras transversais
 - Todos os equipamentos de arma compartilham 1 ataque adicional por carro e rodada. A arma fixa não entra nesse limite. Erro também gasta o limite e a munição.

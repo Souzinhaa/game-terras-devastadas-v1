@@ -3,7 +3,7 @@ extends Control
 const TurnSteps = preload("res://scripts/turn_steps.gd")
 const Feedback = preload("res://scripts/ui_feedback.gd")
 const Dice = preload("res://scripts/dice.gd")
-const COLORS = [Color("ed8e42"), Color("51c9ef"), Color("b68be2"), Color("c4d27b")]
+const COLORS = preload("res://scripts/player_palette.gd").COLORS
 var app: Control
 var top: PanelContainer
 var heading: Label
@@ -168,6 +168,8 @@ func sync(view: Dictionary) -> void:
 		button.theme_type_variation = &"Primary" if id == int(active.id) else &"Quiet"
 		button.text = "%s%s%s\n%s/%d pontos · %s" % ["▶ " if id == int(active.id) else "", "★ " if p.announced else "", p.name, str(p.points), int(latest.get("victory_target", 4)), "eliminado" if p.eliminated else str(maxi(0, 2 - int(p.deaths))) + " vidas"]
 		button.add_theme_color_override("font_color", COLORS[id % COLORS.size()])
+		preload("res://scripts/player_palette.gd").outline(button, COLORS[id % COLORS.size()])
+		button.add_theme_stylebox_override("normal", preload("res://scripts/ui_style.gd").box(Color("253238"), COLORS[id % COLORS.size()] if id == int(active.id) else Color("566167"), 2 if id == int(active.id) else 1))
 		button.tooltip_text = str(p.name) + (" · anúncio territorial ativo" if p.announced else "") + " · selecionar para detalhes públicos"
 		var value: String = str([p.points, p.deaths, p.announced, id == int(active.id)])
 		if score_values.has(id) and str(score_values[id]) != value:

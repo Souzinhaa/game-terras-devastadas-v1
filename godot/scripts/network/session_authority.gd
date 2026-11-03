@@ -18,6 +18,8 @@ var options_cache: Dictionary = {}
 var last_event: Dictionary = {}
 var public_activity: Array[Dictionary] = []
 var busy: bool = false
+var room_name: String = ""
+var room_password_hash: String = ""
 
 static func token() -> String:
 	return Crypto.new().generate_random_bytes(24).hex_encode()
@@ -111,6 +113,8 @@ func event_for(choice: Dictionary, player_id: int, before: Dictionary) -> Dictio
 	var actor_name: String = game.combat_rules.player_by_id(player_id).name
 	var captions: Dictionary = {"start": "comprou a carta e iniciou o turno", "end": "encerrou o turno", "conquer": "iniciou uma conquista", "duel": "iniciou um combate", "combatCard": "passou a reação" if int(choice.args.get("index", -1)) < 0 else "jogou uma carta de combate", "combatDefend": "escolheu a defesa do setor", "combatContinue": "passou ao próximo ataque", "combatNext": "iniciou a próxima rodada", "combatClose": "concluiu o combate", "combatEscape": "iniciou uma tentativa de fuga", "raceEntry": "se inscreveu na corrida" if choice.args.get("join", false) else "recusou a inscrição", "racePass": "passou a reação da corrida", "raceGeneral": "jogou uma carta de corrida", "raceRoll": "rolou seu avanço na corrida", "loot": "iniciou um saque", "lootDefend": "escolheu a defesa do depósito", "lootRoll": "rolou o saque", "repair": "reparou o veículo", "refuel": "abasteceu o veículo", "install": "instalou uma melhoria", "cardChoice": "resolveu uma carta de encontro", "deposit": "guardou recursos no depósito", "withdraw": "retirou recursos do depósito"}
 	if captions.has(choice.action): event.message = actor_name + " " + str(captions[choice.action]) + "."
+	var activation: Dictionary = preload("res://scripts/card_activation.gd").payload(before, str(choice.action), choice.args, player_id)
+	if not activation.is_empty(): event.card_activation = activation
 	event.sounds = preload("res://scripts/game_sfx.gd").sounds_for(before, game.state, str(choice.action))
 	if choice.action == "move":
 		event.from = before.players[int(before.active)].city
@@ -146,7 +150,7 @@ func persist() -> String:
 	for receipt: Dictionary in receipts.values():
 		receipt.result.saved = true
 		receipt.result.message = "Ação aplicada e salva."
-	var envelope: Dictionary = {"schema": "wasteland-lan", "version": 1, "protocol": PROTOCOL, "match_id": match_id, "revision": revision, "seats": seats, "receipts": receipts, "game": game.state, "public_activity": public_activity}
+	var envelope: Dictionary = {"schema": "wasteland-lan", "version": 1, "protocol": PROTOCOL, "match_id": match_id, "revision": revision, "seats": seats, "room_name": room_name, "room_password_hash": room_password_hash, "receipts": receipts, "game": game.state, "public_activity": public_activity}
 	var file: FileAccess = FileAccess.open(save_path + ".tmp", FileAccess.WRITE)
 	var error: Error = ERR_CANT_CREATE
 	if file != null:
@@ -204,6 +208,9 @@ func restore(path: String = SAVE_PATH) -> String:
 		for seat: Dictionary in data.seats:
 			var player: Dictionary = candidate.combat_rules.player_by_id(int(seat.id))
 			if player.is_empty() or player.name != seat.name: return "Identidades não correspondem às vagas salvas."
+	if not data.get("room_name", "") is String or not data.get("room_password_hash", "") is String: return "Configuração de sala inválida."
+	room_name = str(data.get("room_name", "")).left(32)
+	room_password_hash = str(data.get("room_password_hash", ""))
 	game = candidate
 	public_activity = restored_activity
 	seats = data.seats

@@ -1,0 +1,49 @@
+[gd_scene load_steps=4 format=3]
+
+[ext_resource type="Script" path="res://assets/menu_background/godot/MenuBackground.gd" id="1_script"]
+[ext_resource type="VideoStream" path="res://assets/menu_background/video/fundo_godot.ogv" id="2_video"]
+[ext_resource type="Texture2D" path="res://assets/menu_background/assets/fallback.jpg" id="3_fallback"]
+
+[node name="MenuBackground" type="Control"]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+clip_contents = true
+script = ExtResource("1_script")
+
+[node name="Fallback" type="TextureRect" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+texture = ExtResource("3_fallback")
+expand_mode = 1
+stretch_mode = 6
+
+[node name="Video" type="VideoStreamPlayer" parent="."]
+layout_mode = 0
+offset_right = 1280.0
+offset_bottom = 720.0
+mouse_filter = 2
+stream = ExtResource("2_video")
+volume_db = -17.0
+autoplay = true
+expand = true
+loop = true
+
+[node name="Dim" type="ColorRect" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+color = Color(0, 0, 0, 0.20)

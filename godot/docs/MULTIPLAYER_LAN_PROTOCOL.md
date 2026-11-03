@@ -8,7 +8,7 @@ Novas partidas usam `campaign-v07`; saves 0.6 preservam a edição. A projeção
 
 O dashboard TV usa as mesmas etapas de turno e um placar compacto com pontos, vidas e anúncio. Efeitos de dano/conquista/turno comparam somente campos públicos já resolvidos, por `match_id`/`epoch`/`revision`. Primeiro snapshot e nova epoch estabelecem baseline; snapshots repetidos não repetem efeitos. Animações não enviam confirmação, não bloqueiam comandos e não recalculam resultados. Movimento reduzido conserva os valores sem os efeitos. A ajuda local/LAN vem de `scripts/how_to_play.gd` e acompanha a edição.
 
-Data: 31/10/2026. Implementação em `scripts/network/`. Este contrato descreve o código, complementando o [plano](MULTIPLAYER_LAN_MIGRATION_PLAN.md) e o [relatório de entrega](MULTIPLAYER_LAN_IMPLEMENTATION.md).
+Data: 31/10/2026. Implementação em `scripts/network/`. Este contrato descreve o código, complementando o [contexto técnico](../CONTEXT.md) e o [relatório de entrega](MULTIPLAYER_LAN_IMPLEMENTATION.md).
 
 ## Autoridade e identidades
 
@@ -105,3 +105,11 @@ Não há migração automática de anfitrião ou importação de hot-seat/React 
 - Builds incompatíveis são recusadas antes da atribuição de vaga. Perfil e permissões Android não alteram o fingerprint das regras.
 
 Os APKs desta entrega usam min SDK 24 e alvo SDK 36. O caminho de permissão `ACCESS_LOCAL_NETWORK` existe atrás da feature `lan_target37`, mas não é ativado nesses presets. Uma migração futura para alvo 37+ deve habilitar essa feature e declarar a permissão junto com a configuração Gradle correspondente; ainda exige teste físico de concessão/revogação.
+
+## Sala opcional e preparação local (03/11/2026)
+
+O envelope conserva `room_name` e `room_password_hash` opcionais; saves anteriores usam nome do anfitrião e sala sem senha. O handshake envia `password_hash` somente ao anfitrião, que rejeita senha incorreta antes da aprovação ou envio de snapshot. Descoberta informa apenas `password_required`; lobby e projeções não levam senha/hash. O protocolo continua sem cifra, sem pretensão de resistir a captura de tráfego local.
+
+Um lobby de transmissão local tem motor vazio separado do save carregado; ao iniciar, `attach_local_game` troca a fonte preservando match e conexão de TV. O nome é obtido do ID 0, não da ordem de turnos sorteada. Não permite vagas remotas nem escreve o save LAN.
+
+Corrida projeta somente IDs públicos `roller_id`, `reactor_id` e a etapa visual `decision`; nenhum índice ou identidade de carta é adicionado. Opções de troca projetam modelo, e a prévia de atributos do dono fica na projeção privada dele. A autoridade continua validando a capacidade antes de qualquer compra/troca.

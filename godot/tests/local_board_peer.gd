@@ -38,10 +38,8 @@ func run() -> void:
 	var error := ""
 	if role == "host":
 		game = Game.new()
-		error = game.new_game(["Local A", "Local B"], 42)
-		if not error.is_empty(): fail(error); return
 		session = Local.new(game)
-		error = endpoint.host_local(game, session, SERVER_PORT)
+		error = endpoint.host_local_lobby(["Local A", "Local B"], SERVER_PORT)
 	else:
 		if role == "tv":
 			endpoint.start_discovery()
@@ -52,7 +50,7 @@ func run() -> void:
 				await create_timer(0.05).timeout
 			if endpoint.discovered.is_empty(): fail("Local game not discovered"); return
 			var room: Dictionary = endpoint.discovered.values()[0]
-			if not str(room.name).begins_with("Local"): fail("Missing local discovery label"); return
+			if str(room.name) != "Local A": fail("Missing local discovery label"); return
 			error = endpoint.join(room.ip, role, true, int(room.port))
 		else: error = endpoint.join("127.0.0.1", role, false, SERVER_PORT)
 	if not error.is_empty(): fail(error)
@@ -66,6 +64,12 @@ func _process(_delta: float) -> bool:
 	if role == "host":
 		for id: int in endpoint.pending.keys(): endpoint.approve(id)
 		if not endpoint.bindings.is_empty(): fail("Remote player acquired local seat"); return false
+		if game.state.is_empty():
+			if endpoint.spectators.is_empty() or now - started_at < 3000: return false
+			var error: String = game.new_game(["Local A", "Local B"], 42)
+			if not error.is_empty(): fail(error); return false
+			endpoint.attach_local_game(game, session)
+			return false
 		if now - started_at > 12000:
 			if accepted < 5 or endpoint.authority.revision != game.state.command_log.size() + 1:
 				fail("Local actions were not published exactly once"); return false

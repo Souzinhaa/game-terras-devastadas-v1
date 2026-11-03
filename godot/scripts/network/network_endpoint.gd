@@ -40,6 +40,7 @@ var reconnect_elapsed: float = 0.0
 var reduced_motion: bool = false
 var local_board: bool = false
 var local_source: RefCounted
+var joining_password_hash: String = ""
 
 ## Compartilha a instância hot-seat, sem migrar seu save nem aceitar jogadores.
 func host_local(engine: RefCounted, source: RefCounted, server_port: int = PORT) -> String:
@@ -69,6 +70,46 @@ func host_local(engine: RefCounted, source: RefCounted, server_port: int = PORT)
 	publish()
 	return ""
 
+func host_local_lobby(names: Array, server_port: int = PORT) -> String:
+	if not network_permission(true): return "Autorize o acesso à rede local e tente novamente."
+	leave()
+	var peer := ENetMultiplayerPeer.new()
+	var result: Error = peer.create_server(server_port, 8)
+	if result != OK: return "Não foi possível abrir a porta UDP %d (%s)." % [server_port, error_string(result)]
+	authority = Authority.new()
+	local_board = true
+	multiplayer.multiplayer_peer = peer
+	mode = "host"
+	port = server_port
+	connected = true
+	update_local_lobby(names)
+	start_discovery()
+	DisplayServer.screen_set_keep_on(true)
+	return ""
+
+func update_local_lobby(names: Array) -> void:
+	if not local_board or not authority.game.state.is_empty(): return
+	authority.seats.clear()
+	for i in range(names.size()):
+		var player_name: String = str(names[i]).strip_edges().left(24)
+		authority.seats.append({"id": i, "name": player_name if not player_name.is_empty() else "Jogador %d" % (i + 1), "ready": true})
+	capacity = names.size()
+	publish()
+
+func attach_local_game(engine: RefCounted, source: RefCounted) -> void:
+	if not local_board: return
+	authority.game = engine
+	authority.seats.clear()
+	for player: Dictionary in engine.state.players:
+		authority.seats.append({"id": player.id, "name": player.name, "ready": true})
+	authority.revision += 1
+	authority.persistence_error = engine.persistence_error
+	authority.saved_revision = authority.revision if engine.persistence_error.is_empty() else -1
+	authority.options_cache.clear()
+	local_source = source
+	local_source.applied.connect(publish_local_action)
+	publish()
+
 func publish_local_action(action: String, args: Dictionary, before: Dictionary, actor: int) -> void:
 	if not local_board or mode != "host": return
 	authority.revision += 1
@@ -93,7 +134,7 @@ func _ready() -> void:
 func compatibility_stamp() -> String:
 	return Stamp.resolve()
 
-func host(player_name: String, max_players: int = 4, resume: bool = false, server_port: int = PORT, from_backup: bool = false) -> String:
+func host(player_name: String, max_players: int = 4, resume: bool = false, server_port: int = PORT, from_backup: bool = false, room_title: String = "", room_password: String = "") -> String:
 	if player_name.strip_edges().is_empty() or max_players < 2 or max_players > 4: return "Informe seu nome e de 2 a 4 jogadores."
 	if not network_permission(true): return "Autorize o acesso à rede local e tente novamente."
 	leave()
@@ -104,6 +145,9 @@ func host(player_name: String, max_players: int = 4, resume: bool = false, serve
 		authority.save_path = Authority.SAVE_PATH
 	else:
 		authority.seats.append({"id": 0, "name": player_name.strip_edges().left(32), "credential_hash": Authority.token().sha256_text(), "ready": true})
+	if not resume:
+		authority.room_name = room_title.strip_edges().left(32) if not room_title.strip_edges().is_empty() else player_name.strip_edges().left(32)
+		authority.room_password_hash = room_password.sha256_text() if not room_password.is_empty() else ""
 	capacity = maxi(max_players, authority.seats.size())
 	var peer: ENetMultiplayerPeer = ENetMultiplayerPeer.new()
 	var result: Error = peer.create_server(server_port, 8)
@@ -121,10 +165,11 @@ func host(player_name: String, max_players: int = 4, resume: bool = false, serve
 	publish()
 	return ""
 
-func join(host_address: String, player_name: String, spectator: bool = false, server_port: int = PORT) -> String:
+func join(host_address: String, player_name: String, spectator: bool = false, server_port: int = PORT, room_password: String = "") -> String:
 	if host_address.strip_edges().is_empty() or player_name.strip_edges().is_empty(): return "Informe endereço e nome."
 	if not network_permission(true): return "Autorize o acesso à rede local e tente novamente."
 	leave()
+	joining_password_hash = room_password.sha256_text() if not room_password.is_empty() else ""
 	mode = "spectator" if spectator else "player"
 	address = host_address.strip_edges()
 	port = server_port
@@ -156,7 +201,7 @@ func connect_peer() -> String:
 
 func _connected_to_server() -> void:
 	connecting_since = 0
-	_hello.rpc_id(1, {"protocol": 1, "compatibility": compatibility, "name": display_name, "spectator": mode == "spectator", "credential": credential, "match": connected_match})
+	_hello.rpc_id(1, {"protocol": 1, "compatibility": compatibility, "name": display_name, "spectator": mode == "spectator", "credential": credential, "match": connected_match, "password_hash": joining_password_hash})
 	feedback.emit("Conectado. Aguardando aprovação do anfitrião.")
 
 func _peer_connected(_peer_id: int) -> void:
@@ -203,6 +248,9 @@ func _hello(message: Dictionary) -> void:
 		_notice.rpc_id(sender, "Versões incompatíveis. Instale os dois aplicativos da mesma build.", true)
 		return
 	if not message.get("name") is String or not message.get("spectator") is bool or not message.get("credential", "") is String or not message.get("match", "") is String: return
+	if not room_password_matches(message):
+		_notice.rpc_id(sender, "Senha da sala incorreta.", true)
+		return
 	var name_value: String = str(message.name).strip_edges().left(32)
 	if name_value.is_empty(): return
 	if local_board and not message.spectator:
@@ -229,6 +277,9 @@ func _hello(message: Dictionary) -> void:
 		return
 	pending[sender] = {"name": name_value, "spectator": message.spectator}
 	changed.emit()
+
+func room_password_matches(message: Dictionary) -> bool:
+	return authority.room_password_hash.is_empty() or (message.get("password_hash", "") is String and message.get("password_hash", "") == authority.room_password_hash)
 
 func approve(peer_id: int, accept: bool = true) -> void:
 	if mode != "host" or not pending.has(peer_id): return
@@ -364,7 +415,7 @@ func publish(with_event: bool = false) -> void:
 	var players: Array = []
 	for seat: Dictionary in authority.seats:
 		players.append({"id": seat.id, "name": seat.name, "ready": seat.ready, "connected": local_board or int(seat.id) in bindings.values()})
-	lobby = {"players": players, "capacity": capacity, "started": not authority.game.state.is_empty(), "screens": spectators.size()}
+	lobby = {"name": room_advertisement().name, "players": players, "capacity": capacity, "started": not authority.game.state.is_empty(), "screens": spectators.size()}
 	view = authority.snapshot(-1 if local_board else 0)
 	for peer_id: int in ready_peers:
 		if peer_id == 1: continue
@@ -393,7 +444,7 @@ func filtered_event(player_id: int) -> Dictionary:
 	var source: Dictionary = authority.last_event
 	if source.is_empty(): return {}
 	var event: Dictionary = {}
-	for key: String in ["id", "revision", "actor", "type", "message", "from", "to", "route", "sounds"]:
+	for key: String in ["id", "revision", "actor", "type", "message", "from", "to", "route", "sounds", "card_activation"]:
 		if source.has(key): event[key] = source[key]
 	if int(source.actor) == player_id and source.has("private_delta"): event.delta = source.private_delta.duplicate()
 	return event
@@ -432,8 +483,13 @@ func start_discovery() -> void:
 	send_udp.set_dest_address("255.255.255.255", DISCOVERY_PORT)
 	discovery_elapsed = 10.0
 
+func local_room_name() -> String:
+	for seat: Dictionary in authority.seats:
+		if int(seat.id) == 0: return str(seat.name)
+	return "Local"
+
 func room_advertisement() -> Dictionary:
-	return {"service": "wasteland-lan-1", "name": ("Local · " if local_board else "") + str(authority.seats[0].name), "port": port, "started": not authority.game.state.is_empty(), "compatibility": compatibility}
+	return {"service": "wasteland-lan-1", "name": local_room_name() if local_board else authority.room_name if not authority.room_name.is_empty() else str(authority.seats[0].name), "password_required": not authority.room_password_hash.is_empty(), "port": port, "started": not authority.game.state.is_empty(), "compatibility": compatibility}
 
 func discovery_probe() -> void:
 	if receive_udp == null: return
@@ -530,6 +586,7 @@ func leave() -> void:
 	rate = {}
 	pending_command = {}
 	credential = ""
+	joining_password_hash = ""
 	connected_match = ""
 	local_player_id = -1
 	connecting_since = 0

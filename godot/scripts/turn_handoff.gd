@@ -11,7 +11,7 @@ var cancel: Button
 func _ready() -> void:
 	set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 	var background = ColorRect.new()
-	background.color = Color("#101813")
+	background.color = preload("res://scripts/ui_style.gd").SURFACE
 	background.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	add_child(background)
 	background.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)

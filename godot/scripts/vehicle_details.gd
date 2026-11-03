@@ -85,7 +85,7 @@ func present(player: Dictionary, stats: Dictionary, own: Dictionary, catalog: Ar
 	var art := preload("res://scripts/vehicle_art.gd").new()
 	art.custom_minimum_size = Vector2(200, clampf(size.y * 0.28, 100, 220))
 	facts.add_child(art)
-	art.setup(player.model)
+	art.setup(player.model, int(player.id))
 	line("Estrutura %d/%d · %d vida(s)" % [int(player.integrity), int(stats.maximum), maxi(0, 2 - int(player.deaths))], facts)
 	line("Dano %d · Defesa %d+ · Agilidade %+d" % [int(stats.damage), int(stats.defense), int(stats.agility)], facts)
 	line("Consumo %d · %s" % [int(stats.consumption), "Asfalto e terra" if stats.offroad else "Somente asfalto"], facts)

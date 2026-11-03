@@ -39,7 +39,7 @@ O anúncio aparece no placar. Se perder pontos suficientes ou for destruído, el
 
 Todos começam de Hatch, com:
 
-- Integridade 6 e Defesa 4+.
+- Integridade 6 e Defesa 3+.
 - Três combustíveis no tanque, que comporta oito.
 - Uma sucata na carga, que comporta cinco unidades (quatro em saves da edição 0.6).
 - Duas cartas gerais já na mão, um setor próprio com depósito vazio e duas vidas.
@@ -56,7 +56,7 @@ As duas cartas distribuídas no início não têm animação de compra. Você co
 
 Viajar normalmente não usa a ação principal, mas deve acontecer antes dela; um evento pode consumi-la. G17 permite a exceção indicada na carta. Não pode fazer duas explorações ou explorar e conquistar na mesma vez sem efeito explícito que altere isso.
 
-Na LAN, **Minhas ações** organiza opções em grupos, como **Setores**, **Veículo**, **Depósitos**, **Viajar** e **Combate**. **Anterior/Próxima** trocam páginas. Algumas escolhas aparecem apenas quando são suas e estão legais. No local, use a cidade, a carga e **Menu → Administrar**.
+No tabuleiro local e LAN, **Explorar**, **Disputar** e **Depósitos** abrem diretamente os setores da sua cidade. **Disputar** reúne conquista e saque. Tocar em outra cidade abre sua consulta e as opções de rota. **Carga**, no resumo do veículo, mostra os recursos e os cuidados do carro. Na LAN, os menus de decisões e operações adicionais continuam em grupos e páginas; cada pessoa só executa as opções autorizadas para seu assento.
 
 ## 5. Explorar e usar os recursos
 
@@ -85,7 +85,7 @@ Para melhorar o Hatch, reúna **cinco sucatas próprias na cidade atual**, soman
 | SUV | Integridade máxima 10, terra, carga 6; consumo 2 |
 | Caminhonete | Integridade máxima 10, terra, carga 10; consumo 3 |
 
-Todos têm Defesa básica 4+ na edição 0.7. Melhorar **não cura, não enche o tanque e não devolve vidas**; mantém a integridade e o combustível que já tinha. A Moto também não ganha combustível grátis.
+Na edição 0.7: Hatch tem Defesa 3+; Sedã, SUV e Caminhonete, 4+; Moto, 5+. Melhorar **não cura, não enche o tanque e não devolve vidas**; mantém a integridade e o combustível que já tinha. A Moto também não ganha combustível grátis.
 
 Compra de melhoria custa três sucatas na carga, uma compra por turno, sem ação principal. Equipamentos e melhorias territoriais saem do mesmo baralho. Instale nos espaços e respeite os custos; equipamento extra da Moto não ocupa carga, mas usa espaço.
 

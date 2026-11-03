@@ -42,7 +42,7 @@ func build(engine: RefCounted, player_id: int) -> Array[Dictionary]:
 	for i in range(p.hand.size()):
 		if str(p.hand[i]).begins_with("G"): general_options(p, i)
 	if not active: return result
-	for entry: Array in [["Iniciar turno", "start"], ["Encerrar turno", "end"], ["Reparar veículo · 1 sucata", "repair"], ["Reparo complexo · 2 sucatas / ação", "repairComplex"], ["Comprar melhoria · 3 sucatas", "buyImprovement"], ["Abastecer 1 da carga", "refuel"], ["Abastecer excedente", "refuelExcess"], ["Tanque → carga", "unloadFuel"], ["Recolher sucata local", "collectScrap"]]:
+	for entry: Array in [["Iniciar turno", "start"], ["Encerrar turno", "end"], ["Reparar veículo · 1 sucata", "repair"], ["Reparo complexo · 2 sucatas · até +4 estrutura", "repairComplex"], ["Comprar equipamento", "buyImprovement"], ["Abastecer 1 da carga", "refuel"], ["Abastecer excedente", "refuelExcess"], ["Tanque → carga", "unloadFuel"], ["Recolher sucata local", "collectScrap"]]:
 		offer(entry[0], entry[1], {}, "Turno" if entry[1] in ["start", "end"] else "Veículo")
 	if game.campaign.modern():
 		for resource: String in ["water", "tire", "battery"]:
@@ -74,7 +74,7 @@ func build(engine: RefCounted, player_id: int) -> Array[Dictionary]:
 			for slot in range(t.installed.size()):
 				offer("Retirar " + card_name(t.installed[slot].definition_id) + " · " + caption, "removeUpgrade", {"territory": id, "slot": slot}, "Instalar", true)
 	for model: Dictionary in game.vehicles:
-		if model.id != "hatch": offer("Melhorar para " + model.name + " · 5 sucatas / ação", "upgradeVehicle", {"model": model.id}, "Veículo", true)
+		if model.id != "hatch": offer("Melhorar para " + model.name + " · 5 sucatas", "upgradeVehicle", {"model": model.id}, "Veículo", true)
 	for i in range(p.hand.size()):
 		var id: String = p.hand[i]
 		if id.begins_with("E"): offer("Instalar " + card_name(id), "install", {"index": i}, "Instalar")
@@ -177,12 +177,12 @@ func race_options(p: Dictionary) -> void:
 		return
 	var reactor: Dictionary = game.campaign.world.race_reactor()
 	if not reactor.is_empty() and int(reactor.id) == actor:
-		offer("Passar reação", "racePass", {}, "Reação", true)
+		offer("Passar efeitos · " + str(p.name), "racePass", {}, "Reação", true)
 		for i in range(p.hand.size()):
-			if p.hand[i] in ["G21", "G22"]: offer("Usar " + card_name(p.hand[i]), "raceGeneral", {"index": i}, "Reação", true)
+			if p.hand[i] in ["G21", "G22"]: offer("Usar " + card_name(p.hand[i]) + " · " + str(p.name), "raceGeneral", {"index": i}, "Reação", true)
 	var entry: Dictionary = race.entrants[int(race.cursor)]
 	if int(entry.player_id) == actor:
-		offer("Rolar avanço", "raceRoll", {}, "Corrida", true)
+		offer("Rolar dado · " + str(p.name), "raceRoll", {}, "Corrida", true)
 		for slot in range(p.installed.size()): offer("Ativar " + card_name(p.installed[slot].definition_id), "raceEquipment", {"slot": slot}, "Corrida", true)
 
 func loot_options(p: Dictionary, active: bool) -> void:

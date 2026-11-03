@@ -56,6 +56,20 @@ func run() -> void:
 	var g: RefCounted = fresh()
 	check(g.state.rules_version == "0.7" and g.state.content_version == "0.7.0", "New edition explicit")
 	check(g.campaign.victory_target() == 3, "New victory target")
+	var initial_model: String = g.player().model
+	for model_id: String in ["hatch", "sedan", "suv", "pickup", "moto"]:
+		g.player().model = model_id
+		check(g.campaign.vehicle_defense(g.player()) == {"hatch": 3, "sedan": 4, "suv": 4, "pickup": 4, "moto": 5}[model_id], "Modern defense threshold " + model_id)
+	g.player().model = initial_model
+	for target_model: String in ["hatch", "sedan", "suv", "pickup", "moto"]:
+		var threshold: int = {"hatch": 3, "sedan": 4, "suv": 4, "pickup": 4, "moto": 5}[target_model]
+		for natural: int in [threshold - 1, threshold]:
+			var fight: RefCounted = fresh()
+			fight.state.players[1].model = target_model
+			duel(fight)
+			fight.state.seed = seed_pair(natural, 1)
+			command(fight, "combatRoll")
+			check(bool(fight.state.combat.last.hit) == (natural >= threshold), "Real die threshold " + target_model + " " + str(natural))
 	var cargo_game: RefCounted = fresh()
 	check(cargo_game.capacity() == 5, "Hatch v0.7 carries five")
 	cargo_game.player().stock.scrap = 5

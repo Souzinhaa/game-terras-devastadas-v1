@@ -28,6 +28,7 @@ func command(caption: String, action: String, args: Dictionary, parent: Node, re
 	var hint: String = preload("res://scripts/ui_feedback.gd").hint(action)
 	if not hint.is_empty(): control.tooltip_text += "\n" + hint
 	if show_reason and not reason.is_empty(): line(reason, parent)
+	preload("res://scripts/turn_action_style.gd").apply(control, preload("res://scripts/turn_action_style.gd").costs_action(app.game, action, args))
 	return control
 
 func art(id: String, parent: Node) -> void:
@@ -46,28 +47,33 @@ func administration(section: String = "", previous_menu: Callable = Callable()) 
 	administration_section = section
 	var g = app.game
 	var p = g.player()
-	var titles := {"": "VEÍCULO E RECURSOS", "vehicle": "REPARAR / MELHORAR", "upgrade": "TROCAR VEÍCULO", "resources": "ORGANIZAR RECURSOS", "equipment": "EQUIPAMENTOS", "territories": "DEFESAS E VEÍCULOS"}
+	var titles := {"": "VEÍCULO E RECURSOS", "vehicle": "MELHORAR VEÍCULO", "repair": "REPARAR", "upgrade": "TROCAR VEÍCULO", "resources": "ORGANIZAR RECURSOS", "equipment": "EQUIPAMENTOS", "territories": "DEFESAS E VEÍCULOS"}
 	var previous: Callable = app.show_map_actions if section.is_empty() else administration
 	if section.is_empty() and administration_return.is_valid(): previous = administration_return
 	if section == "upgrade": previous = func(): administration("vehicle")
 	var body = app.dialog_content(titles[section], previous)
 	line("Ações %d · Sucata: carga %d / total local %d\nCarga %d/%d · tanque %d/%d" % [g.state.actions, p.stock.scrap, g.campaign.local_scrap(p), g.cargo(), g.capacity(), p.fuel, g.tank()], body)
 	if section.is_empty():
-		app.button("Reparar / melhorar veículo", func(): administration("vehicle"), body)
+		app.button("Reparar", func(): administration("repair"), body)
+		app.button("Melhorar veículo", func(): administration("vehicle"), body)
 		app.button("Organizar recursos", func(): administration("resources"), body)
 		app.button("Equipamentos / instalar cartas", func(): administration("equipment"), body)
 		app.button("Defesas e veículos encontrados", func(): administration("territories"), body)
 		return
 	if section == "vehicle":
-		command("Comprar melhoria · 3 sucatas · livre 1/turno", "buyImprovement", {}, body, true)
-		command("Reparo complexo · 2 sucatas · 1 ação · até +4 vida", "repairComplex", {}, body, true)
+		app.button("Comprar equipamento", confirm_equipment_purchase, body)
+		app.button("Equipamentos / instalar cartas", func(): administration("equipment"), body)
 		if p.model == "hatch": app.button("Trocar veículo · ver modelos", func(): administration("upgrade"), body)
+		for i in range(g.state.found.size()):
+			var found = g.state.found[i]
+			if found.city == p.city: command("Assumir %s · 5 sucatas locais" % found.model, "swap", {"index": i}, body, true)
+	if section == "repair":
+		command("Reparo simples · 1 sucata · +1 estrutura · livre 1/turno", "repair", {}, body, true)
+		command("Reparo maior · 2 sucatas · até +4 estrutura", "repairComplex", {}, body, true)
+		for i in range(g.state.found.size()):
+			if g.state.found[i].city == p.city: command("Reparar encontrado", "repairFound", {"index": i}, body, true)
 	if section == "upgrade":
-		if p.model == "hatch":
-			line("5 sucatas locais · 1 ação. Preserva estrutura, combustível e vidas.", body)
-			for v in g.vehicles:
-				if v.id == "hatch": continue
-				command("%s · carga %d · tanque %d · consumo %d%s" % [v.name, v.capacity, v.tank, v.consumption, " · recebe 10 combustíveis" if v.id == "moto" and not g.campaign.modern() else ""], "upgradeVehicle", {"model": v.id}, body, true, false)
+		preload("res://scripts/vehicle_shop.gd").grid(body, g.campaign.vehicle_models(p), int(p.id), show_vehicle_model)
 	if section == "resources":
 		app.button("Carga / depósitos", func(): app.popup.hide(); app.toggle_cargo(), body)
 		command("Tanque → carga · 1 combustível", "unloadFuel", {}, body, true)
@@ -96,14 +102,27 @@ func administration(section: String = "", previous_menu: Callable = Callable()) 
 			var t = g.state.territories[id]
 			if int(t.owner) != int(p.id): continue
 			line("%s · %s · defesa %d/%d · melhorias %d/2" % [g.city(t.city).name, id.get_slice("-", 1), t.resistance, g.campaign.defense_max(t), t.installed.size()], body)
-			command("Administrar defesa · 1 sucata · 1 ação", "repairTerritory", {"territory": id}, body, true)
+			command("Administrar defesa · 1 sucata", "repairTerritory", {"territory": id}, body, true)
 			for slot in range(t.installed.size()): command("Retirar " + app.card_definition(t.installed[slot].definition_id).name, "removeUpgrade", {"territory": id, "slot": slot}, body, true)
 		for i in range(g.state.found.size()):
 			var found = g.state.found[i]
 			if found.city != p.city: continue
 			line("Encontrado: %s · vida %d · tanque %d" % [found.model, found.integrity, found.fuel], body)
-			command("Assumir · 5 sucatas locais · 1 ação", "swap", {"index": i}, body, true)
-			command("Reparar encontrado · turno separado", "repairFound", {"index": i}, body, true)
+			command("Assumir · 5 sucatas locais", "swap", {"index": i}, body, true)
+
+func confirm_equipment_purchase() -> void:
+	var body = app.dialog_content("COMPRAR EQUIPAMENTO", func(): administration("vehicle"))
+	line("Custo: 3 sucatas da carga. Receba uma carta de equipamento ou melhoria territorial. Uma compra por turno, sem usar a ação principal.", body)
+	if int(app.game.player().stock.scrap) < 3:
+		line("Sucata insuficiente. Você precisa de 3 sucatas na carga.", body)
+		return
+	command("Confirmar compra", "buyImprovement", {}, body)
+
+func show_vehicle_model(model: Dictionary) -> void:
+	var body = app.dialog_content(str(model.name).to_upper(), func(): administration("upgrade"))
+	preload("res://scripts/vehicle_shop.gd").details(body, model, int(app.game.player().id))
+	line("Custo: 5 sucatas próprias locais. Preserva estrutura, combustível e vidas.", body)
+	command("Trocar veículo", "upgradeVehicle", {"model": model.id}, body)
 
 func scoreboard() -> void:
 	var g = app.game
@@ -125,6 +144,9 @@ func configure_card(index: int, owner_id: int = -1, previous: Callable = Callabl
 	if index < 0 or index >= p.hand.size(): return
 	if not g.pending_reveal().is_empty(): app.present_pending_reveal(); return
 	var id = str(p.hand[index])
+	if id in ["G17", "G18"]:
+		app.show_barricade_map(index, int(p.id))
+		return
 	var body = app.dialog_content("USAR / INSTALAR CARTA", previous)
 	art(id, body)
 	if id.begins_with("E"):
@@ -136,14 +158,12 @@ func configure_card(index: int, owner_id: int = -1, previous: Callable = Callabl
 			if id == "G08" and not t.has("hostile"): continue
 			var args = {"index": index, "territory": territory, "player_id": int(p.id)}
 			var action = "install" if id.begins_with("T") else "playGeneral"
-			command("%s · setor %s%s" % [g.city(t.city).name, territory.get_slice("-", 1), " · remoto: 1 ação" if t.city != p.city and id.begins_with("T") else ""], action, args, body, true)
+			command("%s · setor %s%s" % [g.city(t.city).name, territory.get_slice("-", 1), " · remoto" if t.city != p.city and id.begins_with("T") else ""], action, args, body, true)
 			if id == "T06":
 				for slot in range(t.installed.size()): command("Substituir " + app.card_definition(t.installed[slot].definition_id).name, action, {"index": index, "territory": territory, "replace": slot}, body, true)
 	elif id in ["G09", "G10"]:
 		for target in g.state.players:
 			if g.combat_rules.operational(target): command("Ajudar " + target.name, "playGeneral", {"index": index, "target": int(target.id), "player_id": int(p.id)}, body)
-	elif id in ["G17", "G18"]:
-		for r in g.routes: command(r.label + " · " + g.city(r.from).name + " / " + g.city(r.to).name, "playGeneral", {"index": index, "route": r.id, "player_id": int(p.id)}, body)
 	elif id in ["G01", "G02", "G03", "G04", "G05", "G06", "G07", "G19", "G20", "G21", "G22"]:
 		line("Use esta carta na janela de reação de combate, saque ou corrida.", body)
 	else: command("Usar carta", "playGeneral", {"index": index, "player_id": int(p.id)}, body)
@@ -287,7 +307,7 @@ func show_race() -> void:
 	var track_view := preload("res://scripts/race_board.gd").new()
 	body.add_child(track_view)
 	if not previous_race.is_empty(): track_view.sync(previous_race, g.state.players, true)
-	track_view.sync(race, g.state.players, app.combat_view.reduce_motion)
+	track_view.sync(race.merged(preload("res://scripts/race_board.gd").turn_state(g)), g.state.players, app.combat_view.reduce_motion)
 	previous_race = race.duplicate(true)
 	if race.phase == "entry":
 		for p in g.state.players:
@@ -305,13 +325,15 @@ func show_race() -> void:
 			if reveal_owner_cards(reactor): return
 			for i in range(reactor.hand.size()):
 				if reactor.hand[i] in ["G21", "G22"]: command("Usar " + app.card_definition(reactor.hand[i]).name, "raceGeneral", {"index": i}, body)
-			command("Passar reação", "racePass", {}, body)
+			command("Passar efeitos · " + str(reactor.name), "racePass", {}, body)
 		else:
 			var p = g.combat_rules.player_by_id(int(race.entrants[int(race.cursor)].player_id))
 			line("Avanço de " + p.name, body)
 			for i in range(p.installed.size()):
 				if p.installed[i].definition_id == "E10": command("Ativar suspensão · +2 uma vez por prova", "raceEquipment", {"slot": i}, body)
-			command("Rolar avanço", "raceRoll", {}, body)
+			var roll_button := command("Rolar dado · " + str(p.name), "raceRoll", {}, body)
+			var color: Color = preload("res://scripts/player_palette.gd").COLORS[int(p.id)]
+			roll_button.add_theme_stylebox_override("normal", preload("res://scripts/ui_style.gd").box(color.darkened(0.82), Color("eee8db") if color.get_luminance() < 0.2 else color, 3))
 
 func show_loot() -> void:
 	var g = app.game
